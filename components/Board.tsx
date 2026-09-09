@@ -6,8 +6,10 @@ import { createClient } from "@/lib/supabase/client";
 import type { BoardRow, BoardSort } from "@/lib/types";
 import { getRankMeta } from "@/lib/ranks";
 import RankAvatar from "./RankAvatar";
+import BoardSkeleton from "./BoardSkeleton";
 import {
   Trophy,
+  Users,
   SlidersHorizontal,
   Flame,
   Shield,
@@ -100,6 +102,7 @@ export function Board({
   const [filter, setFilter] = useState<Filter>("all");
   const [q, setQ] = useState("");
   const [rows, setRows] = useState<BoardRow[]>([]);
+  const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
@@ -112,21 +115,28 @@ export function Board({
   const searchRequired = memberCount > 50;
 
   const load = useCallback(async () => {
-    const params = new URLSearchParams({
-      view,
-      sort,
-      filter,
-      q,
-      page: String(page),
-    });
-    const res = await fetch(`/api/groups/${groupId}/board?${params}`);
-    const j = await res.json();
-    if (res.ok) {
-      setRows(j.rows ?? []);
-      setTotal(j.total ?? 0);
-      setPages(j.pages ?? 1);
-    } else {
-      setMsg({ text: j.error ?? "Board load failed", error: true });
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({
+        view,
+        sort,
+        filter,
+        q,
+        page: String(page),
+      });
+      const res = await fetch(`/api/groups/${groupId}/board?${params}`);
+      const j = await res.json();
+      if (res.ok) {
+        setRows(j.rows ?? []);
+        setTotal(j.total ?? 0);
+        setPages(j.pages ?? 1);
+      } else {
+        setMsg({ text: j.error ?? "Board load failed", error: true });
+      }
+    } catch {
+      setMsg({ text: "Failed to connect to board service", error: true });
+    } finally {
+      setLoading(false);
     }
   }, [groupId, view, sort, filter, q, page]);
 
@@ -342,9 +352,27 @@ export function Board({
         </div>
       )}
 
+      {/* Active sync indicator bar */}
+      {loading && rows.length > 0 && (
+        <div className="h-0.5 w-full bg-white/[0.04] overflow-hidden rounded-full my-2">
+          <div className="h-full bg-shinobi-gold animate-pulse w-1/2" />
+        </div>
+      )}
+
       {/* Cards Board Grid / Horizontal Scroll */}
-      <div className="board-scroll flex gap-4 overflow-x-auto pb-4 pt-1 max-md:flex-col">
-        {rows.map((r, index) => {
+      {loading && rows.length === 0 ? (
+        <BoardSkeleton count={Math.min(memberCount || 3, 4)} />
+      ) : rows.length === 0 ? (
+        <div className="rounded-2xl border border-white/[0.08] bg-surface-card p-12 text-center text-slate-400 shadow-xl my-3">
+          <Trophy className="mx-auto h-10 w-10 text-slate-600 mb-2 opacity-50" />
+          <p className="text-sm font-semibold text-slate-300">No shinobi cards found</p>
+          <p className="mt-1 text-xs text-slate-500">
+            {q ? `No members matched "${q}". Try adjusting your search.` : filter !== "all" ? `No members match the "${filter}" filter.` : "This squad is currently waiting for members to join."}
+          </p>
+        </div>
+      ) : (
+        <div className="board-scroll flex gap-4 overflow-x-auto pb-4 pt-1 max-md:flex-col">
+          {rows.map((r, index) => {
           const rankMeta = RANK_CONFIG[r.base_rank] ?? RANK_CONFIG.Academy;
           const isHokage = r.titles.some((t) => t.title === "hokage");
           const isFrozen = r.sync_status === "frozen";
@@ -703,14 +731,7 @@ export function Board({
               )}
             </div>
           );
-        })}
-      </div>
-
-      {rows.length === 0 && (
-        <div className="rounded-2xl border border-white/[0.08] bg-surface p-12 text-center text-slate-400 shadow-xl">
-          <Trophy className="mx-auto h-10 w-10 text-slate-600 mb-2 opacity-50" />
-          <p className="text-sm font-semibold text-slate-300">No shinobi cards found</p>
-          <p className="mt-1 text-xs text-slate-500">Try adjusting your search query or filter chips.</p>
+          })}
         </div>
       )}
 
