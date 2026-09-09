@@ -75,8 +75,8 @@ describe("ranks + xp", () => {
     expect(pKage.nextRank).toBeNull();
   });
   it("getRankMeta associates authentic anime character lore", () => {
-    expect(getRankMeta("Academy").character).toBe("Naruto Uzumaki");
-    expect(getRankMeta("Genin").character).toBe("Sasuke Uchiha");
+    expect(getRankMeta("Academy").character).toBe("Konohamaru Sarutobi");
+    expect(getRankMeta("Genin").character).toBe("Naruto Uzumaki");
     expect(getRankMeta("Chunin").character).toBe("Shikamaru Nara");
     expect(getRankMeta("Jonin").character).toBe("Kakashi Hatake");
     expect(getRankMeta("ANBU").character).toBe("Itachi Uchiha");
