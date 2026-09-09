@@ -6,6 +6,8 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { verifyDuelInvite } from "@/lib/duel";
 import { Swords, Flame, Trophy, ShieldAlert, CheckCircle2, ArrowRight, Zap, Target } from "lucide-react";
 import { BASE_LADDER } from "@/lib/constants";
+import { getRankMeta } from "@/lib/ranks";
+import RankAvatar from "@/components/RankAvatar";
 
 export default async function DuelAcceptPage({
   searchParams,
@@ -193,25 +195,26 @@ export default async function DuelAcceptPage({
 
           <div>
             <div className="flex items-center gap-4">
-              <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-red-500/40 bg-surface-elevated text-xl font-black text-red-400 shadow-inner">
-                {challenger.avatar_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={challenger.avatar_url}
-                    alt={challenger.display_name}
-                    className="h-full w-full rounded-2xl object-cover"
-                  />
-                ) : (
-                  challenger.display_name.slice(0, 2).toUpperCase()
-                )}
+              <div className="relative">
+                <RankAvatar
+                  rank={challenger.base_rank}
+                  size="xl"
+                  showGlow
+                  showBadge
+                />
               </div>
               <div className="min-w-0">
                 <h2 className="truncate text-lg font-bold text-text-primary">{challenger.display_name}</h2>
                 <div className="flex items-center gap-2 text-xs text-text-muted mt-0.5">
                   <span className="font-mono text-shinobi-gold">@{challenger.lc_username || "unlinked"}</span>
                 </div>
-                <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[11px] font-medium text-text-secondary">
-                  <Zap className="h-3 w-3 text-shinobi-teal" /> {challenger.base_rank}
+                <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                  <span className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[11px] font-medium text-text-secondary">
+                    <Zap className="h-3 w-3 text-shinobi-teal" /> {challenger.base_rank}
+                  </span>
+                  <span className="text-[10px] text-text-muted">
+                    ({getRankMeta(challenger.base_rank).character})
+                  </span>
                 </div>
               </div>
             </div>
@@ -259,25 +262,26 @@ export default async function DuelAcceptPage({
 
           <div>
             <div className="flex items-center gap-4">
-              <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-shinobi-teal/40 bg-surface-elevated text-xl font-black text-shinobi-teal shadow-inner">
-                {viewer.avatar_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={viewer.avatar_url}
-                    alt={viewer.display_name}
-                    className="h-full w-full rounded-2xl object-cover"
-                  />
-                ) : (
-                  viewer.display_name.slice(0, 2).toUpperCase()
-                )}
+              <div className="relative">
+                <RankAvatar
+                  rank={viewer.base_rank}
+                  size="xl"
+                  showGlow
+                  showBadge
+                />
               </div>
               <div className="min-w-0">
                 <h2 className="truncate text-lg font-bold text-text-primary">{viewer.display_name}</h2>
                 <div className="flex items-center gap-2 text-xs text-text-muted mt-0.5">
                   <span className="font-mono text-shinobi-gold">@{viewer.lc_username || "unlinked"}</span>
                 </div>
-                <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[11px] font-medium text-text-secondary">
-                  <Zap className="h-3 w-3 text-shinobi-teal" /> {viewer.base_rank}
+                <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                  <span className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[11px] font-medium text-text-secondary">
+                    <Zap className="h-3 w-3 text-shinobi-teal" /> {viewer.base_rank}
+                  </span>
+                  <span className="text-[10px] text-text-muted">
+                    ({getRankMeta(viewer.base_rank).character})
+                  </span>
                 </div>
               </div>
             </div>

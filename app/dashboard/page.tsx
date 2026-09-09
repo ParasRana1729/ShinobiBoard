@@ -7,6 +7,7 @@ import { VerifyLeetCode } from "@/components/VerifyLeetCode";
 import { CreateGroupForm, JoinGroupForm } from "@/components/GroupForms";
 import { DuelButtons } from "@/components/GroupSettings";
 import { xpToNext } from "@/lib/ranks";
+import RankProgressCard from "@/components/RankProgressCard";
 import { weekStartUTC, addDaysUTC, diffDaysUTC } from "@/lib/week";
 import {
   Flame,
@@ -108,109 +109,13 @@ export default async function DashboardPage() {
 
       {/* Hero Ninja Dossier + Quests Grid */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Ninja Dossier Card (2 cols) */}
-        <div className="relative overflow-hidden rounded-3xl border border-white/[0.1] bg-gradient-to-br from-surface via-surface/90 to-ink p-6 sm:p-7 shadow-2xl backdrop-blur-xl lg:col-span-2 flex flex-col justify-between">
-          <div className="absolute top-0 right-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-amber-500/[0.06] blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 -ml-16 -mb-16 h-64 w-64 rounded-full bg-indigo-500/[0.04] blur-3xl pointer-events-none" />
-
-          <div>
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              {/* Avatar + Identity */}
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={profile?.avatar_url ?? `https://api.dicebear.com/7.x/identicon/svg?seed=${data.user.id}`}
-                    alt=""
-                    className="h-16 w-16 rounded-2xl border-2 border-amber-400/40 bg-ink object-cover shadow-glow"
-                  />
-                  <span className="absolute -bottom-1 -right-1 text-lg" title={rankMeta.label}>
-                    {rankMeta.emblem}
-                  </span>
-                </div>
-
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-bold text-white tracking-tight">
-                      {profile?.display_name ?? "Shinobi"}
-                    </h2>
-                    <span className={`rounded-md border px-2 py-0.5 text-[10px] font-bold ${rankMeta.badge}`}>
-                      {rankMeta.label}
-                    </span>
-                  </div>
-
-                  <p className="font-mono text-xs text-amber-300/90 mt-0.5">
-                    {profile?.lc_username ? `@${profile.lc_username}` : "LeetCode unlinked"}
-                  </p>
-                </div>
-              </div>
-
-              {/* Streak Badge High-Impact */}
-              <div className="flex items-center gap-2 rounded-2xl border border-orange-500/30 bg-orange-950/20 px-4 py-2.5 shadow-lg">
-                <Flame className="h-6 w-6 text-orange-400 fill-orange-400 animate-pulse" />
-                <div>
-                  <div className="font-mono text-lg font-black text-white leading-none">
-                    {profile?.streak ?? 0} <span className="text-xs font-semibold text-orange-400">DAYS</span>
-                  </div>
-                  <span className="text-[10px] font-medium text-slate-400 tracking-wider uppercase">
-                    Active Streak
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* XP Progression Bar */}
-            <div className="mt-6 rounded-2xl border border-white/[0.06] bg-ink/70 p-4">
-              <div className="flex items-center justify-between text-xs mb-2">
-                <div className="flex items-center gap-1.5 font-semibold text-slate-300">
-                  <Zap className="h-3.5 w-3.5 text-amber-400" />
-                  <span>Base Ladder Progression</span>
-                </div>
-                <div className="font-mono text-xs font-bold text-white">
-                  <span className="text-amber-400">{currentXp}</span>
-                  <span className="text-slate-500"> / {nextTier.next ? currentXp + nextTier.needed : "MAX"} XP</span>
-                </div>
-              </div>
-
-              <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-ink p-0.5 border border-white/[0.06]">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-300 shadow-glow transition-all duration-500"
-                  style={{ width: `${xpPct}%` }}
-                />
-              </div>
-
-              <div className="mt-2 flex items-center justify-between text-[11px] text-slate-400 font-mono">
-                <span>Tier: {rankMeta.label}</span>
-                <span>
-                  {nextTier.next ? `+${nextTier.needed} XP to unlock ${nextTier.next}` : "Maximum rank achieved"}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Metrics Split Footer */}
-          <div className="mt-6 grid grid-cols-3 gap-3 border-t border-white/[0.06] pt-4">
-            <div className="rounded-xl border border-white/[0.04] bg-ink/40 p-3 text-center">
-              <span className="block font-mono text-xl font-black text-white">{currentWeeklyCount}</span>
-              <span className="block text-[10px] font-semibold tracking-wider text-slate-400 uppercase mt-0.5">
-                Week Solves
-              </span>
-            </div>
-
-            <div className="rounded-xl border border-white/[0.04] bg-ink/40 p-3 text-center">
-              <span className="block font-mono text-xl font-black text-rose-400">{currentWeeklyHards}</span>
-              <span className="block text-[10px] font-semibold tracking-wider text-slate-400 uppercase mt-0.5">
-                Week Hards
-              </span>
-            </div>
-
-            <div className="rounded-xl border border-white/[0.04] bg-ink/40 p-3 text-center">
-              <span className="block font-mono text-xl font-black text-amber-400">{currentXp}</span>
-              <span className="block text-[10px] font-semibold tracking-wider text-slate-400 uppercase mt-0.5">
-                Lifetime XP
-              </span>
-            </div>
-          </div>
+        {/* Ninja Dossier Character Sheet & XP Engine (2 cols) */}
+        <div className="lg:col-span-2">
+          <RankProgressCard
+            xp={profile?.xp ?? 0}
+            streak={profile?.streak ?? 0}
+            weeklyCount={currentWeeklyCount}
+          />
         </div>
 
         {/* Missions & Gamified Quests (1 col) */}

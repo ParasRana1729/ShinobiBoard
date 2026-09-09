@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Flame, Shield, Swords, Compass, LayoutDashboard, LogOut, Sparkles } from "lucide-react";
+import RankAvatar from "./RankAvatar";
 
 export interface NavUser {
   id: string;
@@ -103,12 +104,12 @@ export function Navbar({
                 <span className="font-mono">{user.streak ?? 0}d</span>
               </div>
 
-              {/* Base Rank Badge */}
+              {/* Base Rank Badge with Anime Avatar */}
               <div
                 title={`Rank: ${rankInfo.label} (${user.xp ?? 0} XP)`}
-                className={`hidden sm:flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-semibold ${rankInfo.color}`}
+                className={`hidden sm:flex items-center gap-1.5 rounded-xl border py-0.5 px-2 text-xs font-semibold ${rankInfo.color}`}
               >
-                <Shield className="h-3.5 w-3.5" />
+                <RankAvatar rank={user.base_rank ?? "Academy"} size="xs" />
                 <span>{rankInfo.label}</span>
                 <span className="font-mono text-[10px] opacity-75">{user.xp ?? 0} XP</span>
               </div>

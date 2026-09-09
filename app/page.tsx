@@ -16,6 +16,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { BASE_LADDER } from "@/lib/constants";
+import { getRankMeta } from "@/lib/ranks";
+import RankAvatar from "@/components/RankAvatar";
 
 export default async function Home() {
   const supabase = createClient();
@@ -321,7 +323,7 @@ export default async function Home() {
               <Zap className="h-4 w-4" /> Progression Engine
             </div>
             <h2 className="mt-2 text-2xl font-extrabold text-text-primary">
-              The 7 Shinobi Ranks
+              The 6 Shinobi Ranks
             </h2>
             <p className="mt-1 text-xs text-text-secondary">
               Gain XP strictly on first-ever solves (+5 Easy, +15 Medium, +40 Hard) with +2 XP bonus per solve when streak ≥ 3.
@@ -333,31 +335,38 @@ export default async function Home() {
           </div>
         </div>
 
-        {/* 7-Tier Rank Road */}
-        <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
-          {BASE_LADDER.map((tier, idx) => (
-            <div
-              key={tier.rank}
-              className={`flex flex-col justify-between rounded-2xl border p-4 text-center ${
-                idx === BASE_LADDER.length - 1
-                  ? "border-shinobi-gold/50 bg-gradient-to-b from-shinobi-gold/15 to-surface-card"
-                  : idx >= 4
-                  ? "border-shinobi-teal/30 bg-surface-card"
-                  : "border-white/[0.06] bg-surface-elevated/40"
-              }`}
-            >
-              <div>
+        {/* 6-Tier Rank Road with Anime Character Portals */}
+        <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          {BASE_LADDER.map((tier, idx) => {
+            const meta = getRankMeta(tier.rank);
+            return (
+              <div
+                key={tier.rank}
+                className={`flex flex-col items-center justify-between rounded-2xl border p-4 text-center ${
+                  idx === BASE_LADDER.length - 1
+                    ? "border-shinobi-gold/50 bg-gradient-to-b from-shinobi-gold/15 to-surface-card"
+                    : idx >= 3
+                    ? "border-shinobi-teal/30 bg-surface-card"
+                    : "border-white/[0.06] bg-surface-elevated/40"
+                }`}
+              >
                 <span className="font-mono text-[10px] text-text-muted">STAGE 0{idx + 1}</span>
-                <h4 className="mt-1 text-sm font-bold text-text-primary">{tier.rank}</h4>
+                <div className="my-3">
+                  <RankAvatar rank={tier.rank} size="lg" showGlow={idx >= 4} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-text-primary">{tier.rank}</h4>
+                  <p className="text-[11px] font-medium text-text-secondary">{meta.character}</p>
+                </div>
+                <div className="mt-3 w-full border-t border-white/[0.06] pt-2">
+                  <span className="font-mono text-xs font-extrabold text-shinobi-gold">
+                    {tier.minXp.toLocaleString()} XP
+                  </span>
+                  <span className="block text-[10px] text-text-muted">threshold</span>
+                </div>
               </div>
-              <div className="mt-4 border-t border-white/[0.06] pt-2">
-                <span className="font-mono text-xs font-extrabold text-shinobi-gold">
-                  {tier.minXp.toLocaleString()} XP
-                </span>
-                <span className="block text-[10px] text-text-muted">threshold</span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -365,8 +374,13 @@ export default async function Home() {
       <section className="grid gap-6 md:grid-cols-3">
         <div className="rounded-3xl border border-shinobi-gold/30 bg-gradient-to-b from-shinobi-gold/10 via-surface-base to-surface-base p-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-shinobi-gold/20 text-shinobi-gold">
-              <Crown className="h-5 w-5" />
+            <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-shinobi-gold/40 bg-surface-elevated">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/ranks/kage.jpg"
+                alt="Hokage"
+                className="h-full w-full object-cover"
+              />
             </div>
             <div>
               <h3 className="font-bold text-text-primary">Hokage of the Leaf</h3>
@@ -380,8 +394,13 @@ export default async function Home() {
 
         <div className="rounded-3xl border border-red-500/30 bg-gradient-to-b from-red-500/10 via-surface-base to-surface-base p-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/20 text-red-400">
-              <Trophy className="h-5 w-5" />
+            <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-red-500/40 bg-surface-elevated">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/ranks/anbu.jpg"
+                alt="Itachi Uchiha"
+                className="h-full w-full object-cover"
+              />
             </div>
             <div>
               <h3 className="font-bold text-text-primary">Itachi (Master of Hards)</h3>
@@ -395,8 +414,13 @@ export default async function Home() {
 
         <div className="rounded-3xl border border-shinobi-flame/30 bg-gradient-to-b from-shinobi-flame/10 via-surface-base to-surface-base p-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-shinobi-flame/20 text-shinobi-flame">
-              <Flame className="h-5 w-5" />
+            <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-shinobi-flame/40 bg-surface-elevated">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/ranks/rock_lee.jpg"
+                alt="Rock Lee"
+                className="h-full w-full object-cover"
+              />
             </div>
             <div>
               <h3 className="font-bold text-text-primary">Rock Lee (Relentless)</h3>

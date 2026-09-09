@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { timeAgo } from "@/lib/week";
 import { createClient } from "@/lib/supabase/client";
 import type { BoardRow, BoardSort } from "@/lib/types";
+import { getRankMeta } from "@/lib/ranks";
+import RankAvatar from "./RankAvatar";
 import {
   Trophy,
   SlidersHorizontal,
@@ -381,7 +383,7 @@ export function Board({
                       <GripVertical className="h-4 w-4 text-slate-500 cursor-grab active:cursor-grabbing" />
                     )}
 
-                    {/* Avatar */}
+                    {/* Avatar with Anime Rank Emblem */}
                     <div className="relative">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
@@ -395,8 +397,13 @@ export function Board({
                             : "border-white/[0.08]"
                         } bg-ink`}
                       />
+                      <RankAvatar
+                        rank={r.base_rank}
+                        size="xs"
+                        className="absolute -bottom-1 -right-1.5 z-10"
+                      />
                       {r.pinned && (
-                        <span className="absolute -top-1.5 -right-1.5 rounded-full bg-amber-400 p-0.5 text-black shadow-sm">
+                        <span className="absolute -top-1.5 -right-1.5 rounded-full bg-amber-400 p-0.5 text-black shadow-sm z-20">
                           <Pin className="h-2.5 w-2.5 fill-black" />
                         </span>
                       )}
@@ -430,8 +437,8 @@ export function Board({
                     >
                       #{r.group_rank || index + 1}
                     </span>
-                    <span className="text-[10px] opacity-80" title={r.base_rank}>
-                      {rankMeta.emblem}
+                    <span className="mt-0.5 inline-flex items-center gap-1 text-[10px] font-semibold text-slate-400">
+                      {r.base_rank}
                     </span>
                   </div>
                 </div>
@@ -614,14 +621,30 @@ export function Board({
                         </div>
                       </div>
 
-                      {/* Base Rank XP Target */}
-                      <div className="flex items-center justify-between rounded-lg border border-white/[0.04] bg-ink/50 px-2.5 py-1.5 text-[11px]">
-                        <span className="text-slate-400">Next Rank:</span>
-                        <span className="font-mono font-bold text-amber-300">
-                          {detail.xp_to_next.next
-                            ? `${detail.xp_to_next.needed} XP to ${detail.xp_to_next.next}`
-                            : "MAX TIER (Kage)"}
-                        </span>
+                      {/* Character Dossier & Base Rank XP Target */}
+                      <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-ink/70 p-2.5">
+                        <RankAvatar rank={r.base_rank} size="md" showGlow />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-white">
+                              {getRankMeta(r.base_rank).character}
+                            </span>
+                            <span className="font-mono text-[11px] font-bold text-amber-400">
+                              {r.base_rank}
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-slate-400 truncate">
+                            {getRankMeta(r.base_rank).characterTitle}
+                          </p>
+                          <div className="mt-1 flex items-center justify-between text-[10px] font-mono text-slate-400 border-t border-white/[0.04] pt-1">
+                            <span>{r.xp.toLocaleString()} XP</span>
+                            <span className="text-amber-300 font-semibold">
+                              {detail.xp_to_next.next
+                                ? `+${detail.xp_to_next.needed} XP to ${detail.xp_to_next.next}`
+                                : "MAX (Kage)"}
+                            </span>
+                          </div>
+                        </div>
                       </div>
 
                       {/* Duel W/L/D if duel group */}

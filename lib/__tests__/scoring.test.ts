@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { weekStartUTC, nextStreak, diffDaysUTC } from "../week";
-import { baseRankForXp, xpToNext, scoreCountedSolve } from "../ranks";
+import { baseRankForXp, xpToNext, scoreCountedSolve, getRankProgress, getRankMeta } from "../ranks";
 import { orderLeaderboard, pickHokage, pickItachi, pickRockLee } from "../scoring";
 import { backoffMs, syncHealth, partitionCounted, isNewerThanCursor } from "../sync";
 import { generateInviteCode, isValidInviteCode } from "../invite";
@@ -48,6 +48,39 @@ describe("ranks + xp", () => {
     // No streak bonus below 3
     expect(scoreCountedSolve({ difficulty: "Hard", isFirstEver: true, streakAtSolve: 2 })).toBe(40);
     expect(scoreCountedSolve({ difficulty: "Easy", isFirstEver: false, streakAtSolve: 0 })).toBe(0);
+  });
+  it("getRankProgress calculates exact tier progress and gamer level", () => {
+    const p0 = getRankProgress(0);
+    expect(p0.currentRank).toBe("Academy");
+    expect(p0.percentage).toBe(0);
+    expect(p0.needed).toBe(150);
+    expect(p0.level).toBe(1);
+
+    const pMidAcademy = getRankProgress(75);
+    expect(pMidAcademy.currentRank).toBe("Academy");
+    expect(pMidAcademy.percentage).toBe(50);
+    expect(pMidAcademy.needed).toBe(75);
+
+    const pGenin = getRankProgress(375); // 150 + 225 out of 450
+    expect(pGenin.currentRank).toBe("Genin");
+    expect(pGenin.percentage).toBe(50);
+    expect(pGenin.needed).toBe(225);
+    expect(pGenin.level).toBe(4);
+
+    const pKage = getRankProgress(6000);
+    expect(pKage.currentRank).toBe("Kage");
+    expect(pKage.isMaxRank).toBe(true);
+    expect(pKage.percentage).toBe(100);
+    expect(pKage.needed).toBe(0);
+    expect(pKage.nextRank).toBeNull();
+  });
+  it("getRankMeta associates authentic anime character lore", () => {
+    expect(getRankMeta("Academy").character).toBe("Naruto Uzumaki");
+    expect(getRankMeta("Genin").character).toBe("Sasuke Uchiha");
+    expect(getRankMeta("Chunin").character).toBe("Shikamaru Nara");
+    expect(getRankMeta("Jonin").character).toBe("Kakashi Hatake");
+    expect(getRankMeta("ANBU").character).toBe("Itachi Uchiha");
+    expect(getRankMeta("Kage").character).toBe("Minato Namikaze");
   });
 });
 
