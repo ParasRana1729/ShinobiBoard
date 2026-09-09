@@ -11,7 +11,7 @@ export interface DuelInvitePayload {
 
 function secret(): string {
   const s = process.env.DUEL_JWT_SECRET;
-  if (!s || s.length < 16) throw new Error("DUEL_JWT_SECRET not configured");
+  if (!s || s.length < 32) throw new Error("DUEL_JWT_SECRET must be >= 32 chars");
   return s;
 }
 

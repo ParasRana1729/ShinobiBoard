@@ -30,8 +30,9 @@ export function isCronAuthorized(req: Request): boolean {
   const secret = process.env.CRON_SECRET;
   if (!secret) return false;
   const url = new URL(req.url);
+  // Manual/ops trigger: ?trigger=<CRON_SECRET>. Vercel Cron sends
+  // Authorization: Bearer <CRON_SECRET> automatically when CRON_SECRET is set.
   if (url.searchParams.get("trigger") === secret) return true;
-  if (url.searchParams.get("trigger") === "vercel-cron" && process.env.VERCEL === "1") return true;
   const auth = req.headers.get("authorization");
   return auth === `Bearer ${secret}`;
 }
