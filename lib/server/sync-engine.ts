@@ -155,6 +155,8 @@ export async function syncUser(
   if (fresh.length === 0) {
     const now = Date.now();
     const health = syncHealth({ lastSyncAtMs: now, prevStatus: undefined });
+    const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+    const brokenStreak = profile.streak_last_date && profile.streak_last_date < yesterday;
     await db
       .from("profiles")
       .update({
@@ -162,6 +164,7 @@ export async function syncUser(
         sync_status: health.status,
         frozen_reason: null,
         retry_at: null,
+        ...(brokenStreak && profile.streak > 0 ? { streak: 0 } : {}),
       })
       .eq("auth_user_id", authUserId);
     await db.from("sync_logs").insert({
@@ -211,20 +214,29 @@ export async function syncUser(
       cursorId = sub.submissionId;
     }
 
-    // Scoring: distinct slug per UTC week (§5). Cross-week repeats count weekly but earn no base XP.
-    const solveWeek = weekStartUTC(row.solved_at);
-    if (solveWeek !== thisWeek) continue; // old-week backfill: stored, not counted this week
-    if (seenThisWeek.has(sub.slug)) continue; // re-submit same week = 0 extra
-    seenThisWeek.add(sub.slug);
-    counted++;
-
-    const isFirstEver = !everSeen.has(sub.slug) && !batchSeenEver.has(sub.slug);
-    batchSeenEver.add(sub.slug);
+    // Advance streak chronologically for every solve.
     const solveDay = utcDayString(row.solved_at);
     const nxt = nextStreak(streak, streakLast, solveDay);
     streak = nxt.streak;
     streakLast = nxt.streak_last_date;
-    xpGain += scoreCountedSolve({ difficulty: meta.diff, isFirstEver, streakAtSolve: streak });
+
+    const isFirstEver = !everSeen.has(sub.slug) && !batchSeenEver.has(sub.slug);
+    if (isFirstEver) {
+      batchSeenEver.add(sub.slug);
+    }
+
+    // Scoring: distinct slug per UTC week (§5). Cross-week repeats count weekly but earn no base XP.
+    const solveWeek = weekStartUTC(row.solved_at);
+    if (solveWeek === thisWeek) {
+      if (!seenThisWeek.has(sub.slug)) {
+        seenThisWeek.add(sub.slug);
+        counted++;
+        xpGain += scoreCountedSolve({ difficulty: meta.diff, isFirstEver, streakAtSolve: streak });
+      }
+    } else if (isFirstEver) {
+      // Solves from previous week backfill earn base XP if first-ever
+      xpGain += scoreCountedSolve({ difficulty: meta.diff, isFirstEver: true, streakAtSolve: streak });
+    }
   }
 
   // Recompute weekly aggregates from source of truth (distinct slugs).

@@ -7,18 +7,48 @@
 }
 
 body {
-  @apply bg-ink text-slate-100 antialiased;
+  @apply bg-ink text-slate-100 antialiased min-h-screen selection:bg-amber-500/30 selection:text-amber-200;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.04) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.03) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* Subtle grid overlay */
+.bg-grid {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
 }
 
 .board-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #3b4163 transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 }
 .board-scroll::-webkit-scrollbar {
-  height: 8px;
-  width: 8px;
+  height: 6px;
+  width: 6px;
+}
+.board-scroll::-webkit-scrollbar-track {
+  background: transparent;
 }
 .board-scroll::-webkit-scrollbar-thumb {
-  background: #3b4163;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+}
+.board-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Card & Surface utilities */
+.surface-panel {
+  @apply bg-card border border-white/[0.08] shadow-lg shadow-black/40 backdrop-blur-sm;
+}
+.surface-elevated {
+  @apply bg-surface border border-white/[0.1] shadow-xl shadow-black/50;
+}
+.surface-hover {
+  @apply transition-all duration-200 hover:border-white/[0.18] hover:shadow-black/70;
 }

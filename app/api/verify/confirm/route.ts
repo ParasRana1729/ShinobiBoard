@@ -27,12 +27,6 @@ export async function POST(req: Request) {
   }
   if (Date.parse(challenge.expires_at) < Date.now()) return badRequest("Code expired — get a new one");
 
-  // Re-check claim at confirm time (race-safe-ish).
-  const { data: claimed } = await db.from("profiles").select("auth_user_id").eq("lc_username", username).single();
-  if (claimed && (claimed as { auth_user_id: string }).auth_user_id !== userId) {
-    return badRequest("Claimed — ask owner to unlink or dispute", { code: "claimed" });
-  }
-
   let aboutMe: string | null = null;
   try {
     const mu = await fetchMatchedUser(username);
@@ -42,6 +36,15 @@ export async function POST(req: Request) {
   }
   if (!aboutMe || !aboutMe.includes(challenge.code)) {
     return badRequest("Code not found in LeetCode About — paste it, wait a few seconds, retry");
+  }
+
+  // Transfer ownership if previously claimed by another account (§7.1).
+  const { data: claimed } = await db.from("profiles").select("auth_user_id").eq("lc_username", username).single();
+  if (claimed && (claimed as { auth_user_id: string }).auth_user_id !== userId) {
+    await db
+      .from("profiles")
+      .update({ lc_username: null, sync_status: "frozen", frozen_reason: "claimed_by_dispute" })
+      .eq("auth_user_id", (claimed as { auth_user_id: string }).auth_user_id);
   }
 
   const sevenDaysAgoSec = Math.floor(Date.now() / 1000) - 7 * 86_400;
@@ -62,6 +65,13 @@ export async function POST(req: Request) {
     })
     .eq("auth_user_id", userId);
   await db.from("verification_codes").delete().eq("user_id", userId);
+
+  try {
+    const { syncUser } = await import("@/lib/server/sync-engine");
+    await syncUser(db, userId);
+  } catch {
+    /* sync is best-effort on link */
+  }
 
   return json({ ok: true, lc_username: username, note: "Code may now be removed from About" });
 }

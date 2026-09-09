@@ -79,13 +79,16 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   let rows: BoardRow[] = ids.map((uid) => {
     const p = (profiles.get(uid) ?? {}) as unknown as {
       display_name: string; avatar_url: string | null; lc_username: string | null;
-      xp: number; base_rank: string; streak: number; weekly_count: number; weekly_hards: number;
+      xp: number; base_rank: string; streak: number; streak_last_date: string | null; weekly_count: number; weekly_hards: number;
       week_start: string; sync_status: SyncStatus; frozen_reason: string | null;
       last_sync_at: string | null; retry_at: string | null;
     };
     // Lazy week rollover for display (cron persists the reset).
     const rolled = p.week_start !== currentWeek;
     const last = lastByUser.get(uid) ?? null;
+    const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+    const streakBroken = p.streak_last_date ? p.streak_last_date < yesterday : false;
+    const liveStreak = streakBroken ? 0 : (p.streak ?? 0);
     return {
       user_id: uid,
       display_name: p.display_name ?? "Shinobi",
@@ -93,7 +96,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       lc_username: p.lc_username ?? null,
       xp: p.xp ?? 0,
       base_rank: p.base_rank ?? "Academy",
-      streak: rolled ? 0 : (p.streak ?? 0),
+      streak: liveStreak,
       weekly_count: rolled ? 0 : (p.weekly_count ?? 0),
       weekly_hards: rolled ? 0 : (p.weekly_hards ?? 0),
       last_solved_at: last?.solved_at ?? null,

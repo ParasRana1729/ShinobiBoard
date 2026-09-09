@@ -38,10 +38,10 @@ export async function POST(req: Request) {
   void about;
 
   const db = createServiceClient();
-  // Claimed guard: username linked to another auth user → dispute path.
+  // If already linked to the requester, no need to dispute.
   const { data: claimed } = await db.from("profiles").select("auth_user_id").eq("lc_username", username).single();
-  if (claimed && (claimed as { auth_user_id: string }).auth_user_id !== userId) {
-    return badRequest("Claimed — ask owner to unlink or dispute", { code: "claimed" });
+  if (claimed && (claimed as { auth_user_id: string }).auth_user_id === userId) {
+    return badRequest("Already linked to your account");
   }
 
   const code = makeCode();

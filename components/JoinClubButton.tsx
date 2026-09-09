@@ -2,25 +2,74 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Users, Loader2, ArrowRight, Clock } from "lucide-react";
 
 export function JoinClubButton({ groupId, memberCount }: { groupId: string; memberCount: number }) {
-  const [msg, setMsg] = useState<string | null>(null);
+  const [msg, setMsg] = useState<{ text: string; waitlisted?: boolean } | null>(null);
+  const [busy, setBusy] = useState(false);
   const router = useRouter();
 
   async function join() {
-    const res = await fetch(`/api/groups/${groupId}/join`, { method: "POST" });
-    const j = await res.json().catch(() => ({}));
-    if (!res.ok) setMsg(j.error ?? "Join failed");
-    else if (j.waitlisted) setMsg("Club full (150) — you're on the waitlist");
-    else router.refresh();
+    setBusy(true);
+    setMsg(null);
+    try {
+      const res = await fetch(`/api/groups/${groupId}/join`, { method: "POST" });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setMsg({ text: j.error ?? "Join request failed" });
+      } else if (j.waitlisted) {
+        setMsg({ text: "Club reached 150-member cap — you've been placed on the priority waitlist.", waitlisted: true });
+      } else {
+        router.refresh();
+      }
+    } catch {
+      setMsg({ text: "Connection failed, retry." });
+    } finally {
+      setBusy(false);
+    }
   }
 
+  const isFull = memberCount >= 150;
+  const pct = Math.min(100, Math.round((memberCount / 150) * 100));
+
   return (
-    <div className="mt-4">
-      <button onClick={join} className="rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-black">
-        Join public club ({memberCount}/150)
-      </button>
-      {msg && <p className="mt-2 text-sm text-slate-300">{msg}</p>}
+    <div className="rounded-2xl border border-white/[0.08] bg-surface p-4 sm:p-5 shadow-xl">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-400" />
+            <h3 className="text-sm font-bold text-white">Public Club Membership</h3>
+          </div>
+          <p className="text-xs text-slate-400">
+            Open enrollment club · {memberCount} of 150 slots filled
+          </p>
+          <div className="h-1.5 w-48 overflow-hidden rounded-full bg-ink">
+            <div className={`h-full rounded-full ${isFull ? "bg-rose-500" : "bg-emerald-400"}`} style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+
+        <button
+          onClick={join}
+          disabled={busy}
+          className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 px-5 py-2.5 text-xs font-bold text-black shadow-glow hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50"
+        >
+          {busy ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : isFull ? (
+            <Clock className="h-4 w-4" />
+          ) : (
+            <Users className="h-4 w-4" />
+          )}
+          <span>{isFull ? "Join Priority Waitlist" : `Join Club (${memberCount}/150)`}</span>
+          <ArrowRight className="h-3.5 w-3.5" />
+        </button>
+      </div>
+
+      {msg && (
+        <p className={`mt-3 text-xs font-medium ${msg.waitlisted ? "text-amber-300" : "text-rose-400"}`}>
+          {msg.text}
+        </p>
+      )}
     </div>
   );
 }

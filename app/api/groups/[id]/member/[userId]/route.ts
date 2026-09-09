@@ -1,7 +1,7 @@
 import { createServiceClient } from "@/lib/supabase/server";
 import { getAuthUserId } from "@/lib/auth";
 import { forbidden, json, notFound, unauthorized } from "@/lib/http";
-import { last7UTCdays } from "@/lib/week";
+import { addDaysUTC, last7UTCdays } from "@/lib/week";
 import { xpToNext } from "@/lib/ranks";
 import { fixHint, syncHealthLabel } from "@/lib/sync";
 import { RECENT_SOLVES_LIMIT } from "@/lib/constants";
@@ -83,8 +83,8 @@ export async function GET(_req: Request, { params }: { params: { id: string; use
       // Daily W/L/D across duel lifetime (cap 60d window ending today).
       const rec = { w: 0, l: 0, d: 0 };
       const today = days[6];
-      let cursor = since > days[0] ? since : days[0];
-      void today;
+      const windowStart = addDaysUTC(today, -60);
+      const cursor = since > windowStart ? since : windowStart;
       const seen = new Set([...mine.keys(), ...theirs.keys()].filter((d) => d >= cursor));
       for (const d of seen) {
         const a = mine.get(d) ?? 0;

@@ -52,5 +52,12 @@ export async function POST(req: Request) {
   if (error) return badRequest(error.message);
   await db.from("verification_codes").delete().eq("user_id", userId);
 
+  try {
+    const { syncUser } = await import("@/lib/server/sync-engine");
+    await syncUser(db, userId);
+  } catch {
+    /* sync is best-effort on link */
+  }
+
   return json({ ok: true, lc_username: username });
 }

@@ -4,6 +4,31 @@ import { useCallback, useEffect, useState } from "react";
 import { timeAgo } from "@/lib/week";
 import { createClient } from "@/lib/supabase/client";
 import type { BoardRow, BoardSort } from "@/lib/types";
+import {
+  Trophy,
+  SlidersHorizontal,
+  Flame,
+  Shield,
+  Crown,
+  Pin,
+  RefreshCw,
+  Bell,
+  Search,
+  ChevronDown,
+  ChevronUp,
+  Sparkles,
+  Swords,
+  Snowflake,
+  AlertTriangle,
+  GripVertical,
+  CheckCircle2,
+  Calendar,
+  Layers,
+  Zap,
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 type View = "leaderboard" | "custom";
 type Filter = "all" | "stale" | "frozen" | "titles";
@@ -19,20 +44,38 @@ interface Detail {
   fix_hint: string;
 }
 
-const RANK_EMBLEM: Record<string, string> = {
-  Academy: "🎒",
-  Genin: "🍃",
-  Chunin: "⭐",
-  Jonin: "⚔️",
-  ANBU: "🎭",
-  Kage: "👑",
+const RANK_CONFIG: Record<string, { label: string; emblem: string; badgeColor: string }> = {
+  Academy: { label: "Academy", emblem: "🎒", badgeColor: "border-slate-700 bg-slate-800/40 text-slate-300" },
+  Genin: { label: "Genin", emblem: "🍃", badgeColor: "border-emerald-500/30 bg-emerald-950/40 text-emerald-400" },
+  Chunin: { label: "Chunin", emblem: "⭐", badgeColor: "border-amber-500/30 bg-amber-950/40 text-amber-300" },
+  Jonin: { label: "Jonin", emblem: "⚔️", badgeColor: "border-indigo-500/30 bg-indigo-950/40 text-indigo-300" },
+  ANBU: { label: "ANBU", emblem: "🎭", badgeColor: "border-purple-500/30 bg-purple-950/40 text-purple-300" },
+  Kage: { label: "Kage", emblem: "👑", badgeColor: "border-yellow-500/40 bg-yellow-950/40 text-yellow-300 shadow-glow-gold" },
 };
+
+function DifficultyBadge({ diff }: { diff: string }) {
+  if (diff === "Easy") {
+    return <span className="rounded border border-emerald-500/30 bg-emerald-950/40 px-1.5 py-0.5 font-mono text-[10px] font-bold text-emerald-400">Easy</span>;
+  }
+  if (diff === "Hard") {
+    return <span className="rounded border border-rose-500/30 bg-rose-950/40 px-1.5 py-0.5 font-mono text-[10px] font-bold text-rose-400">Hard</span>;
+  }
+  return <span className="rounded border border-amber-500/30 bg-amber-950/40 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-300">Med</span>;
+}
 
 function ProgressBar({ value, goal }: { value: number; goal: number }) {
   const pct = Math.min(100, Math.round((value / Math.max(1, goal)) * 100));
+  const isComplete = value >= goal;
   return (
-    <div className="h-2 w-full overflow-hidden rounded bg-slate-700">
-      <div className="h-full rounded bg-amber-400" style={{ width: `${pct}%` }} />
+    <div className="relative h-2 w-full overflow-hidden rounded-full bg-ink/80 p-0.5 border border-white/[0.06]">
+      <div
+        className={`h-full rounded-full transition-all duration-500 ${
+          isComplete
+            ? "bg-gradient-to-r from-emerald-500 to-teal-400 shadow-glow-emerald"
+            : "bg-gradient-to-r from-amber-500 to-amber-400"
+        }`}
+        style={{ width: `${pct}%` }}
+      />
     </div>
   );
 }
@@ -60,8 +103,9 @@ export function Board({
   const [pages, setPages] = useState(1);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [detail, setDetail] = useState<Detail | null>(null);
-  const [msg, setMsg] = useState<string | null>(null);
+  const [msg, setMsg] = useState<{ text: string; error?: boolean } | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
+  const [refreshingUser, setRefreshingUser] = useState<string | null>(null);
 
   const searchRequired = memberCount > 50;
 
@@ -76,11 +120,11 @@ export function Board({
     const res = await fetch(`/api/groups/${groupId}/board?${params}`);
     const j = await res.json();
     if (res.ok) {
-      setRows(j.rows);
-      setTotal(j.total);
-      setPages(j.pages);
+      setRows(j.rows ?? []);
+      setTotal(j.total ?? 0);
+      setPages(j.pages ?? 1);
     } else {
-      setMsg(j.error ?? "Board load failed");
+      setMsg({ text: j.error ?? "Board load failed", error: true });
     }
   }, [groupId, view, sort, filter, q, page]);
 
@@ -88,10 +132,7 @@ export function Board({
     load();
   }, [load]);
 
-  // Realtime: one channel per group (§11) — board + feed refresh on new events.
-  // Topic carries a per-instance suffix: supabase-js reuses channel objects by
-  // topic and .on() after .subscribe() throws, and Board + Feed subscribe to
-  // the same group simultaneously. Filter still scopes to the group.
+  // Realtime subscription via Supabase channel per group
   useEffect(() => {
     const supabase = createClient();
     const ch = supabase
@@ -102,7 +143,7 @@ export function Board({
         () => load()
       )
       .subscribe();
-    const t = setInterval(load, 30_000); // polling fallback (no presence v1)
+    const t = setInterval(load, 30_000);
     return () => {
       clearInterval(t);
       supabase.removeChannel(ch);
@@ -110,6 +151,11 @@ export function Board({
   }, [groupId, load]);
 
   async function openCard(userId: string) {
+    if (expanded === userId) {
+      setExpanded(null);
+      setDetail(null);
+      return;
+    }
     setExpanded(userId);
     setDetail(null);
     const res = await fetch(`/api/groups/${groupId}/member/${userId}`);
@@ -123,7 +169,7 @@ export function Board({
       body: JSON.stringify({ user_id: userId, pinned: !pinned }),
     });
     const j = await res.json();
-    if (!res.ok) setMsg(j.error ?? "Pin failed (max 2)");
+    if (!res.ok) setMsg({ text: j.error ?? "Pin limit reached (max 2)", error: true });
     else load();
   }
 
@@ -134,18 +180,33 @@ export function Board({
       body: JSON.stringify({ to_user: toUser, group_id: groupId }),
     });
     const j = await res.json();
-    setMsg(res.ok ? "Nudged! (in-app only v1 — no push)" : (j.error ?? "Nudge failed"));
+    if (res.ok) {
+      setMsg({ text: "Nudged! Notification logged to squad feed." });
+    } else {
+      setMsg({ text: j.error ?? "Nudge failed", error: true });
+    }
+    setTimeout(() => setMsg(null), 3000);
   }
 
   async function refresh(targetId: string) {
-    const res = await fetch("/api/sync/refresh", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id: targetId }),
-    });
-    const j = await res.json();
-    setMsg(res.ok ? `Sync queued — ${j.fetched ?? 0} new` : (j.error ?? "Refresh failed"));
-    load();
+    setRefreshingUser(targetId);
+    try {
+      const res = await fetch("/api/sync/refresh", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: targetId }),
+      });
+      const j = await res.json();
+      if (res.ok) {
+        setMsg({ text: `Sync complete — ${j.fetched ?? 0} new solves indexed.` });
+        load();
+      } else {
+        setMsg({ text: j.error ?? "Refresh cooldown active", error: true });
+      }
+    } finally {
+      setRefreshingUser(null);
+      setTimeout(() => setMsg(null), 3000);
+    }
   }
 
   async function persistOrder(orderedIds: string[]) {
@@ -169,46 +230,138 @@ export function Board({
   }
 
   return (
-    <div>
-      {/* Views — resolves order/sort conflict: drag only in Custom */}
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="flex overflow-hidden rounded-lg border border-slate-600 text-sm">
-          {(["leaderboard", "custom"] as View[]).map((v) => (
+    <div className="space-y-4">
+      {/* Controls Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/[0.08] bg-surface/80 p-3.5 shadow-xl backdrop-blur-md">
+        {/* Left: View Switcher */}
+        <div className="flex items-center gap-2">
+          <div className="flex rounded-xl border border-white/[0.08] bg-ink/70 p-1">
             <button
-              key={v}
-              onClick={() => setView(v)}
-              className={`px-4 py-1.5 font-semibold capitalize ${view === v ? "bg-amber-400 text-black" : "text-slate-200"}`}
+              onClick={() => setView("leaderboard")}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
+                view === "leaderboard"
+                  ? "bg-amber-400 text-black shadow-glow"
+                  : "text-slate-400 hover:text-white"
+              }`}
             >
-              {v}
+              <Trophy className="h-3.5 w-3.5" />
+              <span>Leaderboard</span>
             </button>
-          ))}
-        </div>
-        <select value={sort} onChange={(e) => setSort(e.target.value as BoardSort)}
-          className="rounded-lg border border-slate-600 bg-ink px-2 py-1.5 text-sm" title="Sort (Leaderboard view)">
-          <option value="weekly">Sort: Weekly</option>
-          <option value="streak">Sort: Streak</option>
-          <option value="xp">Sort: XP</option>
-          <option value="base_rank">Sort: Base rank</option>
-        </select>
-        <select value={filter} onChange={(e) => { setFilter(e.target.value as Filter); setPage(1); }}
-          className="rounded-lg border border-slate-600 bg-ink px-2 py-1.5 text-sm">
-          <option value="all">Filter: All</option>
-          <option value="stale">Stale only</option>
-          <option value="frozen">Frozen</option>
-          <option value="titles">Title holders</option>
-        </select>
-        <input value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }}
-          required={searchRequired} placeholder={searchRequired ? "Search required (club > 50) 🔍" : "Search name / lc_username"}
-          className="min-w-52 flex-1 rounded-lg border border-slate-600 bg-ink px-3 py-1.5 text-sm" />
-      </div>
-      {view === "custom" && <p className="mt-1 text-xs text-slate-400">Custom = your personal drag-to-reorder view (stored as personal_order). Drag disabled in Leaderboard.</p>}
-      {msg && <p className="mt-2 text-sm text-amber-200">{msg}</p>}
+            <button
+              onClick={() => setView("custom")}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
+                view === "custom"
+                  ? "bg-amber-400 text-black shadow-glow"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              <span>Custom Order</span>
+            </button>
+          </div>
 
-      {/* Trello-like horizontal board; vertical stack on mobile */}
-      <div className="board-scroll mt-4 flex gap-3 overflow-x-auto pb-4 max-md:flex-col">
-        {rows.map((r) => {
-          const frozen = r.sync_status === "frozen";
-          const title = r.titles[0];
+          {/* Sort Dropdown */}
+          <div className="relative">
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as BoardSort)}
+              className="appearance-none rounded-xl border border-white/[0.08] bg-ink/70 py-1.5 pl-3 pr-8 text-xs font-medium text-slate-200 focus:border-amber-400 focus:outline-none"
+            >
+              <option value="weekly">Sort: Weekly Solves</option>
+              <option value="streak">Sort: Longest Streak</option>
+              <option value="xp">Sort: Total XP</option>
+              <option value="base_rank">Sort: Base Rank</option>
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400" />
+          </div>
+        </div>
+
+        {/* Right: Filters & Search */}
+        <div className="flex flex-1 flex-wrap items-center justify-end gap-2 min-w-[280px]">
+          {/* Filter Chips */}
+          <div className="flex rounded-xl border border-white/[0.08] bg-ink/70 p-1 text-xs">
+            {(
+              [
+                { id: "all", label: "All" },
+                { id: "stale", label: "Stale" },
+                { id: "frozen", label: "Frozen" },
+                { id: "titles", label: "Titles" },
+              ] as const
+            ).map((f) => (
+              <button
+                key={f.id}
+                onClick={() => {
+                  setFilter(f.id);
+                  setPage(1);
+                }}
+                className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-all ${
+                  filter === f.id
+                    ? "bg-white/[0.12] text-amber-300"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Search Bar */}
+          <div className="relative min-w-[180px] max-w-xs flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
+            <input
+              value={q}
+              onChange={(e) => {
+                setQ(e.target.value);
+                setPage(1);
+              }}
+              placeholder={searchRequired ? "Search required (club > 50)" : "Search ninja or @leetcode…"}
+              className="w-full rounded-xl border border-white/[0.08] bg-ink/70 py-1.5 pl-8 pr-3 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none"
+            />
+          </div>
+        </div>
+      </div>
+
+      {view === "custom" && (
+        <p className="text-[11px] text-slate-400 italic">
+          💡 Custom View: Drag and drop cards to organize your personal priority board. Stored per viewer.
+        </p>
+      )}
+
+      {msg && (
+        <div
+          className={`flex items-center gap-2 rounded-xl p-2.5 text-xs font-medium ${
+            msg.error
+              ? "border border-rose-500/30 bg-rose-950/40 text-rose-300"
+              : "border border-emerald-500/30 bg-emerald-950/40 text-emerald-300"
+          }`}
+        >
+          {msg.error ? <AlertTriangle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+          <span>{msg.text}</span>
+        </div>
+      )}
+
+      {/* Cards Board Grid / Horizontal Scroll */}
+      <div className="board-scroll flex gap-4 overflow-x-auto pb-4 pt-1 max-md:flex-col">
+        {rows.map((r, index) => {
+          const rankMeta = RANK_CONFIG[r.base_rank] ?? RANK_CONFIG.Academy;
+          const isHokage = r.titles.some((t) => t.title === "hokage");
+          const isFrozen = r.sync_status === "frozen";
+          const isRateLimited = r.sync_status === "rate_limited";
+          const isTop3 = index < 3 && !isFrozen && view === "leaderboard";
+          const goalMet = r.weekly_count >= goal;
+
+          // Podium border styling
+          let cardBorder = "border-white/[0.08] hover:border-white/[0.2]";
+          if (isTop3 && index === 0) {
+            cardBorder = "border-amber-500/50 shadow-glow-gold hover:border-amber-400";
+          } else if (isTop3 && index === 1) {
+            cardBorder = "border-slate-400/40 shadow-lg hover:border-slate-300";
+          } else if (isTop3 && index === 2) {
+            cardBorder = "border-amber-700/40 shadow-lg hover:border-amber-600";
+          } else if (isFrozen) {
+            cardBorder = "border-slate-800 bg-ink/40 opacity-60";
+          }
+
           return (
             <div
               key={r.user_id}
@@ -216,87 +369,311 @@ export function Board({
               onDragStart={() => setDragId(r.user_id)}
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => onDrop(r.user_id)}
-              className={`w-64 shrink-0 rounded-xl border p-4 max-md:w-full ${frozen ? "border-slate-700 bg-card/50 opacity-60" : "border-slate-600 bg-card"} ${r.pinned ? "ring-1 ring-amber-400" : ""}`}
+              className={`relative flex w-72 shrink-0 flex-col justify-between rounded-2xl border bg-surface/95 p-4 shadow-xl backdrop-blur-md transition-all max-md:w-full ${cardBorder} ${
+                r.pinned ? "ring-1 ring-amber-400" : ""
+              }`}
             >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={r.avatar_url ?? `https://api.dicebear.com/7.x/identicon/svg?seed=${r.user_id}`} alt=""
-                    className="h-9 w-9 rounded-full bg-slate-700" />
-                  <div>
-                    <p className="text-sm font-bold leading-tight">{r.display_name}</p>
-                    <p className="text-[11px] text-slate-400">@{r.lc_username ?? "—"}</p>
+              {/* Card Header: Drag handle, Rank, Avatar, Title */}
+              <div>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2.5">
+                    {view === "custom" && (
+                      <GripVertical className="h-4 w-4 text-slate-500 cursor-grab active:cursor-grabbing" />
+                    )}
+
+                    {/* Avatar */}
+                    <div className="relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={r.avatar_url ?? `https://api.dicebear.com/7.x/identicon/svg?seed=${r.user_id}`}
+                        alt=""
+                        className={`h-10 w-10 rounded-xl object-cover border ${
+                          isHokage
+                            ? "border-amber-400 shadow-glow"
+                            : isTop3
+                            ? "border-white/30"
+                            : "border-white/[0.08]"
+                        } bg-ink`}
+                      />
+                      {r.pinned && (
+                        <span className="absolute -top-1.5 -right-1.5 rounded-full bg-amber-400 p-0.5 text-black shadow-sm">
+                          <Pin className="h-2.5 w-2.5 fill-black" />
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Names */}
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="truncate text-xs font-bold text-white tracking-tight">
+                          {r.display_name}
+                        </p>
+                      </div>
+                      <p className="truncate font-mono text-[11px] text-slate-400">
+                        @{r.lc_username ?? "unlinked"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Rank Position */}
+                  <div className="flex flex-col items-end">
+                    <span
+                      className={`font-mono text-xs font-black ${
+                        index === 0 && !isFrozen
+                          ? "text-amber-400 font-extrabold text-sm"
+                          : index === 1
+                          ? "text-slate-300"
+                          : index === 2
+                          ? "text-amber-600"
+                          : "text-slate-400"
+                      }`}
+                    >
+                      #{r.group_rank || index + 1}
+                    </span>
+                    <span className="text-[10px] opacity-80" title={r.base_rank}>
+                      {rankMeta.emblem}
+                    </span>
                   </div>
                 </div>
-                <span title="Base rank">{RANK_EMBLEM[r.base_rank] ?? "🎒"}</span>
+
+                {/* Badges / Active Titles */}
+                <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                  {r.titles.map((t) => (
+                    <span
+                      key={t.title}
+                      className="inline-flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-950/40 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-300 shadow-sm"
+                    >
+                      <Crown className="h-3 w-3 fill-amber-400" />
+                      <span className="capitalize">{t.title.replace("_", " ")}</span>
+                    </span>
+                  ))}
+
+                  <span className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold ${rankMeta.badgeColor}`}>
+                    <span>{rankMeta.label}</span>
+                  </span>
+
+                  {isFrozen && (
+                    <span className="inline-flex items-center gap-1 rounded-md border border-sky-500/30 bg-sky-950/40 px-1.5 py-0.5 text-[10px] font-bold text-sky-300">
+                      <Snowflake className="h-2.5 w-2.5" />
+                      <span>FROZEN</span>
+                    </span>
+                  )}
+
+                  {isRateLimited && (
+                    <span className="rounded-md border border-amber-500/30 bg-amber-950/40 px-1.5 py-0.5 text-[10px] font-medium text-amber-300">
+                      Sync Paused
+                    </span>
+                  )}
+                </div>
+
+                {/* Weekly Goal Progress */}
+                <div className="mt-3.5 space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-medium text-slate-300">
+                      Weekly Solves
+                    </span>
+                    <span className="font-mono font-bold text-white">
+                      <span className={goalMet ? "text-emerald-400" : "text-amber-400"}>{r.weekly_count}</span>
+                      <span className="text-slate-500"> / {goal}</span>
+                    </span>
+                  </div>
+                  <ProgressBar value={r.weekly_count} goal={goal} />
+                </div>
+
+                {/* Streak & Last Solved */}
+                <div className="mt-3 rounded-xl border border-white/[0.04] bg-ink/60 p-2.5 text-xs space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1 text-[11px] font-semibold text-slate-300">
+                      <Flame className="h-3.5 w-3.5 text-orange-400 fill-orange-400" />
+                      <span>Streak</span>
+                    </span>
+                    <span className="font-mono text-xs font-bold text-orange-400">
+                      {r.streak} {r.streak === 1 ? "day" : "days"}
+                    </span>
+                  </div>
+
+                  <div className="border-t border-white/[0.04] pt-1.5 flex items-center justify-between gap-1 text-[11px]">
+                    {r.last_solved_slug ? (
+                      <>
+                        <span className="truncate text-slate-300 max-w-[130px]" title={r.last_solved_slug}>
+                          {r.last_solved_slug}
+                        </span>
+                        <div className="flex shrink-0 items-center gap-1">
+                          {r.last_solved_diff && <DifficultyBadge diff={r.last_solved_diff} />}
+                          <span className="text-[10px] text-slate-500">{timeAgo(r.last_solved_at)}</span>
+                        </div>
+                      </>
+                    ) : (
+                      <span className="text-slate-500 italic">No solves recorded yet</span>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              <div className="mt-2 flex items-center justify-between text-xs">
-                <span className="font-semibold text-amber-300">#{r.group_rank}</span>
-                {r.pinned && <span title="Pinned">📌</span>}
-                {title && <span className="rounded bg-yellow-500/20 px-1.5 py-0.5 text-[10px] font-bold text-yellow-300">👑 {title.title}</span>}
-                {frozen && <span className="rounded bg-slate-700 px-1.5 py-0.5 text-[10px]">FROZEN</span>}
-              </div>
-
-              <div className="mt-2 text-xs text-slate-300">
-                Weekly {r.weekly_count}/{goal}
-              </div>
-              <ProgressBar value={r.weekly_count} goal={goal} />
-
-              <p className="mt-2 text-xs text-slate-300">
-                🔥 {r.streak} · {r.last_solved_slug ? `${r.last_solved_slug} · ${r.last_solved_diff} · ${timeAgo(r.last_solved_at)}` : "no solves yet"}
-              </p>
-
-              <div className="mt-3 flex flex-wrap gap-1.5 text-xs">
-                <button onClick={() => (expanded === r.user_id ? setExpanded(null) : openCard(r.user_id))}
-                  className="rounded border border-slate-500 px-2 py-1">
-                  {expanded === r.user_id ? "Collapse" : "Expand"}
+              {/* Card Actions Toolbar */}
+              <div className="mt-3.5 flex items-center justify-between border-t border-white/[0.06] pt-3">
+                <button
+                  onClick={() => openCard(r.user_id)}
+                  className="flex items-center gap-1 text-xs font-semibold text-slate-300 hover:text-white transition-colors"
+                >
+                  <span>{expanded === r.user_id ? "Collapse" : "Inspect"}</span>
+                  {expanded === r.user_id ? (
+                    <ChevronUp className="h-3.5 w-3.5" />
+                  ) : (
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  )}
                 </button>
-                {r.user_id !== viewerId && (
-                  <button onClick={() => nudge(r.user_id)} className="rounded border border-slate-500 px-2 py-1">Nudge</button>
-                )}
-                <button onClick={() => refresh(r.user_id)} className="rounded border border-slate-500 px-2 py-1" title="Any member may refresh any card (10-min shared cooldown)">
-                  Refresh
-                </button>
-                <button onClick={() => togglePin(r.user_id, r.pinned)} className="rounded border border-slate-500 px-2 py-1" title="Pin up to 2">
-                  {r.pinned ? "Unpin" : "Pin"}
-                </button>
+
+                <div className="flex items-center gap-1">
+                  {r.user_id !== viewerId && (
+                    <button
+                      onClick={() => nudge(r.user_id)}
+                      title="Nudge friend (1/day)"
+                      className="rounded-lg p-1.5 text-slate-400 hover:bg-white/[0.06] hover:text-cyan-300 transition-colors"
+                    >
+                      <Bell className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => refresh(r.user_id)}
+                    disabled={refreshingUser === r.user_id}
+                    title="Refresh profile stats (10-min shared cooldown)"
+                    className="rounded-lg p-1.5 text-slate-400 hover:bg-white/[0.06] hover:text-amber-300 transition-colors"
+                  >
+                    <RefreshCw
+                      className={`h-3.5 w-3.5 ${refreshingUser === r.user_id ? "animate-spin text-amber-400" : ""}`}
+                    />
+                  </button>
+
+                  <button
+                    onClick={() => togglePin(r.user_id, r.pinned)}
+                    title={r.pinned ? "Unpin card" : "Pin card to top (max 2)"}
+                    className={`rounded-lg p-1.5 transition-colors ${
+                      r.pinned
+                        ? "text-amber-400 bg-amber-950/40"
+                        : "text-slate-400 hover:bg-white/[0.06] hover:text-white"
+                    }`}
+                  >
+                    <Pin className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               </div>
 
+              {/* Expanded Card Drawer */}
               {expanded === r.user_id && (
-                <div className="mt-3 border-t border-slate-700 pt-2 text-xs">
-                  {!detail ? <p className="text-slate-400">Loading…</p> : (
+                <div className="mt-3 border-t border-white/[0.08] pt-3 text-xs space-y-3 animate-in fade-in duration-200">
+                  {!detail ? (
+                    <div className="py-4 text-center text-slate-500 font-mono text-xs">
+                      Fetching shinobi profile…
+                    </div>
+                  ) : (
                     <>
-                      <p className="font-semibold">Recent 5 counted solves</p>
-                      <ul className="mt-1 space-y-1">
-                        {detail.recent.length === 0 && <li className="text-slate-400">None yet</li>}
-                        {detail.recent.map((s) => (
-                          <li key={s.slug + s.solved_at} className="flex justify-between gap-2">
-                            <span className="truncate">{s.title ?? s.slug}</span>
-                            <span className="rounded bg-slate-700 px-1">{s.diff}</span>
-                            <span className="text-slate-400">{s.lang}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      <p className="mt-2 font-semibold">7-day activity (UTC)</p>
-                      <div className="mt-1 flex gap-1">
-                        {detail.dots.map((d) => (
-                          <span key={d.day} title={`${d.day}: ${d.count}`}
-                            className={`h-3 w-3 rounded-sm ${d.count > 0 ? "bg-emerald-400" : "bg-slate-700"}`} />
-                        ))}
+                      {/* 7-Day Activity Sparkline */}
+                      <div>
+                        <p className="text-[11px] font-semibold text-slate-300 mb-1 flex items-center gap-1">
+                          <Calendar className="h-3 w-3 text-emerald-400" />
+                          <span>7-Day Activity (UTC)</span>
+                        </p>
+                        <div className="flex gap-1">
+                          {detail.dots.map((d) => (
+                            <div
+                              key={d.day}
+                              title={`${d.day}: ${d.count} solves`}
+                              className={`flex-1 h-5 rounded-md flex items-center justify-center font-mono text-[9px] font-bold ${
+                                d.count > 0
+                                  ? "bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 shadow-glow-emerald"
+                                  : "bg-ink/60 text-slate-600 border border-white/[0.04]"
+                              }`}
+                            >
+                              {d.count > 0 ? d.count : ""}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <p className="mt-2">
-                        All-time E/M/H: {detail.split.Easy}/{detail.split.Medium}/{detail.split.Hard} · total {detail.split.total} (first-ever distinct slugs)
-                      </p>
-                      <p className="mt-1">Base {r.base_rank}{detail.xp_to_next.next ? ` · ${detail.xp_to_next.needed} XP to ${detail.xp_to_next.next}` : " · max"}</p>
-                      {detail.titles.map((t) => (
-                        <p key={t.title} className="text-yellow-300">👑 {t.title} · expires {timeAgo(t.expires_at).replace(" ago", "")} left</p>
-                      ))}
+
+                      {/* E/M/H Breakdown */}
+                      <div className="rounded-xl border border-white/[0.04] bg-ink/70 p-2.5">
+                        <p className="text-[11px] font-semibold text-slate-300 mb-1.5 flex items-center gap-1">
+                          <Layers className="h-3 w-3 text-amber-400" />
+                          <span>All-Time Solves ({detail.split.total} distinct)</span>
+                        </p>
+                        <div className="grid grid-cols-3 gap-1.5 text-center font-mono">
+                          <div className="rounded-lg bg-emerald-950/30 border border-emerald-500/20 p-1">
+                            <span className="block text-[10px] text-emerald-400 font-bold">Easy</span>
+                            <span className="text-xs text-white font-black">{detail.split.Easy}</span>
+                          </div>
+                          <div className="rounded-lg bg-amber-950/30 border border-amber-500/20 p-1">
+                            <span className="block text-[10px] text-amber-400 font-bold">Med</span>
+                            <span className="text-xs text-white font-black">{detail.split.Medium}</span>
+                          </div>
+                          <div className="rounded-lg bg-rose-950/30 border border-rose-500/20 p-1">
+                            <span className="block text-[10px] text-rose-400 font-bold">Hard</span>
+                            <span className="text-xs text-white font-black">{detail.split.Hard}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Base Rank XP Target */}
+                      <div className="flex items-center justify-between rounded-lg border border-white/[0.04] bg-ink/50 px-2.5 py-1.5 text-[11px]">
+                        <span className="text-slate-400">Next Rank:</span>
+                        <span className="font-mono font-bold text-amber-300">
+                          {detail.xp_to_next.next
+                            ? `${detail.xp_to_next.needed} XP to ${detail.xp_to_next.next}`
+                            : "MAX TIER (Kage)"}
+                        </span>
+                      </div>
+
+                      {/* Duel W/L/D if duel group */}
                       {isDuel && detail.duel_record && (
-                        <p className="mt-1">Duel record here W/L/D: {detail.duel_record.w}/{detail.duel_record.l}/{detail.duel_record.d}</p>
+                        <div className="rounded-xl border border-rose-500/30 bg-rose-950/20 p-2.5">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="flex items-center gap-1 font-semibold text-rose-300">
+                              <Swords className="h-3.5 w-3.5" />
+                              <span>Duel Scoreboard</span>
+                            </span>
+                            <span className="font-mono font-bold text-white">
+                              <span className="text-emerald-400">{detail.duel_record.w}W</span> ·{" "}
+                              <span className="text-rose-400">{detail.duel_record.l}L</span> ·{" "}
+                              <span className="text-slate-400">{detail.duel_record.d}D</span>
+                            </span>
+                          </div>
+                        </div>
                       )}
-                      <p className="mt-1 text-slate-300">Sync: {detail.sync_label}</p>
-                      {detail.fix_hint && <p className="text-slate-400">💡 {detail.fix_hint}</p>}
+
+                      {/* Recent 5 Solves List */}
+                      <div>
+                        <p className="text-[11px] font-semibold text-slate-300 mb-1">
+                          Recent Counted Solves
+                        </p>
+                        <ul className="space-y-1">
+                          {detail.recent.length === 0 && (
+                            <li className="text-[11px] text-slate-500 italic">No recent solves</li>
+                          )}
+                          {detail.recent.slice(0, 5).map((s) => (
+                            <li
+                              key={s.slug + s.solved_at}
+                              className="flex items-center justify-between gap-1.5 rounded-lg border border-white/[0.04] bg-ink/50 px-2 py-1 text-[11px]"
+                            >
+                              <span className="truncate text-slate-200" title={s.title ?? s.slug}>
+                                {s.title ?? s.slug}
+                              </span>
+                              <div className="flex shrink-0 items-center gap-1">
+                                <DifficultyBadge diff={s.diff} />
+                                <span className="font-mono text-[9px] text-slate-500">{s.lang}</span>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Sync Diagnostics */}
+                      <div className="border-t border-white/[0.06] pt-2 text-[10px] text-slate-500">
+                        <p>{detail.sync_label}</p>
+                        {detail.fix_hint && (
+                          <p className="mt-0.5 text-amber-300/80 font-medium">💡 {detail.fix_hint}</p>
+                        )}
+                      </div>
                     </>
                   )}
                 </div>
@@ -306,13 +683,40 @@ export function Board({
         })}
       </div>
 
-      {rows.length === 0 && <p className="mt-4 text-sm text-slate-400">No cards match. Board renders pinned + Top 50 + search results.</p>}
+      {rows.length === 0 && (
+        <div className="rounded-2xl border border-white/[0.08] bg-surface p-12 text-center text-slate-400 shadow-xl">
+          <Trophy className="mx-auto h-10 w-10 text-slate-600 mb-2 opacity-50" />
+          <p className="text-sm font-semibold text-slate-300">No shinobi cards found</p>
+          <p className="mt-1 text-xs text-slate-500">Try adjusting your search query or filter chips.</p>
+        </div>
+      )}
 
-      {/* Full roster pagination */}
-      <div className="mt-2 flex items-center gap-3 text-sm">
-        <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="rounded border border-slate-600 px-3 py-1 disabled:opacity-40">← Prev 50</button>
-        <span className="text-slate-300">Page {page}/{pages} · {total} members</span>
-        <button disabled={page >= pages} onClick={() => setPage((p) => p + 1)} className="rounded border border-slate-600 px-3 py-1 disabled:opacity-40">Next 50 →</button>
+      {/* Pagination Footer */}
+      <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-surface/60 px-4 py-2 text-xs">
+        <span className="text-slate-400">
+          Showing page <span className="font-bold text-white">{page}</span> of{" "}
+          <span className="font-bold text-white">{pages}</span> ·{" "}
+          <span className="font-mono font-bold text-amber-400">{total}</span> total members
+        </span>
+
+        <div className="flex items-center gap-1.5">
+          <button
+            disabled={page <= 1}
+            onClick={() => setPage((p) => p - 1)}
+            className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-ink/70 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:bg-white/[0.08] disabled:opacity-40"
+          >
+            <ChevronLeft className="h-3.5 w-3.5" />
+            <span>Prev</span>
+          </button>
+          <button
+            disabled={page >= pages}
+            onClick={() => setPage((p) => p + 1)}
+            className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-ink/70 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:bg-white/[0.08] disabled:opacity-40"
+          >
+            <span>Next</span>
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
+        </div>
       </div>
     </div>
   );

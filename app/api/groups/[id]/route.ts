@@ -49,6 +49,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   return json({ group: updated });
 }
 
+export const POST = PATCH;
+
 /** DELETE /api/groups/[id] — owner deletes club; duel archives (§9). Squads delete via last-leave. */
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
   const userId = await getAuthUserId();
