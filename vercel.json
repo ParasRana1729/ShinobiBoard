@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/sync?trigger=vercel-cron",
+      "schedule": "*/60 * * * *"
+    },
+    {
+      "path": "/api/cron/weekly?trigger=vercel-cron",
+      "schedule": "5 0 * * 1"
+    }
+  ]
+}
