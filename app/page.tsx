@@ -32,15 +32,15 @@ export default async function Home() {
         <div className="pointer-events-none absolute -top-16 left-1/2 -z-10 h-96 w-full -translate-x-1/2 max-w-4xl opacity-25 blur-3xl bg-gradient-to-r from-shinobi-gold/20 via-shinobi-teal/10 to-shinobi-flame/20" />
 
         {/* Top telemetry tag */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-shinobi-gold/30 bg-shinobi-gold/10 px-4 py-1.5 text-xs font-semibold text-shinobi-gold backdrop-blur-sm shadow-sm">
-          <span className="flex h-2 w-2 rounded-full bg-shinobi-gold animate-pulse" />
-          <span className="uppercase tracking-widest text-[11px] font-mono">ShinobiBoard v1.1</span>
+        <div className="telemetry-tag border-shinobi-gold/30 bg-shinobi-gold/10 text-shinobi-gold px-3.5 py-1.5">
+          <span className="flex h-1.5 w-1.5 rounded-full bg-shinobi-gold animate-pulse" />
+          <span className="tracking-widest">ShinobiBoard v1.1</span>
           <span className="text-white/20">|</span>
-          <span className="text-text-secondary text-[11px]">Real-Time LeetCode Arena</span>
+          <span className="text-text-secondary">Competitive LeetCode Engine</span>
         </div>
 
         {/* Main headline */}
-        <h1 className="mt-8 text-4xl font-black tracking-tight text-text-primary sm:text-6xl md:text-7xl max-w-4xl mx-auto leading-[1.08]">
+        <h1 className="mt-8 font-heading text-4xl font-black tracking-tight text-text-primary sm:text-6xl md:text-7xl max-w-4xl mx-auto leading-[1.08]">
           Solo LeetCode grind dies after week 1.{" "}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-shinobi-gold via-amber-200 to-shinobi-flame">
             Your squad won&apos;t let it.
@@ -57,21 +57,21 @@ export default async function Home() {
           {user ? (
             <Link
               href="/dashboard"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-2xl bg-shinobi-gold px-8 py-4 text-sm font-bold text-black shadow-xl shadow-shinobi-gold/20 transition duration-150 hover:bg-shinobi-gold/90 hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-xl bg-shinobi-gold px-8 py-3.5 text-sm font-bold text-black shadow-tactile-btn transition duration-150 hover:bg-shinobi-gold/90 hover:brightness-105 active:scale-[0.98]"
             >
               Enter Dashboard <ArrowRight className="h-4 w-4" />
             </Link>
           ) : (
             <Link
               href="/login"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-2xl bg-shinobi-gold px-8 py-4 text-sm font-bold text-black shadow-xl shadow-shinobi-gold/20 transition duration-150 hover:bg-shinobi-gold/90 hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-xl bg-shinobi-gold px-8 py-3.5 text-sm font-bold text-black shadow-tactile-btn transition duration-150 hover:bg-shinobi-gold/90 hover:brightness-105 active:scale-[0.98]"
             >
               Sign In with Google <ArrowRight className="h-4 w-4" />
             </Link>
           )}
           <Link
             href="/discover"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-surface-elevated/70 px-7 py-4 text-sm font-semibold text-text-secondary backdrop-blur-sm transition duration-150 hover:border-white/20 hover:bg-surface-elevated hover:text-text-primary"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-surface-elevated/70 px-7 py-3.5 text-sm font-semibold text-text-secondary shadow-tactile-inset backdrop-blur-sm transition duration-150 hover:border-white/20 hover:bg-surface-elevated hover:text-text-primary active:scale-[0.98]"
           >
             <Compass className="h-4 w-4 text-shinobi-teal" />
             Browse Public Clubs
@@ -79,7 +79,7 @@ export default async function Home() {
         </div>
 
         {/* Telemetry Micro-Pill */}
-        <div className="mt-8 inline-flex items-center gap-4 rounded-xl border border-white/[0.06] bg-surface-base/60 px-4 py-2 text-[11px] font-mono text-text-muted">
+        <div className="mt-8 inline-flex items-center gap-4 rounded-xl border border-white/[0.06] bg-surface-base/80 px-4 py-2 text-[11px] font-mono text-text-muted shadow-tactile-inset">
           <span className="flex items-center gap-1.5">
             <Zap className="h-3 w-3 text-shinobi-gold" /> Hourly Background Sync
           </span>
@@ -259,7 +259,7 @@ export default async function Home() {
           <div className="inline-flex items-center gap-2 rounded-full border border-shinobi-teal/30 bg-shinobi-teal/10 px-3.5 py-1 text-xs font-semibold text-shinobi-teal">
             <Sparkles className="h-3.5 w-3.5" /> Built for Competitive Developers
           </div>
-          <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl">
+          <h2 className="mt-4 font-heading text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl">
             Accountability Engineered for Speed
           </h2>
           <p className="mt-2 text-sm text-text-secondary max-w-xl mx-auto">
@@ -269,11 +269,11 @@ export default async function Home() {
 
         <div className="grid gap-6 md:grid-cols-3">
           {/* Pillar 1: Private Squads */}
-          <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-surface-base p-7 transition hover:border-shinobi-gold/40 hover:bg-surface-card">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-shinobi-gold/30 bg-shinobi-gold/10 text-shinobi-gold">
+          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-surface-card p-7 shadow-tactile-card transition hover:border-shinobi-gold/40 hover:bg-surface-elevated">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-shinobi-gold/30 bg-shinobi-gold/10 text-shinobi-gold shadow-tactile-inset">
               <Users className="h-6 w-6" />
             </div>
-            <h3 className="mt-5 text-lg font-bold text-text-primary">Private Squads</h3>
+            <h3 className="mt-5 font-heading text-lg font-bold text-text-primary">Private Squads</h3>
             <p className="mt-2 text-xs leading-relaxed text-text-secondary">
               Invite-code protected for 3 to 15 peers. Set custom weekly problem goals (1–50), drag-and-drop your personal viewer order, and pin up to 2 study partners.
             </p>
@@ -284,11 +284,11 @@ export default async function Home() {
           </div>
 
           {/* Pillar 2: Public Battle Clubs */}
-          <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-surface-base p-7 transition hover:border-shinobi-teal/40 hover:bg-surface-card">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-shinobi-teal/30 bg-shinobi-teal/10 text-shinobi-teal">
+          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-surface-card p-7 shadow-tactile-card transition hover:border-shinobi-teal/40 hover:bg-surface-elevated">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-shinobi-teal/30 bg-shinobi-teal/10 text-shinobi-teal shadow-tactile-inset">
               <Compass className="h-6 w-6" />
             </div>
-            <h3 className="mt-5 text-lg font-bold text-text-primary">Public Battle Clubs</h3>
+            <h3 className="mt-5 font-heading text-lg font-bold text-text-primary">Public Battle Clubs</h3>
             <p className="mt-2 text-xs leading-relaxed text-text-secondary">
               Open discovery clubs scaling up to 150 engineers. Instant join with real-time capacity meters for university cohorts, blind 75 marathons, and FAANG interview prep.
             </p>
@@ -299,11 +299,11 @@ export default async function Home() {
           </div>
 
           {/* Pillar 3: 1:1 Rival Duels */}
-          <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-surface-base p-7 transition hover:border-shinobi-flame/40 hover:bg-surface-card">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-shinobi-flame/30 bg-shinobi-flame/10 text-shinobi-flame">
+          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-surface-card p-7 shadow-tactile-card transition hover:border-shinobi-flame/40 hover:bg-surface-elevated">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-shinobi-flame/30 bg-shinobi-flame/10 text-shinobi-flame shadow-tactile-inset">
               <Swords className="h-6 w-6" />
             </div>
-            <h3 className="mt-5 text-lg font-bold text-text-primary">1:1 Rival Duels</h3>
+            <h3 className="mt-5 font-heading text-lg font-bold text-text-primary">1:1 Rival Duels</h3>
             <p className="mt-2 text-xs leading-relaxed text-text-secondary">
               Generate a 7-day cryptographic challenge link. Daily Head-to-Head Win/Loss/Draw tracking, solve difference tiebreaker, and zero hiding from your rival.
             </p>
@@ -316,13 +316,13 @@ export default async function Home() {
       </section>
 
       {/* ─── Shinobi Rank Ladder Progression ─────────────────────────────────── */}
-      <section className="rounded-3xl border border-white/10 bg-surface-base/80 p-8 shadow-xl">
+      <section className="rounded-3xl border border-white/10 bg-surface-base/80 p-8 shadow-tactile-card">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/[0.08] pb-6">
           <div>
-            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-shinobi-gold">
-              <Zap className="h-4 w-4" /> Progression Engine
+            <div className="telemetry-tag border-shinobi-gold/30 bg-shinobi-gold/10 text-shinobi-gold">
+              <Zap className="h-3.5 w-3.5" /> Progression Engine
             </div>
-            <h2 className="mt-2 text-2xl font-extrabold text-text-primary">
+            <h2 className="mt-2 font-heading text-2xl font-extrabold text-text-primary">
               The 6 Shinobi Ranks
             </h2>
             <p className="mt-1 text-xs text-text-secondary">
@@ -342,7 +342,7 @@ export default async function Home() {
             return (
               <div
                 key={tier.rank}
-                className={`flex flex-col items-center justify-between rounded-2xl border p-4 text-center ${
+                className={`flex flex-col items-center justify-between rounded-2xl border p-4 text-center shadow-tactile-card ${
                   idx === BASE_LADDER.length - 1
                     ? "border-shinobi-gold/50 bg-gradient-to-b from-shinobi-gold/15 to-surface-card"
                     : idx >= 3
@@ -355,14 +355,14 @@ export default async function Home() {
                   <RankAvatar rank={tier.rank} size="lg" showGlow={idx >= 4} />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-text-primary">{tier.rank}</h4>
+                  <h4 className="font-heading text-sm font-bold text-text-primary">{tier.rank}</h4>
                   <p className="text-[11px] font-medium text-text-secondary">{meta.character}</p>
                 </div>
                 <div className="mt-3 w-full border-t border-white/[0.06] pt-2">
                   <span className="font-mono text-xs font-extrabold text-shinobi-gold">
                     {tier.minXp.toLocaleString()} XP
                   </span>
-                  <span className="block text-[10px] text-text-muted">threshold</span>
+                  <span className="block text-[10px] text-text-muted font-mono">threshold</span>
                 </div>
               </div>
             );
@@ -372,9 +372,9 @@ export default async function Home() {
 
       {/* ─── Prestige Title System ──────────────────────────────────────────── */}
       <section className="grid gap-6 md:grid-cols-3">
-        <div className="rounded-3xl border border-shinobi-gold/30 bg-gradient-to-b from-shinobi-gold/10 via-surface-base to-surface-base p-6">
+        <div className="rounded-2xl border border-shinobi-gold/30 bg-gradient-to-b from-shinobi-gold/10 via-surface-card to-surface-card p-6 shadow-tactile-card">
           <div className="flex items-center gap-3">
-            <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-shinobi-gold/40 bg-surface-elevated">
+            <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-shinobi-gold/40 bg-surface-elevated shadow-tactile-inset">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/ranks/kage.jpg"
@@ -383,7 +383,7 @@ export default async function Home() {
               />
             </div>
             <div>
-              <h3 className="font-bold text-text-primary">Hokage of the Leaf</h3>
+              <h3 className="font-heading font-bold text-text-primary">Hokage of the Leaf</h3>
               <p className="text-[11px] font-mono text-shinobi-gold">Top Weekly Solves</p>
             </div>
           </div>
@@ -392,9 +392,9 @@ export default async function Home() {
           </p>
         </div>
 
-        <div className="rounded-3xl border border-red-500/30 bg-gradient-to-b from-red-500/10 via-surface-base to-surface-base p-6">
+        <div className="rounded-2xl border border-red-500/30 bg-gradient-to-b from-red-500/10 via-surface-card to-surface-card p-6 shadow-tactile-card">
           <div className="flex items-center gap-3">
-            <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-red-500/40 bg-surface-elevated">
+            <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-red-500/40 bg-surface-elevated shadow-tactile-inset">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/ranks/anbu.jpg"
@@ -403,7 +403,7 @@ export default async function Home() {
               />
             </div>
             <div>
-              <h3 className="font-bold text-text-primary">Itachi (Master of Hards)</h3>
+              <h3 className="font-heading font-bold text-text-primary">Itachi (Master of Hards)</h3>
               <p className="text-[11px] font-mono text-red-400">Most Hard Solves</p>
             </div>
           </div>
@@ -412,9 +412,9 @@ export default async function Home() {
           </p>
         </div>
 
-        <div className="rounded-3xl border border-shinobi-flame/30 bg-gradient-to-b from-shinobi-flame/10 via-surface-base to-surface-base p-6">
+        <div className="rounded-2xl border border-shinobi-flame/30 bg-gradient-to-b from-shinobi-flame/10 via-surface-card to-surface-card p-6 shadow-tactile-card">
           <div className="flex items-center gap-3">
-            <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-shinobi-flame/40 bg-surface-elevated">
+            <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-shinobi-flame/40 bg-surface-elevated shadow-tactile-inset">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/ranks/rock_lee.jpg"
@@ -423,7 +423,7 @@ export default async function Home() {
               />
             </div>
             <div>
-              <h3 className="font-bold text-text-primary">Rock Lee (Relentless)</h3>
+              <h3 className="font-heading font-bold text-text-primary">Rock Lee (Relentless)</h3>
               <p className="text-[11px] font-mono text-shinobi-flame">Longest Active Streak</p>
             </div>
           </div>
@@ -434,39 +434,39 @@ export default async function Home() {
       </section>
 
       {/* ─── Technical Architecture / Developer Spec ───────────────────────── */}
-      <section className="rounded-3xl border border-white/10 bg-surface-base p-8">
-        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-shinobi-teal">
-          <Terminal className="h-4 w-4" /> Architecture & Anti-Cheat Spec
+      <section className="rounded-3xl border border-white/10 bg-surface-card p-8 shadow-tactile-card">
+        <div className="telemetry-tag border-shinobi-teal/30 bg-shinobi-teal/10 text-shinobi-teal">
+          <Terminal className="h-3.5 w-3.5" /> Architecture & Anti-Cheat Spec
         </div>
-        <h2 className="mt-2 text-2xl font-extrabold text-text-primary">
+        <h2 className="mt-3 font-heading text-2xl font-extrabold text-text-primary">
           Designed for Integrity & Zero Overhead
         </h2>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-2xl border border-white/[0.04] bg-surface-card p-4">
+          <div className="rounded-xl border border-white/[0.06] bg-surface-elevated/70 p-4 shadow-tactile-inset">
             <CheckCircle2 className="h-4 w-4 text-shinobi-teal" />
-            <h4 className="mt-2 text-xs font-bold text-text-primary">Headless GraphQL Sync</h4>
+            <h4 className="mt-2 font-heading text-xs font-bold text-text-primary">Headless GraphQL Sync</h4>
             <p className="mt-1 text-[11px] text-text-muted">
               Syncs with LeetCode every hour via Vercel Cron. Zero manual solve submissions.
             </p>
           </div>
-          <div className="rounded-2xl border border-white/[0.04] bg-surface-card p-4">
+          <div className="rounded-xl border border-white/[0.06] bg-surface-elevated/70 p-4 shadow-tactile-inset">
             <CheckCircle2 className="h-4 w-4 text-shinobi-teal" />
-            <h4 className="mt-2 text-xs font-bold text-text-primary">Anti-Squat Verification</h4>
+            <h4 className="mt-2 font-heading text-xs font-bold text-text-primary">Anti-Squat Verification</h4>
             <p className="mt-1 text-[11px] text-text-muted">
               Unique verification tokens in LeetCode About section prevent profile squatting.
             </p>
           </div>
-          <div className="rounded-2xl border border-white/[0.04] bg-surface-card p-4">
+          <div className="rounded-xl border border-white/[0.06] bg-surface-elevated/70 p-4 shadow-tactile-inset">
             <CheckCircle2 className="h-4 w-4 text-shinobi-teal" />
-            <h4 className="mt-2 text-xs font-bold text-text-primary">Mon–Sun UTC Week Cycle</h4>
+            <h4 className="mt-2 font-heading text-xs font-bold text-text-primary">Mon–Sun UTC Week Cycle</h4>
             <p className="mt-1 text-[11px] text-text-muted">
               Deterministic weekly windows. Resets every Monday 00:05 UTC with title evaluation.
             </p>
           </div>
-          <div className="rounded-2xl border border-white/[0.04] bg-surface-card p-4">
+          <div className="rounded-xl border border-white/[0.06] bg-surface-elevated/70 p-4 shadow-tactile-inset">
             <CheckCircle2 className="h-4 w-4 text-shinobi-teal" />
-            <h4 className="mt-2 text-xs font-bold text-text-primary">Zero Resubmit Spam</h4>
+            <h4 className="mt-2 font-heading text-xs font-bold text-text-primary">Zero Resubmit Spam</h4>
             <p className="mt-1 text-[11px] text-text-muted">
               Difficulty XP is awarded strictly on first-ever AC per problem slug.
             </p>
@@ -475,9 +475,9 @@ export default async function Home() {
       </section>
 
       {/* ─── Bottom Call to Action ─────────────────────────────────────────── */}
-      <section className="relative overflow-hidden rounded-3xl border border-shinobi-gold/30 bg-gradient-to-b from-shinobi-gold/10 via-surface-base to-surface-base p-10 text-center shadow-2xl">
+      <section className="relative overflow-hidden rounded-3xl border border-shinobi-gold/30 bg-gradient-to-b from-shinobi-gold/10 via-surface-card to-surface-card p-10 text-center shadow-tactile-card">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-3xl font-black tracking-tight text-text-primary sm:text-4xl">
+          <h2 className="font-heading text-3xl font-black tracking-tight text-text-primary sm:text-4xl">
             Claim Your Ninja Headband
           </h2>
           <p className="mt-3 text-sm text-text-secondary leading-relaxed">
@@ -487,21 +487,21 @@ export default async function Home() {
             {user ? (
               <Link
                 href="/dashboard"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-shinobi-gold px-8 py-3.5 text-sm font-bold text-black shadow-lg shadow-shinobi-gold/20 transition hover:bg-shinobi-gold/90 hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-shinobi-gold px-8 py-3.5 text-sm font-bold text-black shadow-tactile-btn transition hover:bg-shinobi-gold/90 hover:brightness-105 active:scale-[0.98]"
               >
                 Go to Dashboard <ArrowRight className="h-4 w-4" />
               </Link>
             ) : (
               <Link
                 href="/login"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-shinobi-gold px-8 py-3.5 text-sm font-bold text-black shadow-lg shadow-shinobi-gold/20 transition hover:bg-shinobi-gold/90 hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-shinobi-gold px-8 py-3.5 text-sm font-bold text-black shadow-tactile-btn transition hover:bg-shinobi-gold/90 hover:brightness-105 active:scale-[0.98]"
               >
                 Get Started with Google <ArrowRight className="h-4 w-4" />
               </Link>
             )}
             <Link
               href="/discover"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-surface-elevated px-6 py-3.5 text-sm font-semibold text-text-secondary transition hover:bg-surface-elevated/80 hover:text-text-primary"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-surface-elevated px-6 py-3.5 text-sm font-semibold text-text-secondary shadow-tactile-inset transition hover:border-white/20 hover:text-text-primary active:scale-[0.98]"
             >
               Explore Battle Clubs
             </Link>

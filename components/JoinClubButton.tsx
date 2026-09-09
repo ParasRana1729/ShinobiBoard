@@ -33,14 +33,14 @@ export function JoinClubButton({ groupId, memberCount }: { groupId: string; memb
   const pct = Math.min(100, Math.round((memberCount / 150) * 100));
 
   return (
-    <div className="rounded-2xl border border-white/[0.08] bg-surface p-4 sm:p-5 shadow-xl">
+    <div className="rounded-2xl border border-white/[0.08] bg-surface-card p-4 sm:p-5 shadow-tactile-card">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="flex h-2 w-2 rounded-full bg-emerald-400" />
-            <h3 className="text-sm font-bold text-white">Public Club Membership</h3>
+            <h3 className="font-heading text-sm font-bold text-text-primary">Public Club Membership</h3>
           </div>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-text-secondary">
             Open enrollment club · {memberCount} of 150 slots filled
           </p>
           <div className="h-1.5 w-48 overflow-hidden rounded-full bg-ink">
@@ -51,7 +51,7 @@ export function JoinClubButton({ groupId, memberCount }: { groupId: string; memb
         <button
           onClick={join}
           disabled={busy}
-          className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 px-5 py-2.5 text-xs font-bold text-black shadow-glow hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50"
+          className="btn-tactile-primary px-5 py-2.5 disabled:opacity-50"
         >
           {busy ? (
             <Loader2 className="h-4 w-4 animate-spin" />

@@ -78,23 +78,23 @@ export function Feed({ groupId, initial }: { groupId: string; initial: FeedEvent
   }, [groupId]);
 
   return (
-    <div className="relative flex flex-col rounded-2xl border border-white/[0.08] bg-surface/90 p-5 shadow-xl backdrop-blur-md">
+    <div className="relative flex flex-col rounded-2xl border border-white/[0.08] bg-surface-card p-5 shadow-tactile-card backdrop-blur-md">
       <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
         <div className="flex items-center gap-2">
           <div className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
           </div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-white">Live Squad Activity</h3>
+          <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-text-primary">Live Squad Activity</h3>
         </div>
 
         <button
           onClick={refresh}
           disabled={refreshing}
           title="Refresh activity"
-          className="rounded-lg p-1.5 text-slate-400 hover:bg-white/[0.06] hover:text-white transition-colors"
+          className="rounded-lg p-1.5 text-text-muted hover:bg-white/[0.06] hover:text-white transition-colors"
         >
-          <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin text-amber-400" : ""}`} />
+          <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin text-shinobi-gold" : ""}`} />
         </button>
       </div>
 

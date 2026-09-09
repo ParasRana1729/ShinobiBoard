@@ -49,14 +49,14 @@ export function Navbar({
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
-                <span className="font-extrabold tracking-tight text-white group-hover:text-amber-300 transition-colors">
+                <span className="font-heading font-black tracking-tight text-text-primary group-hover:text-shinobi-gold transition-colors">
                   ShinobiBoard
                 </span>
-                <span className="rounded bg-white/[0.06] px-1 py-0.2 font-mono text-[9px] font-semibold text-slate-400">
+                <span className="rounded bg-white/[0.06] px-1 py-0.2 font-mono text-[9px] font-semibold text-text-muted">
                   v1.1
                 </span>
               </div>
-              <span className="text-[10px] font-medium tracking-wider text-slate-400 uppercase">
+              <span className="text-[10px] font-mono font-medium tracking-wider text-text-muted uppercase">
                 LeetCode Accountability
               </span>
             </div>
@@ -143,13 +143,13 @@ export function Navbar({
             <div className="flex items-center gap-2">
               <Link
                 href="/discover"
-                className="hidden sm:inline-flex rounded-lg border border-white/[0.08] bg-surface px-3 py-1.5 text-xs font-semibold text-slate-300 hover:border-white/[0.2] transition-colors"
+                className="hidden sm:inline-flex btn-tactile-secondary py-1.5"
               >
                 Discover Clubs
               </Link>
               <Link
                 href="/login"
-                className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-amber-400 to-amber-500 px-4 py-1.5 text-xs font-bold text-black shadow-glow hover:brightness-110 transition-all"
+                className="btn-tactile-primary py-1.5"
               >
                 <Sparkles className="h-3.5 w-3.5 fill-black" />
                 Sign In

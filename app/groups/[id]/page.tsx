@@ -69,7 +69,7 @@ export default async function GroupPage({ params }: { params: { id: string } }) 
       </div>
 
       {/* Group Command Bar Header */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-surface p-6 shadow-2xl backdrop-blur-xl">
+      <div className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-surface-card p-6 shadow-tactile-card backdrop-blur-xl">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
@@ -85,18 +85,18 @@ export default async function GroupPage({ params }: { params: { id: string } }) 
                 {isDuel ? "1:1 Duel" : isClub ? "Public Club" : "Private Squad"}
               </span>
 
-              <span className="flex items-center gap-1 font-mono text-xs text-slate-400">
-                <Target className="h-3.5 w-3.5 text-amber-400" />
+              <span className="flex items-center gap-1 font-mono text-xs text-text-muted">
+                <Target className="h-3.5 w-3.5 text-shinobi-gold" />
                 <span>Goal: {group.goal} solves/week</span>
               </span>
 
-              <span className="flex items-center gap-1 font-mono text-xs text-slate-400">
-                <Users className="h-3.5 w-3.5 text-slate-400" />
+              <span className="flex items-center gap-1 font-mono text-xs text-text-muted">
+                <Users className="h-3.5 w-3.5 text-text-muted" />
                 <span>{members?.length ?? group.member_count} members</span>
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+            <h1 className="font-heading text-2xl sm:text-3xl font-black tracking-tight text-text-primary">
               {group.name}
             </h1>
           </div>

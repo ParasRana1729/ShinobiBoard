@@ -174,10 +174,10 @@ export default async function DuelAcceptPage({
     <main className="mx-auto max-w-4xl py-12 px-4 sm:px-6">
       {/* Top Banner Tag */}
       <div className="text-center">
-        <div className="inline-flex items-center gap-2 rounded-full border border-shinobi-gold/30 bg-shinobi-gold/10 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-shinobi-gold">
+        <div className="telemetry-tag border-shinobi-gold/30 bg-shinobi-gold/10 text-shinobi-gold px-3.5 py-1">
           <Swords className="h-3.5 w-3.5 animate-pulse" /> Versus Protocol Engaged
         </div>
-        <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl">
+        <h1 className="mt-4 font-heading text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl">
           Head-to-Head 1:1 Duel
         </h1>
         <p className="mt-2 text-sm text-text-secondary max-w-lg mx-auto">
@@ -188,8 +188,8 @@ export default async function DuelAcceptPage({
       {/* Versus Combatants Grid */}
       <div className="mt-10 grid grid-cols-1 items-stretch gap-6 md:grid-cols-[1fr,auto,1fr]">
         {/* Challenger Card */}
-        <div className="relative flex flex-col justify-between overflow-hidden rounded-2xl border border-red-500/30 bg-gradient-to-b from-red-950/20 via-surface-base to-surface-card p-6 shadow-xl shadow-black/40">
-          <div className="absolute top-0 right-0 rounded-bl-xl border-b border-l border-red-500/30 bg-red-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-red-400">
+        <div className="relative flex flex-col justify-between overflow-hidden rounded-2xl border border-red-500/30 bg-gradient-to-b from-red-950/20 via-surface-base to-surface-card p-6 shadow-tactile-card">
+          <div className="absolute top-0 right-0 rounded-bl-xl border-b border-l border-red-500/30 bg-red-500/10 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-red-400">
             Challenger
           </div>
 
@@ -204,7 +204,7 @@ export default async function DuelAcceptPage({
                 />
               </div>
               <div className="min-w-0">
-                <h2 className="truncate text-lg font-bold text-text-primary">{challenger.display_name}</h2>
+                <h2 className="truncate font-heading text-lg font-bold text-text-primary">{challenger.display_name}</h2>
                 <div className="flex items-center gap-2 text-xs text-text-muted mt-0.5">
                   <span className="font-mono text-shinobi-gold">@{challenger.lc_username || "unlinked"}</span>
                 </div>
@@ -255,8 +255,8 @@ export default async function DuelAcceptPage({
         </div>
 
         {/* Viewer Card */}
-        <div className="relative flex flex-col justify-between overflow-hidden rounded-2xl border border-shinobi-teal/30 bg-gradient-to-b from-teal-950/20 via-surface-base to-surface-card p-6 shadow-xl shadow-black/40">
-          <div className="absolute top-0 right-0 rounded-bl-xl border-b border-l border-shinobi-teal/30 bg-shinobi-teal/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-shinobi-teal">
+        <div className="relative flex flex-col justify-between overflow-hidden rounded-2xl border border-shinobi-teal/30 bg-gradient-to-b from-teal-950/20 via-surface-base to-surface-card p-6 shadow-tactile-card">
+          <div className="absolute top-0 right-0 rounded-bl-xl border-b border-l border-shinobi-teal/30 bg-shinobi-teal/10 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-shinobi-teal">
             You (Rival)
           </div>
 
@@ -271,7 +271,7 @@ export default async function DuelAcceptPage({
                 />
               </div>
               <div className="min-w-0">
-                <h2 className="truncate text-lg font-bold text-text-primary">{viewer.display_name}</h2>
+                <h2 className="truncate font-heading text-lg font-bold text-text-primary">{viewer.display_name}</h2>
                 <div className="flex items-center gap-2 text-xs text-text-muted mt-0.5">
                   <span className="font-mono text-shinobi-gold">@{viewer.lc_username || "unlinked"}</span>
                 </div>
@@ -289,18 +289,18 @@ export default async function DuelAcceptPage({
             {/* Viewer Stats */}
             <div className="mt-6 grid grid-cols-3 gap-2 border-t border-white/[0.06] pt-4 text-center">
               <div className="rounded-xl border border-white/[0.04] bg-surface-elevated/40 p-2.5">
-                <span className="text-[10px] uppercase tracking-wider text-text-muted">Total XP</span>
+                <span className="text-[10px] uppercase tracking-wider text-text-muted font-mono">Total XP</span>
                 <p className="mt-0.5 font-mono text-base font-bold text-shinobi-gold">{viewer.xp.toLocaleString()}</p>
               </div>
               <div className="rounded-xl border border-white/[0.04] bg-surface-elevated/40 p-2.5">
-                <span className="text-[10px] uppercase tracking-wider text-text-muted">Streak</span>
+                <span className="text-[10px] uppercase tracking-wider text-text-muted font-mono">Streak</span>
                 <p className="mt-0.5 flex items-center justify-center gap-1 font-mono text-base font-bold text-shinobi-flame">
                   <Flame className="h-3.5 w-3.5 fill-shinobi-flame/30" />
                   {viewer.streak}d
                 </p>
               </div>
               <div className="rounded-xl border border-white/[0.04] bg-surface-elevated/40 p-2.5">
-                <span className="text-[10px] uppercase tracking-wider text-text-muted">Week Solves</span>
+                <span className="text-[10px] uppercase tracking-wider text-text-muted font-mono">Week Solves</span>
                 <p className="mt-0.5 font-mono text-base font-bold text-text-primary">{viewer.weekly_count}</p>
               </div>
             </div>
@@ -309,20 +309,20 @@ export default async function DuelAcceptPage({
       </div>
 
       {/* Stakes and Rules Box */}
-      <div className="mt-8 rounded-2xl border border-white/[0.08] bg-surface-base/80 p-5 backdrop-blur-sm">
-        <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-text-secondary">
+      <div className="mt-8 rounded-2xl border border-white/[0.08] bg-surface-card p-5 shadow-tactile-card backdrop-blur-sm">
+        <h3 className="flex items-center gap-2 font-heading text-xs font-bold uppercase tracking-wider text-text-secondary">
           <Trophy className="h-4 w-4 text-shinobi-gold" /> Duel Ground Rules
         </h3>
         <ul className="mt-3 grid gap-2.5 text-xs text-text-secondary sm:grid-cols-3">
-          <li className="flex items-start gap-2 rounded-xl border border-white/[0.04] bg-surface-card p-3">
+          <li className="flex items-start gap-2 rounded-xl border border-white/[0.04] bg-surface-elevated/60 p-3 shadow-tactile-inset">
             <span className="font-mono text-shinobi-gold font-bold">01</span>
             <span>Hourly automated sync directly from LeetCode. Zero manual submission logging.</span>
           </li>
-          <li className="flex items-start gap-2 rounded-xl border border-white/[0.04] bg-surface-card p-3">
+          <li className="flex items-start gap-2 rounded-xl border border-white/[0.04] bg-surface-elevated/60 p-3 shadow-tactile-inset">
             <span className="font-mono text-shinobi-gold font-bold">02</span>
             <span>Daily W / L / D recorded based on problems solved before 23:59 UTC each day.</span>
           </li>
-          <li className="flex items-start gap-2 rounded-xl border border-white/[0.04] bg-surface-card p-3">
+          <li className="flex items-start gap-2 rounded-xl border border-white/[0.04] bg-surface-elevated/60 p-3 shadow-tactile-inset">
             <span className="font-mono text-shinobi-gold font-bold">03</span>
             <span>Streak shields and prestige ranks update live as both rivals solve problems.</span>
           </li>
@@ -333,14 +333,14 @@ export default async function DuelAcceptPage({
       <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
         <a
           href={`/api/duels/accept?token=${encodeURIComponent(token)}`}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-shinobi-gold px-8 py-3.5 text-sm font-bold text-black shadow-lg shadow-shinobi-gold/20 transition hover:bg-shinobi-gold/90 hover:scale-[1.02] active:scale-[0.98]"
+          className="btn-tactile-primary w-full sm:w-auto px-8 py-3.5 text-sm"
         >
           <Swords className="h-4 w-4" />
           Accept Challenge & Enter Arena
         </a>
         <Link
           href="/dashboard"
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-surface-elevated px-6 py-3.5 text-sm font-semibold text-text-secondary transition hover:bg-surface-elevated/80 hover:text-text-primary"
+          className="btn-tactile-secondary w-full sm:w-auto px-6 py-3.5 text-sm"
         >
           Decline Duel
         </Link>

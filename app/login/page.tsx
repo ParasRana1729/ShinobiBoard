@@ -50,16 +50,16 @@ function LoginForm() {
       </div>
 
       {/* Main Auth Card */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-surface-base p-8 shadow-2xl shadow-black/80 backdrop-blur-xl">
+      <div className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-surface-card p-8 shadow-tactile-card backdrop-blur-xl">
         {/* Subtle top glow line */}
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-shinobi-gold/50 to-transparent" />
 
         {/* Brand Crest */}
         <div className="text-center">
-          <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-shinobi-gold/30 bg-gradient-to-b from-shinobi-gold/15 to-transparent text-shinobi-gold shadow-lg shadow-shinobi-gold/10">
-            <span className="text-2xl font-black">忍</span>
+          <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-shinobi-gold/30 bg-gradient-to-b from-shinobi-gold/15 to-transparent text-shinobi-gold shadow-tactile-inset">
+            <span className="font-mono text-2xl font-black">忍</span>
           </div>
-          <h1 className="mt-4 text-2xl font-black tracking-tight text-text-primary sm:text-3xl">
+          <h1 className="mt-4 font-heading text-2xl font-black tracking-tight text-text-primary sm:text-3xl">
             Enter the Village
           </h1>
           <p className="mt-2 text-xs text-text-secondary">
@@ -73,7 +73,7 @@ function LoginForm() {
             onClick={signIn}
             disabled={busy}
             type="button"
-            className="group relative flex w-full items-center justify-center gap-3 rounded-2xl border border-white/10 bg-surface-elevated px-5 py-3.5 text-sm font-semibold text-text-primary shadow-lg transition duration-150 hover:border-shinobi-gold/40 hover:bg-white/[0.08] hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
+            className="group relative flex w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-surface-elevated px-5 py-3.5 text-sm font-semibold text-text-primary shadow-tactile-btn transition duration-150 hover:border-shinobi-gold/40 hover:bg-surface-hover active:scale-[0.98] disabled:opacity-50"
           >
             {busy ? (
               <>

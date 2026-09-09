@@ -1,8 +1,27 @@
 import type { Metadata } from "next";
+import { Plus_Jakarta_Sans, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { createClient } from "@/lib/supabase/server";
 import { Navbar, type NavUser } from "@/components/Navbar";
 import { redirect } from "next/navigation";
+
+const fontSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const fontHeading = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-heading",
+  display: "swap",
+});
+
+const fontMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "ShinobiBoard — Competitive LeetCode Accountability",
@@ -40,8 +59,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <html lang="en" className="dark">
-      <body className="flex min-h-screen flex-col bg-ink text-slate-100 antialiased bg-grid">
+    <html
+      lang="en"
+      className={`dark ${fontSans.variable} ${fontHeading.variable} ${fontMono.variable}`}
+    >
+      <body className="flex min-h-screen flex-col bg-ink font-sans text-text-primary antialiased bg-grid selection:bg-shinobi-gold/30 selection:text-shinobi-gold">
         <Navbar user={navUser} onSignOut={handleSignOut} />
         <div className="mx-auto w-full max-w-7xl flex-1 px-4 sm:px-6 lg:px-8 pb-16 pt-4">
           {children}

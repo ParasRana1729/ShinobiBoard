@@ -244,16 +244,16 @@ export function Board({
   return (
     <div className="space-y-4">
       {/* Controls Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/[0.08] bg-surface/80 p-3.5 shadow-xl backdrop-blur-md">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/[0.08] bg-surface-card/90 p-3 shadow-tactile-card backdrop-blur-md">
         {/* Left: View Switcher */}
         <div className="flex items-center gap-2">
-          <div className="flex rounded-xl border border-white/[0.08] bg-ink/70 p-1">
+          <div className="flex rounded-xl border border-white/[0.08] bg-ink/80 p-1 shadow-tactile-inset">
             <button
               onClick={() => setView("leaderboard")}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
                 view === "leaderboard"
-                  ? "bg-amber-400 text-black shadow-glow"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-shinobi-gold text-black shadow-tactile-btn"
+                  : "text-text-muted hover:text-white"
               }`}
             >
               <Trophy className="h-3.5 w-3.5" />
@@ -263,8 +263,8 @@ export function Board({
               onClick={() => setView("custom")}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
                 view === "custom"
-                  ? "bg-amber-400 text-black shadow-glow"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-shinobi-gold text-black shadow-tactile-btn"
+                  : "text-text-muted hover:text-white"
               }`}
             >
               <SlidersHorizontal className="h-3.5 w-3.5" />
@@ -277,14 +277,14 @@ export function Board({
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as BoardSort)}
-              className="appearance-none rounded-xl border border-white/[0.08] bg-ink/70 py-1.5 pl-3 pr-8 text-xs font-medium text-slate-200 focus:border-amber-400 focus:outline-none"
+              className="appearance-none rounded-xl border border-white/[0.08] bg-ink/80 py-1.5 pl-3 pr-8 text-xs font-medium text-text-primary shadow-tactile-inset focus:border-shinobi-gold focus:outline-none"
             >
               <option value="weekly">Sort: Weekly Solves</option>
               <option value="streak">Sort: Longest Streak</option>
               <option value="xp">Sort: Total XP</option>
               <option value="base_rank">Sort: Base Rank</option>
             </select>
-            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400" />
+            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-text-muted" />
           </div>
         </div>
 
@@ -383,11 +383,11 @@ export function Board({
           // Podium border styling
           let cardBorder = "border-white/[0.08] hover:border-white/[0.2]";
           if (isTop3 && index === 0) {
-            cardBorder = "border-amber-500/50 shadow-glow-gold hover:border-amber-400";
+            cardBorder = "border-shinobi-gold/60 shadow-glow-gold hover:border-shinobi-gold";
           } else if (isTop3 && index === 1) {
-            cardBorder = "border-slate-400/40 shadow-lg hover:border-slate-300";
+            cardBorder = "border-slate-400/40 shadow-tactile-card hover:border-slate-300";
           } else if (isTop3 && index === 2) {
-            cardBorder = "border-amber-700/40 shadow-lg hover:border-amber-600";
+            cardBorder = "border-amber-700/40 shadow-tactile-card hover:border-amber-600";
           } else if (isFrozen) {
             cardBorder = "border-slate-800 bg-ink/40 opacity-60";
           }
@@ -399,8 +399,8 @@ export function Board({
               onDragStart={() => setDragId(r.user_id)}
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => onDrop(r.user_id)}
-              className={`relative flex w-72 shrink-0 flex-col justify-between rounded-2xl border bg-surface/95 p-4 shadow-xl backdrop-blur-md transition-all max-md:w-full ${cardBorder} ${
-                r.pinned ? "ring-1 ring-amber-400" : ""
+              className={`relative flex w-72 shrink-0 flex-col justify-between rounded-2xl border bg-surface-card p-4 shadow-tactile-card backdrop-blur-md transition-all max-md:w-full ${cardBorder} ${
+                r.pinned ? "ring-1 ring-shinobi-gold" : ""
               }`}
             >
               {/* Card Header: Drag handle, Rank, Avatar, Title */}
@@ -408,7 +408,7 @@ export function Board({
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2.5">
                     {view === "custom" && (
-                      <GripVertical className="h-4 w-4 text-slate-500 cursor-grab active:cursor-grabbing" />
+                      <GripVertical className="h-4 w-4 text-text-muted cursor-grab active:cursor-grabbing" />
                     )}
 
                     {/* Avatar with Anime Rank Emblem */}
@@ -419,7 +419,7 @@ export function Board({
                         alt=""
                         className={`h-10 w-10 rounded-xl object-cover border ${
                           isHokage
-                            ? "border-amber-400 shadow-glow"
+                            ? "border-shinobi-gold shadow-glow"
                             : isTop3
                             ? "border-white/30"
                             : "border-white/[0.08]"
@@ -431,7 +431,7 @@ export function Board({
                         className="absolute -bottom-1 -right-1.5 z-10"
                       />
                       {r.pinned && (
-                        <span className="absolute -top-1.5 -right-1.5 rounded-full bg-amber-400 p-0.5 text-black shadow-sm z-20">
+                        <span className="absolute -top-1.5 -right-1.5 rounded-full bg-shinobi-gold p-0.5 text-black shadow-sm z-20">
                           <Pin className="h-2.5 w-2.5 fill-black" />
                         </span>
                       )}
@@ -440,11 +440,11 @@ export function Board({
                     {/* Names */}
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <p className="truncate text-xs font-bold text-white tracking-tight">
+                        <p className="truncate text-xs font-heading font-bold text-text-primary tracking-tight">
                           {r.display_name}
                         </p>
                       </div>
-                      <p className="truncate font-mono text-[11px] text-slate-400">
+                      <p className="truncate font-mono text-[11px] text-text-muted">
                         @{r.lc_username ?? "unlinked"}
                       </p>
                     </div>
@@ -455,17 +455,17 @@ export function Board({
                     <span
                       className={`font-mono text-xs font-black ${
                         index === 0 && !isFrozen
-                          ? "text-amber-400 font-extrabold text-sm"
+                          ? "text-shinobi-gold font-extrabold text-sm"
                           : index === 1
                           ? "text-slate-300"
                           : index === 2
                           ? "text-amber-600"
-                          : "text-slate-400"
+                          : "text-text-muted"
                       }`}
                     >
                       #{r.group_rank || index + 1}
                     </span>
-                    <span className="mt-0.5 inline-flex items-center gap-1 text-[10px] font-semibold text-slate-400">
+                    <span className="mt-0.5 inline-flex items-center gap-1 text-[10px] font-mono font-semibold text-text-muted">
                       {r.base_rank}
                     </span>
                   </div>

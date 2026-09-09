@@ -87,22 +87,22 @@ export default async function DashboardPage() {
               · UTC Week {currentWeek}
             </span>
           </div>
-          <h1 className="mt-2 text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2">
+          <h1 className="mt-2 font-heading text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2">
             <span>Welcome back,</span>
             <span className="bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 bg-clip-text text-transparent">
               {profile?.display_name ?? "Shinobi"}
             </span>
           </h1>
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-text-secondary">
             {daysRemainingInWeek} {daysRemainingInWeek === 1 ? "day" : "days"} left until the Monday 00:05 UTC Hokage reset. Protect your rank and squad standing.
           </p>
         </div>
 
         <Link
           href="/discover"
-          className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-surface px-4 py-2 text-xs font-semibold text-slate-200 hover:border-white/[0.2] transition-colors shadow-sm"
+          className="btn-tactile-secondary"
         >
-          <Compass className="h-3.5 w-3.5 text-amber-400" />
+          <Compass className="h-3.5 w-3.5 text-shinobi-gold" />
           <span>Discover Public Clubs</span>
         </Link>
       </div>
@@ -119,29 +119,29 @@ export default async function DashboardPage() {
         </div>
 
         {/* Missions & Gamified Quests (1 col) */}
-        <div className="relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/[0.1] bg-surface p-6 shadow-2xl backdrop-blur-xl">
-          <div className="absolute top-0 right-0 -mr-12 -mt-12 h-40 w-40 rounded-full bg-cyan-500/[0.05] blur-2xl pointer-events-none" />
+        <div className="relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/[0.08] bg-surface-card p-6 shadow-tactile-card backdrop-blur-xl">
+          <div className="absolute top-0 right-0 -mr-12 -mt-12 h-40 w-40 rounded-full bg-shinobi-gold/[0.03] blur-2xl pointer-events-none" />
 
           <div>
             <div className="flex items-center gap-2 pb-3 border-b border-white/[0.06]">
-              <Target className="h-4 w-4 text-amber-400" />
-              <h3 className="text-xs font-bold uppercase tracking-wider text-white">Active Objectives</h3>
+              <Target className="h-4 w-4 text-shinobi-gold" />
+              <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-text-primary">Active Objectives</h3>
             </div>
 
             <div className="mt-4 space-y-3">
               {/* Quest 1: Weekly Goal */}
-              <div className="rounded-xl border border-white/[0.04] bg-ink/50 p-3.5 space-y-2">
+              <div className="rounded-xl border border-white/[0.06] bg-surface-elevated/60 p-3.5 space-y-2 shadow-tactile-inset">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-slate-200">Weekly Goal Pursuit</span>
-                  <span className="font-mono text-xs font-bold text-amber-400">{currentWeeklyCount}/7 solves</span>
+                  <span className="font-semibold text-text-primary">Weekly Goal Pursuit</span>
+                  <span className="font-mono text-xs font-bold text-shinobi-gold">{currentWeeklyCount}/7 solves</span>
                 </div>
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink">
                   <div
-                    className="h-full rounded-full bg-amber-400"
+                    className="h-full rounded-full bg-shinobi-gold"
                     style={{ width: `${Math.min(100, Math.round((currentWeeklyCount / 7) * 100))}%` }}
                   />
                 </div>
-                <p className="text-[10px] text-slate-400">Hokage title qualification requires hitting your goal</p>
+                <p className="text-[10px] text-text-muted font-mono">Hokage title qualification requires hitting your goal</p>
               </div>
 
               {/* Quest 2: Streak Bonus */}
@@ -185,11 +185,11 @@ export default async function DashboardPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-              <Users className="h-4 w-4 text-amber-400" />
+            <h2 className="font-heading text-lg font-bold tracking-tight text-text-primary flex items-center gap-2">
+              <Users className="h-4 w-4 text-shinobi-gold" />
               <span>Your Squads & Rivalries ({groupsList.length})</span>
             </h2>
-            <p className="text-xs text-slate-400">Circles you are actively competing in</p>
+            <p className="text-xs text-text-secondary">Circles you are actively competing in</p>
           </div>
         </div>
 
@@ -202,7 +202,7 @@ export default async function DashboardPage() {
               <Link
                 key={m.group_id}
                 href={`/groups/${m.group.id}`}
-                className="group relative flex flex-col justify-between rounded-2xl border border-white/[0.08] bg-surface p-5 shadow-lg hover:border-amber-400/50 hover:shadow-glow transition-all"
+                className="group relative flex flex-col justify-between rounded-2xl border border-white/[0.08] bg-surface-card p-5 shadow-tactile-card hover:border-shinobi-gold/50 hover:shadow-glow transition-all"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2">
@@ -218,22 +218,22 @@ export default async function DashboardPage() {
                       {m.group.type}
                     </span>
 
-                    <span className="font-mono text-[10px] text-slate-500 capitalize">
+                    <span className="font-mono text-[10px] text-text-muted capitalize">
                       Role: {m.role}
                     </span>
                   </div>
 
-                  <h3 className="mt-3 text-base font-bold text-white group-hover:text-amber-300 transition-colors">
+                  <h3 className="mt-3 font-heading text-base font-bold text-text-primary group-hover:text-shinobi-gold transition-colors">
                     {m.group.name}
                   </h3>
 
-                  <div className="mt-3 flex items-center justify-between text-xs text-slate-400 font-mono">
+                  <div className="mt-3 flex items-center justify-between text-xs text-text-secondary font-mono">
                     <span>Goal: {m.group.goal}/wk</span>
                     <span>{m.group.member_count} {m.group.member_count === 1 ? "member" : "members"}</span>
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-center justify-between border-t border-white/[0.06] pt-3 text-xs font-semibold text-amber-400">
+                <div className="mt-4 flex items-center justify-between border-t border-white/[0.06] pt-3 text-xs font-semibold text-shinobi-gold">
                   <span>Enter Board</span>
                   <ArrowRight className="h-3.5 w-3.5 transform group-hover:translate-x-1 transition-transform" />
                 </div>
@@ -242,10 +242,10 @@ export default async function DashboardPage() {
           })}
 
           {groupsList.length === 0 && (
-            <div className="rounded-2xl border border-white/[0.06] bg-surface/50 p-8 text-center text-slate-400 sm:col-span-2 lg:col-span-3">
+            <div className="rounded-2xl border border-white/[0.06] bg-surface-card/60 p-8 text-center text-text-muted sm:col-span-2 lg:col-span-3 shadow-tactile-inset">
               <Shield className="mx-auto h-8 w-8 text-slate-600 mb-2 opacity-60" />
-              <p className="text-sm font-semibold text-slate-300">No squads joined yet</p>
-              <p className="mt-1 text-xs text-slate-500">Create a squad below, join with an invite code, or discover public clubs.</p>
+              <p className="font-heading text-sm font-semibold text-text-primary">No squads joined yet</p>
+              <p className="mt-1 text-xs text-text-muted">Create a squad below, join with an invite code, or discover public clubs.</p>
             </div>
           )}
         </div>

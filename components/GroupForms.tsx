@@ -40,18 +40,18 @@ export function CreateGroupForm() {
   return (
     <form
       onSubmit={submit}
-      className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-surface/90 p-5 sm:p-6 shadow-xl backdrop-blur-md flex flex-col justify-between"
+      className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-surface-card p-5 sm:p-6 shadow-tactile-card backdrop-blur-md flex flex-col justify-between"
     >
-      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-shinobi-gold/50 to-transparent" />
 
       <div>
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04]">
-            <PlusCircle className="h-5 w-5 text-amber-400" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] shadow-tactile-inset">
+            <PlusCircle className="h-5 w-5 text-shinobi-gold" />
           </div>
           <div>
-            <h2 className="text-sm font-bold tracking-tight text-white sm:text-base">Create Squad / Club</h2>
-            <p className="text-xs text-slate-400">Establish a new grind circle with custom goals</p>
+            <h2 className="font-heading text-sm font-bold tracking-tight text-text-primary sm:text-base">Create Squad / Club</h2>
+            <p className="text-xs text-text-secondary">Establish a new grind circle with custom goals</p>
           </div>
         </div>
 
@@ -148,7 +148,7 @@ export function CreateGroupForm() {
         <button
           type="submit"
           disabled={busy || !name.trim()}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 py-2.5 text-xs font-bold text-black shadow-glow hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50"
+          className="btn-tactile-primary w-full py-2.5 disabled:opacity-50"
         >
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlusCircle className="h-4 w-4" />}
           <span>Create Group</span>
@@ -192,23 +192,23 @@ export function JoinGroupForm() {
   return (
     <form
       onSubmit={submit}
-      className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-surface/90 p-5 sm:p-6 shadow-xl backdrop-blur-md flex flex-col justify-between"
+      className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-surface-card p-5 sm:p-6 shadow-tactile-card backdrop-blur-md flex flex-col justify-between"
     >
-      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-shinobi-teal/50 to-transparent" />
 
       <div>
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04]">
-            <Key className="h-5 w-5 text-cyan-400" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] shadow-tactile-inset">
+            <Key className="h-5 w-5 text-shinobi-teal" />
           </div>
           <div>
-            <h2 className="text-sm font-bold tracking-tight text-white sm:text-base">Join with Code</h2>
-            <p className="text-xs text-slate-400">Enter an 8-character squad or club invite code</p>
+            <h2 className="font-heading text-sm font-bold tracking-tight text-text-primary sm:text-base">Join with Code</h2>
+            <p className="text-xs text-text-secondary">Enter an 8-character squad or club invite code</p>
           </div>
         </div>
 
         <div className="mt-4">
-          <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+          <label className="block text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-1.5 font-mono">
             Invite Code
           </label>
           <div className="relative">
@@ -217,11 +217,11 @@ export function JoinGroupForm() {
               onChange={(e) => setCode(e.target.value.toUpperCase())}
               placeholder="e.g. 7X9K2M4P"
               maxLength={8}
-              className="w-full rounded-xl border border-white/[0.1] bg-ink/80 px-3.5 py-2.5 font-mono text-base tracking-widest text-center text-cyan-300 placeholder-slate-600 shadow-inner focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400 transition-all uppercase"
+              className="w-full rounded-xl border border-white/[0.08] bg-ink/80 px-3.5 py-2.5 font-mono text-base tracking-widest text-center text-shinobi-teal placeholder-slate-600 shadow-tactile-inset focus:border-shinobi-teal focus:outline-none focus:ring-1 focus:ring-shinobi-teal transition-all uppercase"
               required
             />
           </div>
-          <p className="mt-2 text-[11px] text-slate-500">
+          <p className="mt-2 text-[11px] text-text-muted font-mono">
             Case-insensitive, single active code per group without 0/O/1/I.
           </p>
         </div>
@@ -231,7 +231,7 @@ export function JoinGroupForm() {
         <button
           type="submit"
           disabled={busy || code.trim().length !== 8}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-cyan-500/30 bg-cyan-950/40 py-2.5 text-xs font-bold text-cyan-300 hover:bg-cyan-900/50 hover:border-cyan-500/60 shadow-glow-cyan active:scale-[0.98] transition-all disabled:opacity-40 disabled:pointer-events-none"
+          className="btn-tactile-secondary w-full py-2.5 border-shinobi-teal/40 bg-teal-950/30 text-teal-300 hover:bg-teal-900/40 hover:border-shinobi-teal/60 disabled:opacity-40 disabled:pointer-events-none"
         >
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
           <span>Join Squad</span>

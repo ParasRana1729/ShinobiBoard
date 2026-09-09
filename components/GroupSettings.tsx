@@ -273,27 +273,27 @@ export function DuelButtons({ groupId }: { groupId?: string }) {
   }
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-surface/90 p-5 sm:p-6 shadow-xl backdrop-blur-md flex flex-col justify-between">
-      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-rose-500/40 to-transparent" />
+    <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-surface-card p-5 sm:p-6 shadow-tactile-card backdrop-blur-md flex flex-col justify-between">
+      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-shinobi-crimson/50 to-transparent" />
 
       <div>
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04]">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] shadow-tactile-inset">
             <Swords className="h-5 w-5 text-rose-400" />
           </div>
           <div>
-            <h2 className="text-sm font-bold tracking-tight text-white sm:text-base">1:1 Duel Arena</h2>
-            <p className="text-xs text-slate-400">Head-to-head rivalry with daily W/L/D tracking</p>
+            <h2 className="font-heading text-sm font-bold tracking-tight text-text-primary sm:text-base">1:1 Duel Arena</h2>
+            <p className="text-xs text-text-secondary">Head-to-head rivalry with daily W/L/D tracking</p>
           </div>
         </div>
 
-        <p className="mt-3 text-xs text-slate-300 leading-relaxed">
+        <p className="mt-3 text-xs text-text-secondary leading-relaxed">
           Challenge a rival to a 1:1 grudge match. Compare solve counts daily, protect your lead, and settle who grinds harder.
         </p>
 
         {link && (
-          <div className="mt-3 rounded-xl border border-rose-500/30 bg-ink/90 p-3">
-            <p className="text-[10px] font-semibold uppercase text-rose-300 mb-1">Single-use Challenge Link</p>
+          <div className="mt-3 rounded-xl border border-rose-500/30 bg-ink/90 p-3 shadow-tactile-inset">
+            <p className="text-[10px] font-mono font-semibold uppercase text-rose-300 mb-1">Single-use Challenge Link</p>
             <div className="flex items-center gap-2">
               <input
                 readOnly
@@ -316,13 +316,13 @@ export function DuelButtons({ groupId }: { groupId?: string }) {
         <button
           onClick={create}
           disabled={busy}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-rose-500/30 bg-rose-950/40 py-2.5 text-xs font-bold text-rose-300 hover:bg-rose-900/50 hover:border-rose-500/60 shadow-lg active:scale-[0.98] transition-all disabled:opacity-50"
+          className="btn-tactile-danger w-full py-2.5 disabled:opacity-50"
         >
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Swords className="h-4 w-4" />}
           <span>{link ? "Generate Another Duel Link" : "Challenge Rival"}</span>
         </button>
 
-        {msg && <p className="mt-2 text-center text-xs text-slate-400 leading-normal">{msg}</p>}
+        {msg && <p className="mt-2 text-center text-xs text-text-muted leading-normal">{msg}</p>}
       </div>
     </div>
   );
