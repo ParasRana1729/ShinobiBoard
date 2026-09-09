@@ -106,7 +106,7 @@ export async function GET(req: Request) {
         granted_at: nowIso,
         expires_at: new Date(now.getTime() + days * 86_400_000).toISOString(),
       });
-      if (error) continue; // partial-unique holder exists — keep incumbent
+      if (error) continue; // live holder exists (trg_title_holder) — keep incumbent
       granted++;
       const nm = ((prof.get(cand.user_id) ?? {}) as { display_name?: string }).display_name ?? "Someone";
       const label = TITLE_META[title].label;

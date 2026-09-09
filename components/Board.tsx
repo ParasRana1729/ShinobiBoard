@@ -89,10 +89,13 @@ export function Board({
   }, [load]);
 
   // Realtime: one channel per group (§11) — board + feed refresh on new events.
+  // Topic carries a per-instance suffix: supabase-js reuses channel objects by
+  // topic and .on() after .subscribe() throws, and Board + Feed subscribe to
+  // the same group simultaneously. Filter still scopes to the group.
   useEffect(() => {
     const supabase = createClient();
     const ch = supabase
-      .channel(`group:${groupId}`)
+      .channel(`group:${groupId}:board:${Math.random().toString(36).slice(2, 10)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "events", filter: `group_id=eq.${groupId}` },

@@ -8,9 +8,9 @@ import { weekStartUTC } from "@/lib/week";
 const Body = z.object({ leetcode_username: z.string().min(1).max(30) });
 
 /**
- * POST /api/verify/confirm — onboarding step 5 (§7.1).
- * Re-fetches aboutMe, requires code present → links auth_user ↔ lc_username.
- * New username starts fresh cursor with 7-day backfill window.
+ * POST /api/verify/confirm — dispute path step 2 (§7.1).
+ * Re-fetches aboutMe, requires code present → transfers the username to the
+ * verifier. New username starts fresh cursor with 7-day backfill window.
  */
 export async function POST(req: Request) {
   const userId = await getAuthUserId();

@@ -221,7 +221,11 @@ create table if not exists public.duel_invites (
 );
 create index if not exists duel_invites_from_idx on public.duel_invites(from_user);
 
--- ─── titles §5 (partial unique: 1 holder max per group+title while live) ──
+-- ─── titles §5 (1 holder max per group+title while live) ──────────────
+-- NOTE: a partial unique index WHERE (expires_at > now()) is invalid Postgres
+-- (functions in index predicates must be IMMUTABLE; now() is STABLE), so the
+-- live-holder cap is enforced by trigger instead. The weekly cron inserts and
+-- treats a TITLE_TAKEN error as "keep incumbent".
 create table if not exists public.titles (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles(auth_user_id) on delete cascade,
@@ -230,9 +234,24 @@ create table if not exists public.titles (
   granted_at timestamptz not null default now(),
   expires_at timestamptz not null
 );
-create unique index if not exists titles_one_holder_idx
-  on public.titles(group_id, title) where (expires_at > now());
 create index if not exists titles_user_idx on public.titles(user_id, expires_at desc);
+
+create or replace function public.check_title_holder()
+returns trigger language plpgsql as $$
+declare n int;
+begin
+  select count(*) into n from public.titles
+  where group_id = new.group_id and title = new.title
+    and expires_at > now() and id <> new.id;
+  if n > 0 then
+    raise exception 'TITLE_TAKEN: % already held live in this group', new.title;
+  end if;
+  return new;
+end $$;
+drop trigger if exists trg_title_holder on public.titles;
+create trigger trg_title_holder
+  before insert or update of group_id, title, expires_at on public.titles
+  for each row execute function public.check_title_holder();
 
 -- ─── events §8 (retention 30d, cap 200/group, prune oldest) ──────────
 create table if not exists public.events (

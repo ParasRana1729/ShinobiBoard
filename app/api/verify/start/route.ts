@@ -17,8 +17,9 @@ function makeCode(): string {
 }
 
 /**
- * POST /api/verify/start — onboarding step 1–4 (§7.1).
- * Validates existence/public/claimed, then issues SB-XXXXXX (30-min TTL).
+ * POST /api/verify/start — dispute path step 1 (§7.1).
+ * Issues SB-XXXXXX (30-min TTL) so the requester can prove ownership of a
+ * username claimed by someone else. Normal linking uses /api/verify/link.
  */
 export async function POST(req: Request) {
   const userId = await getAuthUserId();

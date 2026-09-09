@@ -62,7 +62,7 @@ Kage ≈ 350 first-ever mediums, ≈131 hards, ≈1050 easies (streak bonus lowe
 - Weekly #1 → `Hokage · 7 days` (requires meeting group goal, non-frozen, tie-break §4 Leaderboard order).
 - Most hards in week (counted hard solves) → `Itachi · 3 days`. Tie → higher weekly total → XP → streak.
 - Best comeback → `Rock Lee · 3 days`. Qualifier: previous UTC week 0 counted AND current week ≥15 counted. Winner = largest delta; tie → same tie-break. If no qualifier, title vacant that week (no award).
-- Grant: Monday 00:05 UTC cron after reset. Expire automatically (7d/3d). Enforced by partial unique index `(group_id, title) WHERE expires_at > now()`. Shown as gold badge on card.
+- Grant: Monday 00:05 UTC cron after reset. Expire automatically (7d/3d). Enforced by `trg_title_holder` trigger (1 live holder per group+title; cron keeps incumbent on conflict). Shown as gold badge on card.
 
 ## 6. Weekly Goal (configurable)
 - Global default **7 solves/week** (was 20). Per-group override 1–50, owner-set, default inherits global.
@@ -74,13 +74,15 @@ Kage ≈ 350 first-ever mediums, ≈131 hards, ≈1050 easies (streak bonus lowe
 ## 7. LeetCode Sync — strict only + verified
 No manual add/edit. Only synced counted solves count.
 
-### 7.1 Onboarding + anti-squat verification
-1. Enter `leetcode_username` → server queries `matchedUser { username, submitStats { acSubmissionNum { difficulty count } }, profile { aboutMe } }`.
+### 7.1 Linking + anti-squat
+1. Enter `leetcode_username` → click Link → server validates via `matchedUser`
+   (exists + public `submitStats`) and links immediately (fresh cursor, 7-day backfill).
 2. Fail if not found → `Not found — check spelling`.
 3. Fail if `submitStats` null / private → `Set profile Public`.
-4. Fail if username linked to another auth user → `Claimed — ask owner to unlink or dispute`.
-5. Else issue code `SB-XXXXXX` (30-min TTL). User pastes code into LeetCode Profile About, clicks Verify. Server re-fetches `aboutMe` contains code → link `auth_user ↔ lc_username`. User may remove code after.
-6. Unlink/relink allowed (releases username immediately, keeps solve history tied to auth user; new username starts fresh cursor, 7-day backfill only).
+4. Fail if username linked to another auth user → `Claimed` + dispute path below.
+5. Unlink/relink allowed (releases username immediately, keeps solve history tied to auth user; new username starts fresh cursor, 7-day backfill only).
+6. Dispute (claimed names only): issue code `SB-XXXXXX` (30-min TTL). Requester pastes
+   code into LeetCode Profile About → Verify → ownership transfers to verifier.
 
 ### 7.2 Poll
 - Server queue every 60 min: profiles with `last_sync_at > 60min ago` (jitter ±10 min), batch 20, concurrency 5. Vercel Cron triggers API route / Edge Function worker (not one-shot for all users).
@@ -121,7 +123,7 @@ solves(submission_id TEXT PK, user_id FK, slug TEXT, diff TEXT, lang TEXT, solve
 problem_meta(slug PK, title TEXT, difficulty TEXT, updated_at TIMESTAMPTZ)
 titles(id PK, user_id FK, group_id FK, title TEXT (hokage|itachi|rock_lee),
   granted_at TIMESTAMPTZ, expires_at TIMESTAMPTZ,
-  UNIQUE(group_id, title) WHERE expires_at > now())
+  live-holder cap via trg_title_holder trigger)
 events(id PK, group_id FK, type TEXT, actor_id FK NULL, payload JSONB, text TEXT, created_at TIMESTAMPTZ,
   INDEX(group_id, created_at))
 nudges(id PK, from_user FK, to_user FK, group_id FK, day DATE, created_at TIMESTAMPTZ,

@@ -25,10 +25,12 @@ export function Feed({ groupId, initial }: { groupId: string; initial: FeedEvent
   }
 
   // Realtime: one channel per group (§11) — new feed events push instantly.
+  // Per-instance topic suffix (see Board.tsx): supabase-js reuses channels by
+  // topic and .on() after .subscribe() throws when Board + Feed collide.
   useEffect(() => {
     const supabase = createClient();
     const ch = supabase
-      .channel(`group:${groupId}`)
+      .channel(`group:${groupId}:feed:${Math.random().toString(36).slice(2, 10)}`)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "events", filter: `group_id=eq.${groupId}` },

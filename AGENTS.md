@@ -6,13 +6,15 @@
 ## Status (2026-09-09)
 
 v1.1 implemented and verified locally: `tsc --noEmit` clean, `vitest` 17/17 green, `next build` green
-(24 API routes, 6 page routes). **Not yet deployed; DB migrations have never run against a real Postgres**
+(25 API routes, 6 page routes). **Not yet deployed; DB migrations have never run against a real Postgres**
 — apply `supabase/migrations/*` to a dev project and smoke-test before launch.
+Local launch fixes (uncommitted): cron auth bypass closed, duel secret ≥32, titles
+cap via trigger, per-instance realtime topics, instant LeetCode link.
 
 ## Repo map
 
 - `app/` — pages (`page`, `login`, `dashboard`, `discover`, `groups/[id]`, `duel/accept`) + `api/` routes
-  (`verify/*`, `sync/refresh`, `sync/poll`, `groups/*`, `duels/*`, `nudge`, `cron/sync`, `cron/weekly`, `account`).
+  (`verify/*` incl. instant `link`, `sync/refresh`, `sync/poll`, `groups/*`, `duels/*`, `nudge`, `cron/sync`, `cron/weekly`, `account`).
 - `components/` — `Board` (cards, views, sort/filter/search, pins, drag-reorder), `Feed` (Realtime `group:<id>`
   channel + polling fallback), `GroupForms`, `GroupSettings`, `VerifyLeetCode`, `JoinClubButton`.
 - `lib/` — pure, env-free policy logic with unit tests (`lib/__tests__/scoring.test.ts`):
@@ -30,6 +32,12 @@ v1.1 implemented and verified locally: `tsc --noEmit` clean, `vitest` 17/17 gree
 - Real pins are per-viewer in `member_pins` (≤2 enforced by trigger); `memberships.pinned` remains as a
   global backstop (≤2 per group trigger). Board merges both.
 - `403/429` from LeetCode sets `rate_limited` + `retry_at` (backoff 5m→30m→2h) — never frozen (§7.3).
+- Linking is instant (`POST /api/verify/link`: exists + public + unclaimed → linked);
+  the About-code `start`/`confirm` flow is dispute-only for claimed names (§7.1).
+- Titles 1-holder cap is `trg_title_holder` trigger — a partial unique index with
+  `now()` is invalid Postgres (index predicates must be IMMUTABLE).
+- Realtime topics are per-instance (`group:<id>:board|feed:<rand>`): supabase-js
+  reuses channels by topic and Board + Feed mount together.
 - Weekly counters are global per user; goal/title/rank are per group. Titles are computed from the
   just-ended week's `solves` rows in the Monday cron, then counters reset.
 - Feed event types include `goal_hit`/`member_joined`/`member_left` in addition to the §8 list.
