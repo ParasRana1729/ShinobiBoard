@@ -40,13 +40,13 @@ export function CreateGroupForm() {
   return (
     <form
       onSubmit={submit}
-      className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-surface-card p-5 sm:p-6 shadow-tactile-card backdrop-blur-md flex flex-col justify-between"
+      className="relative overflow-hidden rounded-2xl border border-sumi/15 bg-surface-card p-5 sm:p-6   flex flex-col justify-between"
     >
       <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-shinobi-gold/50 to-transparent" />
 
       <div>
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] shadow-tactile-inset">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sumi/15 bg-sumi/[0.06] ">
             <PlusCircle className="h-5 w-5 text-shinobi-gold" />
           </div>
           <div>
@@ -57,21 +57,21 @@ export function CreateGroupForm() {
 
         <div className="mt-4 space-y-3.5">
           <div>
-            <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-1.5">
               Squad Name
             </label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. blind-75-fall-26"
-              className="w-full rounded-xl border border-white/[0.1] bg-ink/80 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 shadow-inner focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400 transition-all"
+              className="w-full rounded-xl border border-sumi/15 bg-surface-elevated px-3.5 py-2.5 text-sm text-text-primary placeholder-text-muted focus:border-sumi/40 focus:outline-none focus:ring-1 focus:ring-sumi/40 transition-all"
               required
               maxLength={80}
             />
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-1.5">
               Circle Type
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -80,15 +80,15 @@ export function CreateGroupForm() {
                 onClick={() => setType("squad")}
                 className={`flex flex-col items-start rounded-xl border p-2.5 text-left transition-all ${
                   type === "squad"
-                    ? "border-amber-500/40 bg-amber-950/20 text-white"
-                    : "border-white/[0.06] bg-ink/50 text-slate-400 hover:border-white/[0.15]"
+                    ? "border-sumi/40 bg-surface text-text-primary"
+                    : "border-sumi/10 bg-surface-elevated text-text-muted hover:border-sumi/20"
                 }`}
               >
-                <div className="flex items-center gap-1.5 font-semibold text-xs text-amber-300">
-                  <Shield className="h-3.5 w-3.5" />
+                <div className="flex items-center gap-1.5 font-semibold text-xs text-text-primary">
+                  <Shield className="h-3.5 w-3.5 text-shinobi-gold" />
                   <span>Private Squad</span>
                 </div>
-                <span className="mt-1 text-[10px] text-slate-400">Invite-only · 3–15 members</span>
+                <span className="mt-1 text-[10px] text-text-muted">Invite-only · 3–15 members</span>
               </button>
 
               <button
@@ -96,23 +96,23 @@ export function CreateGroupForm() {
                 onClick={() => setType("club")}
                 className={`flex flex-col items-start rounded-xl border p-2.5 text-left transition-all ${
                   type === "club"
-                    ? "border-amber-500/40 bg-amber-950/20 text-white"
-                    : "border-white/[0.06] bg-ink/50 text-slate-400 hover:border-white/[0.15]"
+                    ? "border-sumi/40 bg-surface text-text-primary"
+                    : "border-sumi/10 bg-surface-elevated text-text-muted hover:border-sumi/20"
                 }`}
               >
-                <div className="flex items-center gap-1.5 font-semibold text-xs text-amber-300">
-                  <Users className="h-3.5 w-3.5" />
+                <div className="flex items-center gap-1.5 font-semibold text-xs text-text-primary">
+                  <Users className="h-3.5 w-3.5 text-shinobi-teal" />
                   <span>Public Club</span>
                 </div>
-                <span className="mt-1 text-[10px] text-slate-400">Discoverable · Cap 150</span>
+                <span className="mt-1 text-[10px] text-text-muted">Discoverable · Cap 150</span>
               </button>
             </div>
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                <Target className="h-3.5 w-3.5 text-amber-400" />
+              <label className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+                <Target className="h-3.5 w-3.5 text-shinobi-gold" />
                 <span>Weekly Goal ({goal} solves/week)</span>
               </label>
               <input
@@ -121,7 +121,7 @@ export function CreateGroupForm() {
                 max={50}
                 value={goal}
                 onChange={(e) => setGoal(Math.max(1, Math.min(50, Number(e.target.value))))}
-                className="w-14 rounded-lg border border-white/[0.1] bg-ink/80 px-2 py-0.5 text-right font-mono text-xs text-amber-300 focus:border-amber-400 focus:outline-none"
+                className="w-14 rounded-lg border border-sumi/15 bg-surface-elevated px-2 py-0.5 text-right font-mono text-xs text-text-primary focus:border-sumi/40 focus:outline-none"
               />
             </div>
             <div className="flex items-center gap-1.5">
@@ -132,8 +132,8 @@ export function CreateGroupForm() {
                   onClick={() => setGoal(p)}
                   className={`flex-1 rounded-lg border py-1 text-xs font-mono transition-all ${
                     goal === p
-                      ? "border-amber-500/40 bg-amber-950/40 text-amber-300 font-bold"
-                      : "border-white/[0.06] bg-ink/40 text-slate-400 hover:text-white"
+                      ? "border-sumi/40 bg-surface text-text-primary font-bold"
+                      : "border-sumi/10 bg-surface-elevated text-text-muted hover:text-text-primary"
                   }`}
                 >
                   {p}
@@ -192,13 +192,13 @@ export function JoinGroupForm() {
   return (
     <form
       onSubmit={submit}
-      className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-surface-card p-5 sm:p-6 shadow-tactile-card backdrop-blur-md flex flex-col justify-between"
+      className="relative overflow-hidden rounded-2xl border border-sumi/15 bg-surface-card p-5 sm:p-6   flex flex-col justify-between"
     >
       <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-shinobi-teal/50 to-transparent" />
 
       <div>
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] shadow-tactile-inset">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sumi/15 bg-sumi/[0.06] ">
             <Key className="h-5 w-5 text-shinobi-teal" />
           </div>
           <div>
@@ -217,7 +217,7 @@ export function JoinGroupForm() {
               onChange={(e) => setCode(e.target.value.toUpperCase())}
               placeholder="e.g. 7X9K2M4P"
               maxLength={8}
-              className="w-full rounded-xl border border-white/[0.08] bg-ink/80 px-3.5 py-2.5 font-mono text-base tracking-widest text-center text-shinobi-teal placeholder-slate-600 shadow-tactile-inset focus:border-shinobi-teal focus:outline-none focus:ring-1 focus:ring-shinobi-teal transition-all uppercase"
+              className="w-full rounded-xl border border-sumi/15 bg-surface-elevated px-3.5 py-2.5 font-mono text-base tracking-widest text-center text-shinobi-teal placeholder-text-muted  focus:border-shinobi-teal focus:outline-none focus:ring-1 focus:ring-shinobi-teal transition-all uppercase"
               required
             />
           </div>
@@ -231,13 +231,13 @@ export function JoinGroupForm() {
         <button
           type="submit"
           disabled={busy || code.trim().length !== 8}
-          className="btn-tactile-secondary w-full py-2.5 border-shinobi-teal/40 bg-teal-950/30 text-teal-300 hover:bg-teal-900/40 hover:border-shinobi-teal/60 disabled:opacity-40 disabled:pointer-events-none"
+          className="btn-tactile-secondary w-full py-2.5 disabled:opacity-40 disabled:pointer-events-none"
         >
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
           <span>Join Squad</span>
         </button>
 
-        {msg && <p className="mt-2 text-center text-xs font-medium text-rose-400">{msg}</p>}
+        {msg && <p className="mt-2 text-center text-xs font-medium text-shinobi-flame">{msg}</p>}
       </div>
     </form>
   );

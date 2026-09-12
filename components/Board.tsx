@@ -20,7 +20,6 @@ import {
   Search,
   ChevronDown,
   ChevronUp,
-  Sparkles,
   Swords,
   Snowflake,
   AlertTriangle,
@@ -49,34 +48,34 @@ interface Detail {
 }
 
 const RANK_CONFIG: Record<string, { label: string; emblem: string; badgeColor: string }> = {
-  Academy: { label: "Academy", emblem: "🎒", badgeColor: "border-slate-700 bg-slate-800/40 text-slate-300" },
-  Genin: { label: "Genin", emblem: "🍃", badgeColor: "border-emerald-500/30 bg-emerald-950/40 text-emerald-400" },
-  Chunin: { label: "Chunin", emblem: "⭐", badgeColor: "border-amber-500/30 bg-amber-950/40 text-amber-300" },
-  Jonin: { label: "Jonin", emblem: "⚔️", badgeColor: "border-indigo-500/30 bg-indigo-950/40 text-indigo-300" },
-  ANBU: { label: "ANBU", emblem: "🎭", badgeColor: "border-purple-500/30 bg-purple-950/40 text-purple-300" },
-  Kage: { label: "Kage", emblem: "👑", badgeColor: "border-yellow-500/40 bg-yellow-950/40 text-yellow-300 shadow-glow-gold" },
+  Academy: { label: "Academy", emblem: "🎒", badgeColor: "border-sumi/15 bg-surface-elevated text-text-muted" },
+  Genin: { label: "Genin", emblem: "🍃", badgeColor: "border-shinobi-teal/30 bg-shinobi-teal/10 text-shinobi-teal" },
+  Chunin: { label: "Chunin", emblem: "⭐", badgeColor: "border-sumi/20 bg-surface-elevated text-text-primary" },
+  Jonin: { label: "Jonin", emblem: "⚔️", badgeColor: "border-sumi/25 bg-surface-elevated text-text-primary" },
+  ANBU: { label: "ANBU", emblem: "🎭", badgeColor: "border-sumi/30 bg-surface-elevated text-text-primary" },
+  Kage: { label: "Kage", emblem: "👑", badgeColor: "border-shinobi-gold/30 bg-shinobi-gold/10 text-shinobi-gold" },
 };
 
 function DifficultyBadge({ diff }: { diff: string }) {
   if (diff === "Easy") {
-    return <span className="rounded border border-emerald-500/30 bg-emerald-950/40 px-1.5 py-0.5 font-mono text-[10px] font-bold text-emerald-400">Easy</span>;
+    return <span className="rounded border border-shinobi-teal/30 bg-shinobi-teal/10 px-1.5 py-0.5 font-mono text-[10px] font-bold text-shinobi-teal">Easy</span>;
   }
   if (diff === "Hard") {
-    return <span className="rounded border border-rose-500/30 bg-rose-950/40 px-1.5 py-0.5 font-mono text-[10px] font-bold text-rose-400">Hard</span>;
+    return <span className="rounded border border-shinobi-flame/30 bg-shinobi-flame/10 px-1.5 py-0.5 font-mono text-[10px] font-bold text-shinobi-flame">Hard</span>;
   }
-  return <span className="rounded border border-amber-500/30 bg-amber-950/40 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-300">Med</span>;
+  return <span className="rounded border border-sumi/20 bg-surface-elevated px-1.5 py-0.5 font-mono text-[10px] font-bold text-text-secondary">Med</span>;
 }
 
 function ProgressBar({ value, goal }: { value: number; goal: number }) {
   const pct = Math.min(100, Math.round((value / Math.max(1, goal)) * 100));
   const isComplete = value >= goal;
   return (
-    <div className="relative h-2 w-full overflow-hidden rounded-full bg-ink/80 p-0.5 border border-white/[0.06]">
+    <div className="relative h-2 w-full overflow-hidden rounded-full bg-surface-elevated p-0.5 border border-sumi/10">
       <div
         className={`h-full rounded-full transition-all duration-500 ${
           isComplete
-            ? "bg-gradient-to-r from-emerald-500 to-teal-400 shadow-glow-emerald"
-            : "bg-gradient-to-r from-amber-500 to-amber-400"
+            ? "bg-shinobi-teal"
+            : "bg-shinobi-gold"
         }`}
         style={{ width: `${pct}%` }}
       />
@@ -244,16 +243,16 @@ export function Board({
   return (
     <div className="space-y-4">
       {/* Controls Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/[0.08] bg-surface-card/90 p-3 shadow-tactile-card backdrop-blur-md">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-sumi/15 bg-surface-card/90 p-3  ">
         {/* Left: View Switcher */}
         <div className="flex items-center gap-2">
-          <div className="flex rounded-xl border border-white/[0.08] bg-ink/80 p-1 shadow-tactile-inset">
+          <div className="flex rounded-xl border border-sumi/15 bg-surface-elevated p-1 ">
             <button
               onClick={() => setView("leaderboard")}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
                 view === "leaderboard"
                   ? "bg-shinobi-gold text-black shadow-tactile-btn"
-                  : "text-text-muted hover:text-white"
+                  : "text-text-muted hover:text-text-primary"
               }`}
             >
               <Trophy className="h-3.5 w-3.5" />
@@ -264,7 +263,7 @@ export function Board({
               className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
                 view === "custom"
                   ? "bg-shinobi-gold text-black shadow-tactile-btn"
-                  : "text-text-muted hover:text-white"
+                  : "text-text-muted hover:text-text-primary"
               }`}
             >
               <SlidersHorizontal className="h-3.5 w-3.5" />
@@ -277,7 +276,7 @@ export function Board({
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as BoardSort)}
-              className="appearance-none rounded-xl border border-white/[0.08] bg-ink/80 py-1.5 pl-3 pr-8 text-xs font-medium text-text-primary shadow-tactile-inset focus:border-shinobi-gold focus:outline-none"
+              className="appearance-none rounded-xl border border-sumi/15 bg-surface-elevated py-1.5 pl-3 pr-8 text-xs font-medium text-text-primary  focus:border-shinobi-gold focus:outline-none"
             >
               <option value="weekly">Sort: Weekly Solves</option>
               <option value="streak">Sort: Longest Streak</option>
@@ -291,7 +290,7 @@ export function Board({
         {/* Right: Filters & Search */}
         <div className="flex flex-1 flex-wrap items-center justify-end gap-2 min-w-[280px]">
           {/* Filter Chips */}
-          <div className="flex rounded-xl border border-white/[0.08] bg-ink/70 p-1 text-xs">
+          <div className="flex rounded-xl border border-sumi/15 bg-ink/70 p-1 text-xs">
             {(
               [
                 { id: "all", label: "All" },
@@ -308,8 +307,8 @@ export function Board({
                 }}
                 className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-all ${
                   filter === f.id
-                    ? "bg-white/[0.12] text-amber-300"
-                    : "text-slate-400 hover:text-slate-200"
+                    ? "bg-surface-elevated text-text-primary border border-sumi/20"
+                    : "text-text-muted hover:text-text-primary"
                 }`}
               >
                 {f.label}
@@ -319,7 +318,7 @@ export function Board({
 
           {/* Search Bar */}
           <div className="relative min-w-[180px] max-w-xs flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-text-muted" />
             <input
               value={q}
               onChange={(e) => {
@@ -327,14 +326,14 @@ export function Board({
                 setPage(1);
               }}
               placeholder={searchRequired ? "Search required (club > 50)" : "Search ninja or @leetcode…"}
-              className="w-full rounded-xl border border-white/[0.08] bg-ink/70 py-1.5 pl-8 pr-3 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none"
+              className="w-full rounded-xl border border-sumi/15 bg-surface-elevated py-1.5 pl-8 pr-3 text-xs text-text-primary placeholder-text-muted focus:border-sumi/40 focus:outline-none"
             />
           </div>
         </div>
       </div>
 
       {view === "custom" && (
-        <p className="text-[11px] text-slate-400 italic">
+        <p className="text-[11px] text-text-muted italic">
           💡 Custom View: Drag and drop cards to organize your personal priority board. Stored per viewer.
         </p>
       )}
@@ -343,8 +342,8 @@ export function Board({
         <div
           className={`flex items-center gap-2 rounded-xl p-2.5 text-xs font-medium ${
             msg.error
-              ? "border border-rose-500/30 bg-rose-950/40 text-rose-300"
-              : "border border-emerald-500/30 bg-emerald-950/40 text-emerald-300"
+              ? "border border-shinobi-flame/30 bg-shinobi-flame/10 text-shinobi-flame"
+              : "border border-shinobi-teal/30 bg-shinobi-teal/10 text-shinobi-teal"
           }`}
         >
           {msg.error ? <AlertTriangle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
@@ -354,7 +353,7 @@ export function Board({
 
       {/* Active sync indicator bar */}
       {loading && rows.length > 0 && (
-        <div className="h-0.5 w-full bg-white/[0.04] overflow-hidden rounded-full my-2">
+        <div className="h-0.5 w-full bg-sumi/[0.06] overflow-hidden rounded-full my-2">
           <div className="h-full bg-shinobi-gold animate-pulse w-1/2" />
         </div>
       )}
@@ -363,10 +362,10 @@ export function Board({
       {loading && rows.length === 0 ? (
         <BoardSkeleton count={Math.min(memberCount || 3, 4)} />
       ) : rows.length === 0 ? (
-        <div className="rounded-2xl border border-white/[0.08] bg-surface-card p-12 text-center text-slate-400 shadow-xl my-3">
-          <Trophy className="mx-auto h-10 w-10 text-slate-600 mb-2 opacity-50" />
-          <p className="text-sm font-semibold text-slate-300">No shinobi cards found</p>
-          <p className="mt-1 text-xs text-slate-500">
+        <div className="rounded-2xl border border-sumi/15 bg-surface-card p-12 text-center text-text-muted shadow-tactile-card my-3">
+          <Trophy className="mx-auto h-10 w-10 text-text-muted mb-2 opacity-50" />
+          <p className="text-sm font-semibold text-text-secondary">No shinobi cards found</p>
+          <p className="mt-1 text-xs text-text-muted">
             {q ? `No members matched "${q}". Try adjusting your search.` : filter !== "all" ? `No members match the "${filter}" filter.` : "This squad is currently waiting for members to join."}
           </p>
         </div>
@@ -381,15 +380,15 @@ export function Board({
           const goalMet = r.weekly_count >= goal;
 
           // Podium border styling
-          let cardBorder = "border-white/[0.08] hover:border-white/[0.2]";
+          let cardBorder = "border-sumi/15 hover:border-sumi/25";
           if (isTop3 && index === 0) {
-            cardBorder = "border-shinobi-gold/60 shadow-glow-gold hover:border-shinobi-gold";
+            cardBorder = "border-shinobi-gold/60 hover:border-shinobi-gold";
           } else if (isTop3 && index === 1) {
-            cardBorder = "border-slate-400/40 shadow-tactile-card hover:border-slate-300";
+            cardBorder = "border-sumi/35 hover:border-sumi/50";
           } else if (isTop3 && index === 2) {
-            cardBorder = "border-amber-700/40 shadow-tactile-card hover:border-amber-600";
+            cardBorder = "border-sumi/25 hover:border-sumi/40";
           } else if (isFrozen) {
-            cardBorder = "border-slate-800 bg-ink/40 opacity-60";
+            cardBorder = "border-sumi/10 bg-surface-elevated/40 opacity-70";
           }
 
           return (
@@ -399,7 +398,7 @@ export function Board({
               onDragStart={() => setDragId(r.user_id)}
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => onDrop(r.user_id)}
-              className={`relative flex w-72 shrink-0 flex-col justify-between rounded-2xl border bg-surface-card p-4 shadow-tactile-card backdrop-blur-md transition-all max-md:w-full ${cardBorder} ${
+              className={`relative flex w-72 shrink-0 flex-col justify-between rounded-2xl border bg-surface-card p-4 transition-all max-md:w-full ${cardBorder} ${
                 r.pinned ? "ring-1 ring-shinobi-gold" : ""
               }`}
             >
@@ -419,11 +418,11 @@ export function Board({
                         alt=""
                         className={`h-10 w-10 rounded-xl object-cover border ${
                           isHokage
-                            ? "border-shinobi-gold shadow-glow"
+                            ? "border-shinobi-gold"
                             : isTop3
-                            ? "border-white/30"
-                            : "border-white/[0.08]"
-                        } bg-ink`}
+                            ? "border-sumi/30"
+                            : "border-sumi/15"
+                        } bg-surface-elevated`}
                       />
                       <RankAvatar
                         rank={r.base_rank}
@@ -431,8 +430,8 @@ export function Board({
                         className="absolute -bottom-1 -right-1.5 z-10"
                       />
                       {r.pinned && (
-                        <span className="absolute -top-1.5 -right-1.5 rounded-full bg-shinobi-gold p-0.5 text-black shadow-sm z-20">
-                          <Pin className="h-2.5 w-2.5 fill-black" />
+                        <span className="absolute -top-1.5 -right-1.5 rounded-full bg-shinobi-gold p-0.5 text-ink shadow-sm z-20">
+                          <Pin className="h-2.5 w-2.5 fill-ink" />
                         </span>
                       )}
                     </div>
@@ -457,9 +456,9 @@ export function Board({
                         index === 0 && !isFrozen
                           ? "text-shinobi-gold font-extrabold text-sm"
                           : index === 1
-                          ? "text-slate-300"
+                          ? "text-text-secondary"
                           : index === 2
-                          ? "text-amber-600"
+                          ? "text-text-secondary"
                           : "text-text-muted"
                       }`}
                     >
@@ -476,9 +475,9 @@ export function Board({
                   {r.titles.map((t) => (
                     <span
                       key={t.title}
-                      className="inline-flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-950/40 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-300 shadow-sm"
+                      className="inline-flex items-center gap-1 rounded-md border border-shinobi-gold/30 bg-shinobi-gold/10 px-1.5 py-0.5 font-mono text-[10px] font-bold text-shinobi-gold shadow-tactile-card"
                     >
-                      <Crown className="h-3 w-3 fill-amber-400" />
+                      <Crown className="h-3 w-3 fill-shinobi-gold" />
                       <span className="capitalize">{t.title.replace("_", " ")}</span>
                     </span>
                   ))}
@@ -488,14 +487,14 @@ export function Board({
                   </span>
 
                   {isFrozen && (
-                    <span className="inline-flex items-center gap-1 rounded-md border border-sky-500/30 bg-sky-950/40 px-1.5 py-0.5 text-[10px] font-bold text-sky-300">
+                    <span className="inline-flex items-center gap-1 rounded-md border border-sumi/20 bg-surface-elevated px-1.5 py-0.5 text-[10px] font-bold text-text-muted">
                       <Snowflake className="h-2.5 w-2.5" />
                       <span>FROZEN</span>
                     </span>
                   )}
 
                   {isRateLimited && (
-                    <span className="rounded-md border border-amber-500/30 bg-amber-950/40 px-1.5 py-0.5 text-[10px] font-medium text-amber-300">
+                    <span className="rounded-md border border-shinobi-gold/30 bg-shinobi-gold/10 px-1.5 py-0.5 text-[10px] font-medium text-shinobi-gold">
                       Sync Paused
                     </span>
                   )}
@@ -504,52 +503,52 @@ export function Board({
                 {/* Weekly Goal Progress */}
                 <div className="mt-3.5 space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-slate-300">
+                    <span className="font-medium text-text-secondary">
                       Weekly Solves
                     </span>
-                    <span className="font-mono font-bold text-white">
-                      <span className={goalMet ? "text-emerald-400" : "text-amber-400"}>{r.weekly_count}</span>
-                      <span className="text-slate-500"> / {goal}</span>
+                    <span className="font-mono font-bold text-text-primary">
+                      <span className={goalMet ? "text-shinobi-teal" : "text-shinobi-gold"}>{r.weekly_count}</span>
+                      <span className="text-text-muted"> / {goal}</span>
                     </span>
                   </div>
                   <ProgressBar value={r.weekly_count} goal={goal} />
                 </div>
 
                 {/* Streak & Last Solved */}
-                <div className="mt-3 rounded-xl border border-white/[0.04] bg-ink/60 p-2.5 text-xs space-y-1.5">
+                <div className="mt-3 rounded-xl border border-sumi/10 bg-surface-elevated p-2.5 text-xs space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-1 text-[11px] font-semibold text-slate-300">
-                      <Flame className="h-3.5 w-3.5 text-orange-400 fill-orange-400" />
+                    <span className="flex items-center gap-1 text-[11px] font-semibold text-text-secondary">
+                      <Flame className="h-3.5 w-3.5 text-shinobi-flame fill-shinobi-flame/30" />
                       <span>Streak</span>
                     </span>
-                    <span className="font-mono text-xs font-bold text-orange-400">
+                    <span className="font-mono text-xs font-bold text-shinobi-flame">
                       {r.streak} {r.streak === 1 ? "day" : "days"}
                     </span>
                   </div>
 
-                  <div className="border-t border-white/[0.04] pt-1.5 flex items-center justify-between gap-1 text-[11px]">
+                  <div className="border-t border-sumi/10 pt-1.5 flex items-center justify-between gap-1 text-[11px]">
                     {r.last_solved_slug ? (
                       <>
-                        <span className="truncate text-slate-300 max-w-[130px]" title={r.last_solved_slug}>
+                        <span className="truncate text-text-secondary max-w-[130px]" title={r.last_solved_slug}>
                           {r.last_solved_slug}
                         </span>
                         <div className="flex shrink-0 items-center gap-1">
                           {r.last_solved_diff && <DifficultyBadge diff={r.last_solved_diff} />}
-                          <span className="text-[10px] text-slate-500">{timeAgo(r.last_solved_at)}</span>
+                          <span className="text-[10px] text-text-muted">{timeAgo(r.last_solved_at)}</span>
                         </div>
                       </>
                     ) : (
-                      <span className="text-slate-500 italic">No solves recorded yet</span>
+                      <span className="text-text-muted italic">No solves recorded yet</span>
                     )}
                   </div>
                 </div>
               </div>
 
               {/* Card Actions Toolbar */}
-              <div className="mt-3.5 flex items-center justify-between border-t border-white/[0.06] pt-3">
+              <div className="mt-3.5 flex items-center justify-between border-t border-sumi/10 pt-3">
                 <button
                   onClick={() => openCard(r.user_id)}
-                  className="flex items-center gap-1 text-xs font-semibold text-slate-300 hover:text-white transition-colors"
+                  className="flex items-center gap-1 text-xs font-semibold text-text-secondary hover:text-text-primary transition-colors"
                 >
                   <span>{expanded === r.user_id ? "Collapse" : "Inspect"}</span>
                   {expanded === r.user_id ? (
@@ -564,7 +563,7 @@ export function Board({
                     <button
                       onClick={() => nudge(r.user_id)}
                       title="Nudge friend (1/day)"
-                      className="rounded-lg p-1.5 text-slate-400 hover:bg-white/[0.06] hover:text-cyan-300 transition-colors"
+                      className="rounded-lg p-1.5 text-text-muted hover:bg-sumi/[0.08] hover:text-text-primary transition-colors"
                     >
                       <Bell className="h-3.5 w-3.5" />
                     </button>
@@ -574,10 +573,10 @@ export function Board({
                     onClick={() => refresh(r.user_id)}
                     disabled={refreshingUser === r.user_id}
                     title="Refresh profile stats (10-min shared cooldown)"
-                    className="rounded-lg p-1.5 text-slate-400 hover:bg-white/[0.06] hover:text-amber-300 transition-colors"
+                    className="rounded-lg p-1.5 text-text-muted hover:bg-sumi/[0.08] hover:text-shinobi-gold transition-colors"
                   >
                     <RefreshCw
-                      className={`h-3.5 w-3.5 ${refreshingUser === r.user_id ? "animate-spin text-amber-400" : ""}`}
+                      className={`h-3.5 w-3.5 ${refreshingUser === r.user_id ? "animate-spin text-shinobi-gold" : ""}`}
                     />
                   </button>
 
@@ -586,8 +585,8 @@ export function Board({
                     title={r.pinned ? "Unpin card" : "Pin card to top (max 2)"}
                     className={`rounded-lg p-1.5 transition-colors ${
                       r.pinned
-                        ? "text-amber-400 bg-amber-950/40"
-                        : "text-slate-400 hover:bg-white/[0.06] hover:text-white"
+                        ? "text-shinobi-gold bg-shinobi-gold/10 border border-shinobi-gold/30"
+                        : "text-text-muted hover:bg-sumi/[0.08] hover:text-text-primary"
                     }`}
                   >
                     <Pin className="h-3.5 w-3.5" />
@@ -597,17 +596,17 @@ export function Board({
 
               {/* Expanded Card Drawer */}
               {expanded === r.user_id && (
-                <div className="mt-3 border-t border-white/[0.08] pt-3 text-xs space-y-3 animate-in fade-in duration-200">
+                <div className="mt-3 border-t border-sumi/15 pt-3 text-xs space-y-3 animate-in fade-in duration-200">
                   {!detail ? (
-                    <div className="py-4 text-center text-slate-500 font-mono text-xs">
+                    <div className="py-4 text-center text-text-muted font-mono text-xs">
                       Fetching shinobi profile…
                     </div>
                   ) : (
                     <>
                       {/* 7-Day Activity Sparkline */}
                       <div>
-                        <p className="text-[11px] font-semibold text-slate-300 mb-1 flex items-center gap-1">
-                          <Calendar className="h-3 w-3 text-emerald-400" />
+                        <p className="text-[11px] font-semibold text-text-secondary mb-1 flex items-center gap-1">
+                          <Calendar className="h-3 w-3 text-shinobi-teal" />
                           <span>7-Day Activity (UTC)</span>
                         </p>
                         <div className="flex gap-1">
@@ -617,8 +616,8 @@ export function Board({
                               title={`${d.day}: ${d.count} solves`}
                               className={`flex-1 h-5 rounded-md flex items-center justify-center font-mono text-[9px] font-bold ${
                                 d.count > 0
-                                  ? "bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 shadow-glow-emerald"
-                                  : "bg-ink/60 text-slate-600 border border-white/[0.04]"
+                                  ? "bg-shinobi-teal text-ink border border-shinobi-teal"
+                                  : "bg-surface-elevated text-text-muted border border-sumi/10"
                               }`}
                             >
                               {d.count > 0 ? d.count : ""}
@@ -628,45 +627,45 @@ export function Board({
                       </div>
 
                       {/* E/M/H Breakdown */}
-                      <div className="rounded-xl border border-white/[0.04] bg-ink/70 p-2.5">
-                        <p className="text-[11px] font-semibold text-slate-300 mb-1.5 flex items-center gap-1">
-                          <Layers className="h-3 w-3 text-amber-400" />
+                      <div className="rounded-xl border border-sumi/10 bg-surface-elevated p-2.5">
+                        <p className="text-[11px] font-semibold text-text-secondary mb-1.5 flex items-center gap-1">
+                          <Layers className="h-3 w-3 text-text-secondary" />
                           <span>All-Time Solves ({detail.split.total} distinct)</span>
                         </p>
                         <div className="grid grid-cols-3 gap-1.5 text-center font-mono">
-                          <div className="rounded-lg bg-emerald-950/30 border border-emerald-500/20 p-1">
-                            <span className="block text-[10px] text-emerald-400 font-bold">Easy</span>
-                            <span className="text-xs text-white font-black">{detail.split.Easy}</span>
+                          <div className="rounded-lg bg-surface border border-sumi/15 p-1">
+                            <span className="block text-[10px] text-shinobi-teal font-bold">Easy</span>
+                            <span className="text-xs text-text-primary font-black">{detail.split.Easy}</span>
                           </div>
-                          <div className="rounded-lg bg-amber-950/30 border border-amber-500/20 p-1">
-                            <span className="block text-[10px] text-amber-400 font-bold">Med</span>
-                            <span className="text-xs text-white font-black">{detail.split.Medium}</span>
+                          <div className="rounded-lg bg-surface border border-sumi/15 p-1">
+                            <span className="block text-[10px] text-text-secondary font-bold">Med</span>
+                            <span className="text-xs text-text-primary font-black">{detail.split.Medium}</span>
                           </div>
-                          <div className="rounded-lg bg-rose-950/30 border border-rose-500/20 p-1">
-                            <span className="block text-[10px] text-rose-400 font-bold">Hard</span>
-                            <span className="text-xs text-white font-black">{detail.split.Hard}</span>
+                          <div className="rounded-lg bg-surface border border-sumi/15 p-1">
+                            <span className="block text-[10px] text-shinobi-flame font-bold">Hard</span>
+                            <span className="text-xs text-text-primary font-black">{detail.split.Hard}</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Character Dossier & Base Rank XP Target */}
-                      <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-ink/70 p-2.5">
-                        <RankAvatar rank={r.base_rank} size="md" showGlow />
+                      <div className="flex items-center gap-3 rounded-xl border border-sumi/10 bg-surface-elevated p-2.5">
+                        <RankAvatar rank={r.base_rank} size="md" />
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-white">
+                            <span className="text-xs font-bold text-text-primary">
                               {getRankMeta(r.base_rank).character}
                             </span>
-                            <span className="font-mono text-[11px] font-bold text-amber-400">
+                            <span className="font-mono text-[11px] font-bold text-shinobi-gold">
                               {r.base_rank}
                             </span>
                           </div>
-                          <p className="text-[10px] text-slate-400 truncate">
+                          <p className="text-[10px] text-text-muted truncate">
                             {getRankMeta(r.base_rank).characterTitle}
                           </p>
-                          <div className="mt-1 flex items-center justify-between text-[10px] font-mono text-slate-400 border-t border-white/[0.04] pt-1">
+                          <div className="mt-1 flex items-center justify-between text-[10px] font-mono text-text-muted border-t border-sumi/10 pt-1">
                             <span>{r.xp.toLocaleString()} XP</span>
-                            <span className="text-amber-300 font-semibold">
+                            <span className="text-shinobi-gold font-semibold">
                               {detail.xp_to_next.next
                                 ? `+${detail.xp_to_next.needed} XP to ${detail.xp_to_next.next}`
                                 : "MAX (Kage)"}
@@ -677,16 +676,16 @@ export function Board({
 
                       {/* Duel W/L/D if duel group */}
                       {isDuel && detail.duel_record && (
-                        <div className="rounded-xl border border-rose-500/30 bg-rose-950/20 p-2.5">
+                        <div className="rounded-xl border border-sumi/15 bg-surface-elevated p-2.5">
                           <div className="flex items-center justify-between text-xs">
-                            <span className="flex items-center gap-1 font-semibold text-rose-300">
+                            <span className="flex items-center gap-1 font-semibold text-shinobi-flame">
                               <Swords className="h-3.5 w-3.5" />
                               <span>Duel Scoreboard</span>
                             </span>
-                            <span className="font-mono font-bold text-white">
-                              <span className="text-emerald-400">{detail.duel_record.w}W</span> ·{" "}
-                              <span className="text-rose-400">{detail.duel_record.l}L</span> ·{" "}
-                              <span className="text-slate-400">{detail.duel_record.d}D</span>
+                            <span className="font-mono font-bold text-text-primary">
+                              <span className="text-shinobi-teal">{detail.duel_record.w}W</span> ·{" "}
+                              <span className="text-shinobi-flame">{detail.duel_record.l}L</span> ·{" "}
+                              <span className="text-text-muted">{detail.duel_record.d}D</span>
                             </span>
                           </div>
                         </div>
@@ -694,24 +693,24 @@ export function Board({
 
                       {/* Recent 5 Solves List */}
                       <div>
-                        <p className="text-[11px] font-semibold text-slate-300 mb-1">
+                        <p className="text-[11px] font-semibold text-text-secondary mb-1">
                           Recent Counted Solves
                         </p>
                         <ul className="space-y-1">
                           {detail.recent.length === 0 && (
-                            <li className="text-[11px] text-slate-500 italic">No recent solves</li>
+                            <li className="text-[11px] text-text-muted italic">No recent solves</li>
                           )}
                           {detail.recent.slice(0, 5).map((s) => (
                             <li
                               key={s.slug + s.solved_at}
-                              className="flex items-center justify-between gap-1.5 rounded-lg border border-white/[0.04] bg-ink/50 px-2 py-1 text-[11px]"
+                              className="flex items-center justify-between gap-1.5 rounded-lg border border-sumi/10 bg-surface-elevated px-2 py-1 text-[11px]"
                             >
-                              <span className="truncate text-slate-200" title={s.title ?? s.slug}>
+                              <span className="truncate text-text-primary" title={s.title ?? s.slug}>
                                 {s.title ?? s.slug}
                               </span>
                               <div className="flex shrink-0 items-center gap-1">
                                 <DifficultyBadge diff={s.diff} />
-                                <span className="font-mono text-[9px] text-slate-500">{s.lang}</span>
+                                <span className="font-mono text-[9px] text-text-muted">{s.lang}</span>
                               </div>
                             </li>
                           ))}
@@ -719,10 +718,10 @@ export function Board({
                       </div>
 
                       {/* Sync Diagnostics */}
-                      <div className="border-t border-white/[0.06] pt-2 text-[10px] text-slate-500">
+                      <div className="border-t border-sumi/10 pt-2 text-[10px] text-text-muted">
                         <p>{detail.sync_label}</p>
                         {detail.fix_hint && (
-                          <p className="mt-0.5 text-amber-300/80 font-medium">💡 {detail.fix_hint}</p>
+                          <p className="mt-0.5 text-shinobi-gold font-medium">💡 {detail.fix_hint}</p>
                         )}
                       </div>
                     </>
@@ -736,18 +735,18 @@ export function Board({
       )}
 
       {/* Pagination Footer */}
-      <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-surface/60 px-4 py-2 text-xs">
-        <span className="text-slate-400">
-          Showing page <span className="font-bold text-white">{page}</span> of{" "}
-          <span className="font-bold text-white">{pages}</span> ·{" "}
-          <span className="font-mono font-bold text-amber-400">{total}</span> total members
+      <div className="flex items-center justify-between rounded-xl border border-sumi/10 bg-surface/60 px-4 py-2 text-xs">
+        <span className="text-text-muted">
+          Showing page <span className="font-bold text-text-primary">{page}</span> of{" "}
+          <span className="font-bold text-text-primary">{pages}</span> ·{" "}
+          <span className="font-mono font-bold text-shinobi-gold">{total}</span> total members
         </span>
 
         <div className="flex items-center gap-1.5">
           <button
             disabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
-            className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-ink/70 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:bg-white/[0.08] disabled:opacity-40"
+            className="flex items-center gap-1 rounded-lg border border-sumi/15 bg-ink/70 px-2.5 py-1 text-xs font-semibold text-text-secondary hover:bg-sumi/10 disabled:opacity-40"
           >
             <ChevronLeft className="h-3.5 w-3.5" />
             <span>Prev</span>
@@ -755,7 +754,7 @@ export function Board({
           <button
             disabled={page >= pages}
             onClick={() => setPage((p) => p + 1)}
-            className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-ink/70 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:bg-white/[0.08] disabled:opacity-40"
+            className="flex items-center gap-1 rounded-lg border border-sumi/15 bg-ink/70 px-2.5 py-1 text-xs font-semibold text-text-secondary hover:bg-sumi/10 disabled:opacity-40"
           >
             <span>Next</span>
             <ChevronRight className="h-3.5 w-3.5" />

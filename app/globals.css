@@ -3,27 +3,20 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
-  @apply bg-ink text-text-primary antialiased min-h-screen selection:bg-shinobi-gold/25 selection:text-shinobi-gold;
-  background-image: 
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(229, 169, 60, 0.06), transparent 70%),
-    radial-gradient(circle 600px at 100% 20%, rgba(13, 148, 136, 0.03), transparent 60%);
-  background-attachment: fixed;
+  @apply bg-ink text-text-primary antialiased min-h-screen selection:bg-shinobi-gold/20 selection:text-sumi;
 }
 
-/* Precision 24px dot-matrix grid (clean developer product feel) */
 .bg-grid {
-  background-size: 24px 24px;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+  background-image: none;
 }
 
-/* Board & Page Custom Scrollbar */
 .board-scroll {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+  scrollbar-color: rgba(28, 23, 18, 0.25) transparent;
 }
 .board-scroll::-webkit-scrollbar {
   height: 6px;
@@ -33,39 +26,35 @@ body {
   background: transparent;
 }
 .board-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 9999px;
+  background: rgba(28, 23, 18, 0.2);
+  border-radius: 2px;
 }
 .board-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.24);
+  background: rgba(28, 23, 18, 0.35);
 }
 
-/* Tactile Surface & Specular Lighting Utilities */
 @layer components {
   .surface-panel {
-    @apply bg-surface-card border border-white/[0.08] shadow-tactile-card backdrop-blur-md;
+    @apply bg-surface-card border border-sumi/15;
   }
   .surface-elevated {
-    @apply bg-surface-elevated border border-white/[0.1] shadow-tactile-card;
+    @apply bg-surface-elevated border border-sumi/15;
   }
   .surface-hover {
-    @apply transition-all duration-200 hover:border-white/[0.18] hover:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.8),inset_0_1px_0_0_rgba(255,255,255,0.1)];
+    @apply transition-colors duration-150 hover:border-sumi/30 hover:bg-surface-hover;
   }
 
-  /* Tactile Button Tokens (Linear / Raycast craft) */
   .btn-tactile-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-shinobi-gold px-4 py-2 text-xs font-bold text-black shadow-tactile-btn transition-all duration-150 hover:bg-shinobi-gold/90 hover:brightness-105 active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-sm bg-shinobi-gold px-4 py-2 text-xs font-semibold text-ink transition-colors duration-150 hover:bg-shinobi-flame;
   }
   .btn-tactile-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/[0.09] bg-surface-elevated px-4 py-2 text-xs font-semibold text-text-primary shadow-tactile-inset transition-all duration-150 hover:border-white/[0.18] hover:bg-surface-hover hover:text-white active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-sm border border-sumi/25 bg-transparent px-4 py-2 text-xs font-medium text-text-primary transition-colors duration-150 hover:border-sumi/50 hover:bg-surface-elevated;
   }
   .btn-tactile-danger {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-rose-500/30 bg-rose-950/40 px-4 py-2 text-xs font-semibold text-rose-300 transition-all duration-150 hover:border-rose-500/50 hover:bg-rose-900/40 active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-sm border border-shinobi-gold/40 bg-transparent px-4 py-2 text-xs font-medium text-shinobi-gold transition-colors duration-150 hover:bg-shinobi-gold/10;
   }
 
-  /* Monospace Telemetry Badges */
   .telemetry-tag {
-    @apply inline-flex items-center gap-1.5 rounded-md border border-white/[0.08] bg-white/[0.03] px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-text-muted;
+    @apply inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wide text-text-muted;
   }
 }
-

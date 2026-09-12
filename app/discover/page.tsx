@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { Compass, Users, Target, Search, ArrowRight, Shield, Sparkles } from "lucide-react";
+import { Compass, Users, Target, Search, ArrowRight } from "lucide-react";
 
 export default async function DiscoverPage({
   searchParams,
@@ -24,15 +24,15 @@ export default async function DiscoverPage({
   return (
     <main className="space-y-8 py-6">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-surface-card p-6 sm:p-8 shadow-tactile-card backdrop-blur-xl">
+      <div className="relative overflow-hidden rounded-2xl border border-sumi/15 bg-surface-card p-6 sm:p-8 shadow-tactile-card">
         <div className="flex items-center gap-2">
-          <div className="telemetry-tag border-shinobi-gold/30 bg-shinobi-gold/10 text-shinobi-gold">
-            <Sparkles className="h-3 w-3" /> Topic Circles & Scale Preps
-          </div>
+          <span className="font-mono text-[11px] uppercase tracking-wide text-text-muted">
+            Topic Circles & Scale Preps
+          </span>
         </div>
 
-        <h1 className="mt-3 font-heading text-2xl sm:text-4xl font-black tracking-tight text-text-primary flex items-center gap-3">
-          <Compass className="h-8 w-8 text-shinobi-gold" />
+        <h1 className="mt-3 font-heading text-3xl sm:text-4xl text-text-primary flex items-center gap-3">
+          <Compass className="h-7 w-7 text-shinobi-gold" />
           <span>Discover Public Clubs</span>
         </h1>
 
@@ -48,7 +48,7 @@ export default async function DiscoverPage({
               name="q"
               defaultValue={searchParams.q ?? ""}
               placeholder="Search by club name (e.g. blind-75)…"
-              className="w-full rounded-xl border border-white/[0.08] bg-ink/90 py-2.5 pl-10 pr-3.5 text-xs text-text-primary placeholder-text-muted shadow-tactile-inset focus:border-shinobi-gold focus:outline-none focus:ring-1 focus:ring-shinobi-gold"
+              className="w-full rounded-xl border border-sumi/15 bg-ink py-2.5 pl-10 pr-3.5 text-xs text-text-primary placeholder-text-muted  focus:border-shinobi-gold focus:outline-none focus:ring-1 focus:ring-shinobi-gold"
             />
           </div>
           <button
@@ -62,9 +62,9 @@ export default async function DiscoverPage({
 
       {/* Clubs Grid */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between text-xs text-slate-400">
+        <div className="flex items-center justify-between text-xs text-text-muted">
           <span>
-            Showing <span className="font-bold text-white">{clubs?.length ?? 0}</span> open public clubs
+            Showing <span className="font-bold text-text-primary">{clubs?.length ?? 0}</span> open public clubs
           </span>
           <span className="font-mono text-[11px]">Cap: 150 members/club</span>
         </div>
@@ -78,11 +78,11 @@ export default async function DiscoverPage({
             return (
               <div
                 key={c.id}
-                className="group relative flex flex-col justify-between rounded-2xl border border-white/[0.08] bg-surface-card p-5 shadow-tactile-card hover:border-shinobi-gold/40 hover:shadow-glow transition-all"
+                className="group relative flex flex-col justify-between rounded-2xl border border-sumi/15 bg-surface-card p-5  hover:border-shinobi-gold/40 hover: transition-all"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="rounded-md border border-amber-500/30 bg-amber-950/40 px-2 py-0.5 font-mono text-[10px] font-bold text-amber-300 uppercase">
+                    <span className="border border-sumi/20 bg-surface-elevated px-2 py-0.5 font-mono text-[10px] text-text-secondary uppercase">
                       Club
                     </span>
 
@@ -100,14 +100,14 @@ export default async function DiscoverPage({
                   <div className="mt-4 space-y-1.5">
                     <div className="flex items-center justify-between text-[11px] font-mono">
                       <span className="text-text-muted">Roster Capacity</span>
-                      <span className={isFull ? "font-bold text-rose-400" : "font-bold text-text-primary"}>
+                      <span className={isFull ? "font-bold text-shinobi-gold" : "font-bold text-text-primary"}>
                         {count} / 150
                       </span>
                     </div>
                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink">
                       <div
                         className={`h-full rounded-full transition-all ${
-                          isFull ? "bg-rose-500" : "bg-gradient-to-r from-emerald-500 to-teal-400"
+                          isFull ? "bg-shinobi-gold" : "bg-shinobi-teal"
                         }`}
                         style={{ width: `${pct}%` }}
                       />
@@ -115,7 +115,7 @@ export default async function DiscoverPage({
                   </div>
                 </div>
 
-                <div className="mt-5 border-t border-white/[0.06] pt-3">
+                <div className="mt-5 border-t border-sumi/10 pt-3">
                   <Link
                     href={`/groups/${c.id}`}
                     className="btn-tactile-secondary w-full"
@@ -129,10 +129,10 @@ export default async function DiscoverPage({
           })}
 
           {(clubs ?? []).length === 0 && (
-            <div className="rounded-2xl border border-white/[0.08] bg-surface p-12 text-center text-slate-400 sm:col-span-2 lg:col-span-3">
-              <Compass className="mx-auto h-10 w-10 text-slate-600 mb-2 opacity-50" />
-              <p className="text-sm font-semibold text-slate-300">No open public clubs found</p>
-              <p className="mt-1 text-xs text-slate-500">
+            <div className="rounded-2xl border border-sumi/15 bg-surface p-12 text-center text-text-muted sm:col-span-2 lg:col-span-3">
+              <Compass className="mx-auto h-10 w-10 text-text-muted mb-2 opacity-50" />
+              <p className="text-sm font-semibold text-text-secondary">No open public clubs found</p>
+              <p className="mt-1 text-xs text-text-muted">
                 Try searching with different keywords or create a new club from your dashboard.
               </p>
             </div>

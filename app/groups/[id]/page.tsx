@@ -28,16 +28,16 @@ export default async function GroupPage({ params }: { params: { id: string } }) 
   if (!membership && !(group.type === "club" && group.invite_enabled)) {
     return (
       <main className="mx-auto max-w-md py-20 text-center space-y-4">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-white/[0.1] bg-surface text-amber-400 shadow-xl">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-sumi/15 bg-surface-card text-shinobi-gold shadow-tactile-card">
           <Lock className="h-6 w-6" />
         </div>
-        <h1 className="text-xl font-bold text-white">{group.name}</h1>
-        <p className="text-xs text-slate-400">
+        <h1 className="font-heading text-xl font-bold text-text-primary">{group.name}</h1>
+        <p className="text-xs text-text-muted">
           This is a private squad or duel arena. You need a valid 8-character invite code or signed challenge link to enter.
         </p>
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-2 rounded-xl border border-white/[0.1] bg-surface px-4 py-2 text-xs font-semibold text-slate-300 hover:border-white/[0.2] transition-colors"
+          className="btn-tactile-secondary"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           <span>Return to Dashboard</span>
@@ -61,7 +61,7 @@ export default async function GroupPage({ params }: { params: { id: string } }) 
       <div>
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-amber-300 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs text-text-muted hover:text-shinobi-gold transition-colors"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           <span>Back to Dashboard</span>
@@ -69,17 +69,17 @@ export default async function GroupPage({ params }: { params: { id: string } }) 
       </div>
 
       {/* Group Command Bar Header */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-surface-card p-6 shadow-tactile-card backdrop-blur-xl">
+      <div className="border border-sumi/15 bg-surface-card p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               <span
-                className={`rounded-md border px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider ${
+                className={`border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider ${
                   isDuel
-                    ? "border-rose-500/30 bg-rose-950/40 text-rose-300"
+                    ? "border-shinobi-gold/40 bg-shinobi-gold/10 text-shinobi-gold"
                     : isClub
-                    ? "border-amber-500/30 bg-amber-950/40 text-amber-300"
-                    : "border-indigo-500/30 bg-indigo-950/40 text-indigo-300"
+                    ? "border-sumi/20 bg-surface-elevated text-text-secondary"
+                    : "border-sumi/20 bg-surface-elevated text-text-primary"
                 }`}
               >
                 {isDuel ? "1:1 Duel" : isClub ? "Public Club" : "Private Squad"}
@@ -96,7 +96,7 @@ export default async function GroupPage({ params }: { params: { id: string } }) 
               </span>
             </div>
 
-            <h1 className="font-heading text-2xl sm:text-3xl font-black tracking-tight text-text-primary">
+            <h1 className="font-heading text-2xl sm:text-3xl text-text-primary">
               {group.name}
             </h1>
           </div>

@@ -9,55 +9,50 @@ const config = {
     extend: {
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "-apple-system", "sans-serif"],
-        heading: ["var(--font-heading)", "var(--font-sans)", "sans-serif"],
+        heading: ["var(--font-heading)", "Georgia", "serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
       colors: {
-        ink: "#090a0f", // Sumi Obsidian Charcoal
-        card: "#111319", // Deep Stealth Surface
+        ink: "#f3eee4",
+        sumi: "#1c1712",
+        card: "#faf7f1",
         surface: {
-          DEFAULT: "#111319",
-          base: "#090a0f",
-          card: "#111319",
-          elevated: "#171a23",
-          hover: "#1e222f",
+          DEFAULT: "#faf7f1",
+          base: "#f3eee4",
+          card: "#faf7f1",
+          elevated: "#ebe4d6",
+          hover: "#e4dccb",
         },
-        elevated: "#171a23",
-        gold: "#e5a93c", // Antique Japanese Brass Gold
+        elevated: "#ebe4d6",
+        gold: "#c4452d",
         text: {
-          primary: "#f1f5f9", // Slate 100
-          secondary: "#94a3b8", // Slate 400
-          muted: "#64748b", // Slate 500
+          primary: "#1c1712",
+          secondary: "#5c5348",
+          muted: "#8a8074",
         },
         shinobi: {
-          gold: "#e5a93c", // Refined Antique Gold
-          amber: "#f59e0b",
-          teal: "#0d9488", // Deep Japanese Pine / Teal
-          flame: "#ea580c", // Torii Flame Orange
-          crimson: "#e63946", // Blood Katana Red
-          violet: "#7c3aed",
-          steel: "#94a3b8",
+          gold: "#c4452d",
+          amber: "#c4452d",
+          teal: "#3d5c4a",
+          flame: "#a33b24",
+          crimson: "#c4452d",
+          violet: "#5c4a3d",
+          steel: "#8a8074",
         },
       },
       boxShadow: {
-        "tactile-card": "0 4px 24px -1px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.07)",
-        "tactile-btn": "0 1px 2px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.25)",
-        "tactile-inset": "inset 0 1px 0 0 rgba(255, 255, 255, 0.05)",
-        glow: "0 0 24px -4px rgba(229, 169, 60, 0.25)",
-        "glow-gold": "0 0 28px -4px rgba(229, 169, 60, 0.35)",
-        "glow-emerald": "0 0 24px -4px rgba(16, 185, 129, 0.25)",
-        "glow-flame": "0 0 24px -4px rgba(234, 88, 12, 0.25)",
-        "glow-crimson": "0 0 24px -4px rgba(230, 57, 70, 0.3)",
+        "tactile-card": "1px 1px 0 0 rgba(28, 23, 18, 0.12)",
+        "tactile-btn": "none",
+        "tactile-inset": "none",
+        glow: "none",
+        "glow-gold": "none",
+        "glow-emerald": "none",
+        "glow-flame": "none",
+        "glow-crimson": "none",
       },
-      animation: {
-        pulse_slow: "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-        float: "float 4s ease-in-out infinite",
-      },
-      keyframes: {
-        float: {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-5px)" },
-        },
+      borderRadius: {
+        "2xl": "0.375rem",
+        "3xl": "0.5rem",
       },
     },
   },

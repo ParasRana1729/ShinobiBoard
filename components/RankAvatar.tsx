@@ -39,11 +39,9 @@ export default function RankAvatar({
       {/* Outer Glow container */}
       <div
         className={`relative flex items-center justify-center rounded-full transition duration-200 ${dimension} ${
-          showGlow ? "shadow-lg" : ""
+          ""
         }`}
-        style={{
-          boxShadow: showGlow ? `0 0 24px -2px ${meta.glowColor}` : undefined,
-        }}
+        style={undefined}
       >
         {/* Avatar Circle */}
         <div
@@ -70,7 +68,7 @@ export default function RankAvatar({
         {/* Small corner badge if requested */}
         {showBadge && (
           <div
-            className={`absolute -bottom-1 -right-1 rounded-full border border-black/80 px-1.5 py-0.2 text-[9px] font-black uppercase tracking-wider ${meta.badgeColor} shadow-md`}
+            className={`absolute -bottom-1 -right-1 rounded-sm border border-sumi/20 bg-ink px-1.5 py-0.5 text-[9px] uppercase tracking-wide ${meta.badgeColor}`}
           >
             {meta.rank}
           </div>

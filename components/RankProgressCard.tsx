@@ -25,7 +25,7 @@ export default function RankProgressCard({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b ${progress.currentMeta.accentBg} p-6 shadow-xl shadow-black/40 backdrop-blur-xl ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-sumi/15 bg-surface-card p-6 shadow-tactile-card ${className}`}
     >
       {/* Top Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -33,7 +33,6 @@ export default function RankProgressCard({
           <RankAvatar
             rank={progress.currentRank}
             size="xl"
-            showGlow
             showBadge
           />
           <div>
@@ -43,7 +42,7 @@ export default function RankProgressCard({
               >
                 {progress.currentRank}
               </span>
-              <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-mono text-xs font-bold text-text-secondary">
+              <span className="rounded-full border border-sumi/15 bg-sumi/[0.06] px-2 py-0.5 font-mono text-xs font-bold text-text-secondary">
                 Lv. {progress.level}
               </span>
             </div>
@@ -76,7 +75,7 @@ export default function RankProgressCard({
       </div>
 
       {/* Progress Bar & Next Rank */}
-      <div className="mt-6 rounded-2xl border border-white/[0.06] bg-surface-elevated/60 p-4">
+      <div className="mt-6 rounded-2xl border border-sumi/10 bg-surface-elevated/60 p-4">
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
             <span className="font-bold text-text-primary">
@@ -94,9 +93,9 @@ export default function RankProgressCard({
         </div>
 
         {/* Progress Bar */}
-        <div className="mt-2.5 h-2.5 w-full overflow-hidden rounded-full bg-white/[0.08] p-0.5">
+        <div className="mt-2.5 h-2.5 w-full overflow-hidden rounded-full bg-sumi/10 p-0.5">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-shinobi-gold via-amber-300 to-shinobi-flame transition-all duration-500 shadow-sm shadow-shinobi-gold/30"
+            className="h-full rounded-full bg-shinobi-gold transition-all duration-500"
             style={{ width: `${progress.percentage}%` }}
           />
         </div>
@@ -119,8 +118,8 @@ export default function RankProgressCard({
 
       {/* XP Rules Breakdown Panel (Expandable) */}
       {showFormulaModal && (
-        <div className="mt-5 rounded-2xl border border-shinobi-gold/30 bg-surface-base/95 p-5 shadow-2xl transition animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+        <div className="mt-5 rounded-xl border border-sumi/15 bg-surface p-5 shadow-tactile-card transition animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="flex items-center justify-between border-b border-sumi/15 pb-3">
             <h3 className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-shinobi-gold">
               <Zap className="h-4 w-4" /> Points & XP Engine Spec
             </h3>
@@ -133,19 +132,19 @@ export default function RankProgressCard({
           </div>
 
           <div className="mt-4 grid gap-3 text-xs sm:grid-cols-2">
-            <div className="rounded-xl border border-white/[0.06] bg-surface-card p-3">
+            <div className="rounded-xl border border-sumi/10 bg-surface-card p-3">
               <span className="font-bold text-text-primary block">First-Ever Solves</span>
               <ul className="mt-2 space-y-1 font-mono text-[11px] text-text-secondary">
                 <li className="flex justify-between">
-                  <span className="text-emerald-400">Easy:</span>
+                  <span className="text-shinobi-teal">Easy:</span>
                   <span className="font-bold text-text-primary">+5 XP</span>
                 </li>
                 <li className="flex justify-between">
-                  <span className="text-blue-400">Medium:</span>
+                  <span className="text-text-secondary">Medium:</span>
                   <span className="font-bold text-text-primary">+15 XP</span>
                 </li>
                 <li className="flex justify-between">
-                  <span className="text-red-400">Hard:</span>
+                  <span className="text-shinobi-flame">Hard:</span>
                   <span className="font-bold text-text-primary">+40 XP</span>
                 </li>
               </ul>
@@ -154,7 +153,7 @@ export default function RankProgressCard({
               </span>
             </div>
 
-            <div className="rounded-xl border border-white/[0.06] bg-surface-card p-3">
+            <div className="rounded-xl border border-sumi/10 bg-surface-card p-3">
               <span className="font-bold text-text-primary block">Streak Bonus (≥ 3 Days)</span>
               <div className="mt-2 flex items-center gap-2 text-shinobi-flame">
                 <Flame className="h-4 w-4" />
@@ -165,14 +164,14 @@ export default function RankProgressCard({
               </span>
             </div>
 
-            <div className="rounded-xl border border-white/[0.06] bg-surface-card p-3">
+            <div className="rounded-xl border border-sumi/10 bg-surface-card p-3">
               <span className="font-bold text-text-primary block">Weekly Goal Credit</span>
               <p className="mt-1 text-[11px] text-text-secondary">
                 Counted solves advance your squad goal bar. Solves reset every Monday at 00:05 UTC.
               </p>
             </div>
 
-            <div className="rounded-xl border border-white/[0.06] bg-surface-card p-3">
+            <div className="rounded-xl border border-sumi/10 bg-surface-card p-3">
               <span className="font-bold text-text-primary block">Anti-Farm Integrity</span>
               <p className="mt-1 text-[11px] text-text-secondary">
                 Re-submitting the same problem in the same week awards 0 XP and 0 weekly count.

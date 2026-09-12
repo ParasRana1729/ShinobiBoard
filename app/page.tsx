@@ -1,23 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import {
-  Swords,
-  Flame,
-  Trophy,
-  ShieldCheck,
-  Zap,
-  ArrowRight,
-  Users,
-  Terminal,
-  Crown,
-  Sparkles,
-  Compass,
-  CheckCircle2,
-  ChevronRight,
-} from "lucide-react";
 import { BASE_LADDER } from "@/lib/constants";
 import { getRankMeta } from "@/lib/ranks";
-import RankAvatar from "@/components/RankAvatar";
 
 export default async function Home() {
   const supabase = createClient();
@@ -25,506 +9,160 @@ export default async function Home() {
   const user = data.user;
 
   return (
-    <main className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-24">
-      {/* ─── Hero Section ────────────────────────────────────────────────────────── */}
-      <section className="relative pt-6 pb-8 text-center sm:pt-12">
-        {/* Glow ambient background behind hero */}
-        <div className="pointer-events-none absolute -top-16 left-1/2 -z-10 h-96 w-full -translate-x-1/2 max-w-4xl opacity-25 blur-3xl bg-gradient-to-r from-shinobi-gold/20 via-shinobi-teal/10 to-shinobi-flame/20" />
-
-        {/* Top telemetry tag */}
-        <div className="telemetry-tag border-shinobi-gold/30 bg-shinobi-gold/10 text-shinobi-gold px-3.5 py-1.5">
-          <span className="flex h-1.5 w-1.5 rounded-full bg-shinobi-gold animate-pulse" />
-          <span className="tracking-widest">ShinobiBoard v1.1</span>
-          <span className="text-white/20">|</span>
-          <span className="text-text-secondary">Competitive LeetCode Engine</span>
-        </div>
-
-        {/* Main headline */}
-        <h1 className="mt-8 font-heading text-4xl font-black tracking-tight text-text-primary sm:text-6xl md:text-7xl max-w-4xl mx-auto leading-[1.08]">
-          Solo LeetCode grind dies after week 1.{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-shinobi-gold via-amber-200 to-shinobi-flame">
-            Your squad won&apos;t let it.
-          </span>
+    <main className="mx-auto max-w-3xl space-y-20 py-16">
+      <section>
+        <p className="font-mono text-[11px] uppercase tracking-wide text-text-muted">ShinobiBoard</p>
+        <h1 className="mt-4 font-heading text-4xl leading-tight text-text-primary sm:text-5xl">
+          Solo LeetCode grind dies after week 1. Your squad won&apos;t let it.
         </h1>
-
-        {/* Subtitle */}
-        <p className="mt-6 text-base sm:text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed">
-          Zero manual logging. Direct LeetCode GraphQL synchronization, RPG rank progressions from Academy to Kage, weekly prestige titles, and 1:1 rival duels.
+        <p className="mt-5 max-w-xl text-base leading-relaxed text-text-secondary">
+          Hourly sync from public LeetCode profiles. Weekly goals, ranks, and 1:1 duels — no manual logging.
         </p>
-
-        {/* Hero CTAs */}
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="mt-8 flex flex-wrap items-center gap-3">
           {user ? (
-            <Link
-              href="/dashboard"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-xl bg-shinobi-gold px-8 py-3.5 text-sm font-bold text-black shadow-tactile-btn transition duration-150 hover:bg-shinobi-gold/90 hover:brightness-105 active:scale-[0.98]"
-            >
-              Enter Dashboard <ArrowRight className="h-4 w-4" />
+            <Link href="/dashboard" className="btn-tactile-primary px-5 py-2.5 text-sm">
+              Dashboard
             </Link>
           ) : (
-            <Link
-              href="/login"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-xl bg-shinobi-gold px-8 py-3.5 text-sm font-bold text-black shadow-tactile-btn transition duration-150 hover:bg-shinobi-gold/90 hover:brightness-105 active:scale-[0.98]"
-            >
-              Sign In with Google <ArrowRight className="h-4 w-4" />
+            <Link href="/login" className="btn-tactile-primary px-5 py-2.5 text-sm">
+              Sign in with Google
             </Link>
           )}
-          <Link
-            href="/discover"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-surface-elevated/70 px-7 py-3.5 text-sm font-semibold text-text-secondary shadow-tactile-inset backdrop-blur-sm transition duration-150 hover:border-white/20 hover:bg-surface-elevated hover:text-text-primary active:scale-[0.98]"
-          >
-            <Compass className="h-4 w-4 text-shinobi-teal" />
-            Browse Public Clubs
+          <Link href="/discover" className="btn-tactile-secondary px-5 py-2.5 text-sm">
+            Browse clubs
           </Link>
         </div>
-
-        {/* Telemetry Micro-Pill */}
-        <div className="mt-8 inline-flex items-center gap-4 rounded-xl border border-white/[0.06] bg-surface-base/80 px-4 py-2 text-[11px] font-mono text-text-muted shadow-tactile-inset">
-          <span className="flex items-center gap-1.5">
-            <Zap className="h-3 w-3 text-shinobi-gold" /> Hourly Background Sync
-          </span>
-          <span className="text-white/20">•</span>
-          <span>Mon–Sun UTC Reset</span>
-          <span className="text-white/20">•</span>
-          <span className="flex items-center gap-1.5">
-            <ShieldCheck className="h-3 w-3 text-shinobi-teal" /> Anti-Squat Verified
-          </span>
-        </div>
       </section>
 
-      {/* ─── Interactive Mockup Showcase ────────────────────────────────────────── */}
-      <section className="relative mx-auto max-w-5xl rounded-3xl border border-white/10 bg-surface-base/80 p-5 sm:p-8 shadow-2xl shadow-black/80 backdrop-blur-xl">
-        {/* Mock window top bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-5">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5">
-              <div className="h-3 w-3 rounded-full bg-red-500/60" />
-              <div className="h-3 w-3 rounded-full bg-amber-500/60" />
-              <div className="h-3 w-3 rounded-full bg-emerald-500/60" />
-            </div>
-            <div className="h-4 w-px bg-white/10" />
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-text-primary">Hidden Leaf Senior Grinders</span>
-              <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] font-mono text-text-muted">
-                7 / 15 Shinobi
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-surface-card px-2.5 py-1 text-xs text-text-secondary">
-              <Flame className="h-3.5 w-3.5 text-shinobi-flame" />
-              <span>Squad Goal: 7/week</span>
-            </div>
-            <div className="rounded-lg border border-shinobi-gold/30 bg-shinobi-gold/10 px-2.5 py-1 text-[11px] font-bold text-shinobi-gold">
-              LIVE SPRINT
-            </div>
-          </div>
+      <section className="border border-sumi/15 bg-surface-card p-5 sm:p-6">
+        <div className="flex items-baseline justify-between border-b border-sumi/15 pb-3">
+          <h2 className="font-heading text-lg text-text-primary">Hidden Leaf grinders</h2>
+          <span className="font-mono text-[11px] text-text-muted">Goal 7 / week</span>
         </div>
-
-        {/* Mock Leaderboard Showcase Grid */}
-        <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Card 1: 1st Place Podium */}
-          <div className="relative rounded-2xl border border-shinobi-gold/40 bg-gradient-to-b from-shinobi-gold/10 via-surface-card to-surface-card p-5 shadow-lg shadow-shinobi-gold/5">
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 rounded-full border border-shinobi-gold/40 bg-shinobi-gold/20 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-shinobi-gold">
-                <Crown className="h-3 w-3" /> #1 Hokage
-              </span>
-              <span className="font-mono text-xs font-bold text-shinobi-gold">3,420 XP</span>
-            </div>
-
-            <div className="mt-4 flex items-center gap-3">
-              <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-shinobi-gold/50 bg-shinobi-gold/20 text-base font-black text-shinobi-gold">
-                IU
-              </div>
+        <ul className="divide-y divide-sumi/10">
+          {[
+            { n: 1, name: "Itachi Uchiha", handle: "@itachi_code", goal: "12 / 7", streak: "24d" },
+            { n: 2, name: "Kakashi Hatake", handle: "@copy_ninja", goal: "8 / 7", streak: "18d" },
+            { n: 3, name: "Sasuke Uchiha", handle: "@last_uchiha", goal: "5 / 7", streak: "4d" },
+          ].map((row) => (
+            <li key={row.n} className="flex items-baseline justify-between gap-4 py-3">
               <div className="min-w-0">
-                <p className="truncate text-sm font-bold text-text-primary">Itachi Uchiha</p>
-                <p className="font-mono text-xs text-text-muted">@itachi_code</p>
+                <span className="font-mono text-xs text-text-muted">#{row.n}</span>
+                <span className="ml-3 text-sm text-text-primary">{row.name}</span>
+                <span className="ml-2 font-mono text-[11px] text-text-muted">{row.handle}</span>
               </div>
-            </div>
-
-            <div className="mt-4 grid grid-cols-3 gap-1.5 text-center text-[10px] uppercase tracking-wider text-text-muted border-t border-white/[0.06] pt-3">
-              <div className="rounded-lg bg-surface-base p-1.5">
-                <span className="block text-text-muted">Goal</span>
-                <span className="font-mono text-xs font-bold text-text-primary">12 / 7</span>
+              <div className="shrink-0 font-mono text-[11px] text-text-secondary">
+                {row.goal} · {row.streak}
               </div>
-              <div className="rounded-lg bg-surface-base p-1.5">
-                <span className="block text-text-muted">Hards</span>
-                <span className="font-mono text-xs font-bold text-shinobi-flame">3 Hard</span>
-              </div>
-              <div className="rounded-lg bg-surface-base p-1.5">
-                <span className="block text-text-muted">Streak</span>
-                <span className="font-mono text-xs font-bold text-shinobi-flame">🔥 24d</span>
-              </div>
-            </div>
-
-            <div className="mt-3">
-              <div className="flex justify-between text-[10px] text-text-muted">
-                <span>Weekly Target</span>
-                <span className="text-shinobi-gold font-bold">171%</span>
-              </div>
-              <div className="mt-1 h-1.5 w-full rounded-full bg-white/[0.06] overflow-hidden">
-                <div className="h-full bg-shinobi-gold rounded-full w-full" />
-              </div>
-            </div>
-          </div>
-
-          {/* Card 2: 2nd Place */}
-          <div className="rounded-2xl border border-white/10 bg-surface-card p-5">
-            <div className="flex items-center justify-between">
-              <span className="rounded-full border border-slate-400/30 bg-slate-400/10 px-2.5 py-0.5 text-[10px] font-bold text-slate-300">
-                #2 Contender
-              </span>
-              <span className="font-mono text-xs font-bold text-shinobi-gold">2,850 XP</span>
-            </div>
-
-            <div className="mt-4 flex items-center gap-3">
-              <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/[0.05] text-base font-black text-text-primary">
-                KH
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-bold text-text-primary">Kakashi Hatake</p>
-                <p className="font-mono text-xs text-text-muted">@copy_ninja</p>
-              </div>
-            </div>
-
-            <div className="mt-4 grid grid-cols-3 gap-1.5 text-center text-[10px] uppercase tracking-wider text-text-muted border-t border-white/[0.06] pt-3">
-              <div className="rounded-lg bg-surface-base p-1.5">
-                <span className="block text-text-muted">Goal</span>
-                <span className="font-mono text-xs font-bold text-text-primary">8 / 7</span>
-              </div>
-              <div className="rounded-lg bg-surface-base p-1.5">
-                <span className="block text-text-muted">Hards</span>
-                <span className="font-mono text-xs font-bold text-shinobi-flame">1 Hard</span>
-              </div>
-              <div className="rounded-lg bg-surface-base p-1.5">
-                <span className="block text-text-muted">Streak</span>
-                <span className="font-mono text-xs font-bold text-shinobi-flame">🔥 18d</span>
-              </div>
-            </div>
-
-            <div className="mt-3">
-              <div className="flex justify-between text-[10px] text-text-muted">
-                <span>Weekly Target</span>
-                <span className="text-shinobi-teal font-bold">114%</span>
-              </div>
-              <div className="mt-1 h-1.5 w-full rounded-full bg-white/[0.06] overflow-hidden">
-                <div className="h-full bg-shinobi-teal rounded-full w-full" />
-              </div>
-            </div>
-          </div>
-
-          {/* Feed Preview */}
-          <div className="flex flex-col justify-between rounded-2xl border border-white/10 bg-surface-base p-5">
-            <div>
-              <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
-                <span className="flex items-center gap-1.5 text-xs font-bold text-text-primary">
-                  <span className="h-2 w-2 rounded-full bg-shinobi-teal animate-pulse" />
-                  Live Squad Feed
-                </span>
-                <span className="text-[10px] font-mono text-text-muted">Realtime</span>
-              </div>
-
-              <div className="mt-3 space-y-2.5">
-                <div className="rounded-xl border border-white/[0.04] bg-surface-card p-2 text-xs">
-                  <span className="font-semibold text-text-primary">Kakashi</span>
-                  <span className="text-text-muted"> solved </span>
-                  <span className="font-mono text-shinobi-flame">Alien Dictionary (Hard)</span>
-                  <span className="ml-1 text-[10px] font-bold text-shinobi-gold">+40 XP</span>
-                </div>
-                <div className="rounded-xl border border-white/[0.04] bg-surface-card p-2 text-xs">
-                  <span className="font-semibold text-text-primary">Itachi</span>
-                  <span className="text-text-muted"> hit </span>
-                  <span className="font-bold text-shinobi-flame">🔥 24-day streak</span>
-                </div>
-                <div className="rounded-xl border border-white/[0.04] bg-surface-card p-2 text-xs">
-                  <span className="font-semibold text-text-primary">Sasuke</span>
-                  <span className="text-text-muted"> challenged </span>
-                  <span className="text-text-primary font-semibold">Itachi</span>
-                  <span className="text-text-muted"> to a </span>
-                  <span className="font-bold text-shinobi-gold">1:1 Duel</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-3 pt-3 border-t border-white/[0.06] text-center">
-              <span className="text-[11px] text-text-muted">Syncing directly with LeetCode GraphQL</span>
-            </div>
-          </div>
-        </div>
+            </li>
+          ))}
+        </ul>
       </section>
 
-      {/* ─── Core Game Modes / Pillars ────────────────────────────────────────── */}
-      <section className="space-y-8">
-        <div className="text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-shinobi-teal/30 bg-shinobi-teal/10 px-3.5 py-1 text-xs font-semibold text-shinobi-teal">
-            <Sparkles className="h-3.5 w-3.5" /> Built for Competitive Developers
-          </div>
-          <h2 className="mt-4 font-heading text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl">
-            Accountability Engineered for Speed
-          </h2>
-          <p className="mt-2 text-sm text-text-secondary max-w-xl mx-auto">
-            Three distinct game modes designed to turn solitary algorithmic grind into an exhilarating team habit.
-          </p>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-3">
-          {/* Pillar 1: Private Squads */}
-          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-surface-card p-7 shadow-tactile-card transition hover:border-shinobi-gold/40 hover:bg-surface-elevated">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-shinobi-gold/30 bg-shinobi-gold/10 text-shinobi-gold shadow-tactile-inset">
-              <Users className="h-6 w-6" />
-            </div>
-            <h3 className="mt-5 font-heading text-lg font-bold text-text-primary">Private Squads</h3>
-            <p className="mt-2 text-xs leading-relaxed text-text-secondary">
-              Invite-code protected for 3 to 15 peers. Set custom weekly problem goals (1–50), drag-and-drop your personal viewer order, and pin up to 2 study partners.
+      <section>
+        <h2 className="font-heading text-2xl text-text-primary">Three ways to compete</h2>
+        <ol className="mt-6 space-y-6">
+          <li className="border-t border-sumi/15 pt-4">
+            <p className="font-mono text-[11px] text-text-muted">01</p>
+            <h3 className="mt-1 font-heading text-xl text-text-primary">Private squads</h3>
+            <p className="mt-1 text-sm leading-relaxed text-text-secondary">
+              Invite-code only, 3–15 people. Custom weekly goals, personal card order, two pins.
             </p>
-            <div className="mt-6 flex items-center gap-2 text-xs font-semibold text-shinobi-gold">
-              <span>Code-only admission</span>
-              <ChevronRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" />
-            </div>
-          </div>
-
-          {/* Pillar 2: Public Battle Clubs */}
-          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-surface-card p-7 shadow-tactile-card transition hover:border-shinobi-teal/40 hover:bg-surface-elevated">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-shinobi-teal/30 bg-shinobi-teal/10 text-shinobi-teal shadow-tactile-inset">
-              <Compass className="h-6 w-6" />
-            </div>
-            <h3 className="mt-5 font-heading text-lg font-bold text-text-primary">Public Battle Clubs</h3>
-            <p className="mt-2 text-xs leading-relaxed text-text-secondary">
-              Open discovery clubs scaling up to 150 engineers. Instant join with real-time capacity meters for university cohorts, blind 75 marathons, and FAANG interview prep.
+          </li>
+          <li className="border-t border-sumi/15 pt-4">
+            <p className="font-mono text-[11px] text-text-muted">02</p>
+            <h3 className="mt-1 font-heading text-xl text-text-primary">Public clubs</h3>
+            <p className="mt-1 text-sm leading-relaxed text-text-secondary">
+              Discover and join instantly. Caps at 150; waitlist after that.
             </p>
-            <div className="mt-6 flex items-center gap-2 text-xs font-semibold text-shinobi-teal">
-              <span>Instant 1-click join</span>
-              <ChevronRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" />
-            </div>
-          </div>
-
-          {/* Pillar 3: 1:1 Rival Duels */}
-          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-surface-card p-7 shadow-tactile-card transition hover:border-shinobi-flame/40 hover:bg-surface-elevated">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-shinobi-flame/30 bg-shinobi-flame/10 text-shinobi-flame shadow-tactile-inset">
-              <Swords className="h-6 w-6" />
-            </div>
-            <h3 className="mt-5 font-heading text-lg font-bold text-text-primary">1:1 Rival Duels</h3>
-            <p className="mt-2 text-xs leading-relaxed text-text-secondary">
-              Generate a 7-day cryptographic challenge link. Daily Head-to-Head Win/Loss/Draw tracking, solve difference tiebreaker, and zero hiding from your rival.
+          </li>
+          <li className="border-t border-sumi/15 pt-4">
+            <p className="font-mono text-[11px] text-text-muted">03</p>
+            <h3 className="mt-1 font-heading text-xl text-text-primary">1:1 duels</h3>
+            <p className="mt-1 text-sm leading-relaxed text-text-secondary">
+              A 7-day invite link. Daily win / loss / draw against one rival.
             </p>
-            <div className="mt-6 flex items-center gap-2 text-xs font-semibold text-shinobi-flame">
-              <span>Cryptographic challenge tokens</span>
-              <ChevronRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" />
-            </div>
-          </div>
-        </div>
+          </li>
+        </ol>
       </section>
 
-      {/* ─── Shinobi Rank Ladder Progression ─────────────────────────────────── */}
-      <section className="rounded-3xl border border-white/10 bg-surface-base/80 p-8 shadow-tactile-card">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/[0.08] pb-6">
-          <div>
-            <div className="telemetry-tag border-shinobi-gold/30 bg-shinobi-gold/10 text-shinobi-gold">
-              <Zap className="h-3.5 w-3.5" /> Progression Engine
-            </div>
-            <h2 className="mt-2 font-heading text-2xl font-extrabold text-text-primary">
-              The 6 Shinobi Ranks
-            </h2>
-            <p className="mt-1 text-xs text-text-secondary">
-              Gain XP strictly on first-ever solves (+5 Easy, +15 Medium, +40 Hard) with +2 XP bonus per solve when streak ≥ 3.
-            </p>
-          </div>
-          <div className="flex items-center gap-2 font-mono text-xs text-text-muted">
-            <span>Formula:</span>
-            <code className="rounded bg-surface-elevated px-2 py-0.5 text-shinobi-teal">XP = DiffXP(first) + 2·(streak≥3)</code>
-          </div>
-        </div>
-
-        {/* 6-Tier Rank Road with Anime Character Portals */}
-        <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {BASE_LADDER.map((tier, idx) => {
+      <section>
+        <h2 className="font-heading text-2xl text-text-primary">Ranks</h2>
+        <p className="mt-2 text-sm text-text-secondary">
+          XP on first-ever solves only: Easy 5, Medium 15, Hard 40. +2 while streak is 3 or more.
+        </p>
+        <div className="mt-6 divide-y divide-sumi/10 border-y border-sumi/15">
+          {BASE_LADDER.map((tier) => {
             const meta = getRankMeta(tier.rank);
             return (
-              <div
-                key={tier.rank}
-                className={`flex flex-col items-center justify-between rounded-2xl border p-4 text-center shadow-tactile-card ${
-                  idx === BASE_LADDER.length - 1
-                    ? "border-shinobi-gold/50 bg-gradient-to-b from-shinobi-gold/15 to-surface-card"
-                    : idx >= 3
-                    ? "border-shinobi-teal/30 bg-surface-card"
-                    : "border-white/[0.06] bg-surface-elevated/40"
-                }`}
-              >
-                <span className="font-mono text-[10px] text-text-muted">STAGE 0{idx + 1}</span>
-                <div className="my-3">
-                  <RankAvatar rank={tier.rank} size="lg" showGlow={idx >= 4} />
-                </div>
+              <div key={tier.rank} className="flex items-baseline justify-between gap-4 py-2.5">
                 <div>
-                  <h4 className="font-heading text-sm font-bold text-text-primary">{tier.rank}</h4>
-                  <p className="text-[11px] font-medium text-text-secondary">{meta.character}</p>
+                  <span className="text-sm text-text-primary">{tier.rank}</span>
+                  <span className="ml-2 text-xs text-text-muted">{meta.character}</span>
                 </div>
-                <div className="mt-3 w-full border-t border-white/[0.06] pt-2">
-                  <span className="font-mono text-xs font-extrabold text-shinobi-gold">
-                    {tier.minXp.toLocaleString()} XP
-                  </span>
-                  <span className="block text-[10px] text-text-muted font-mono">threshold</span>
-                </div>
+                <span className="font-mono text-xs text-text-secondary">{tier.minXp.toLocaleString()} XP</span>
               </div>
             );
           })}
         </div>
       </section>
 
-      {/* ─── Prestige Title System ──────────────────────────────────────────── */}
-      <section className="grid gap-6 md:grid-cols-3">
-        <div className="rounded-2xl border border-shinobi-gold/30 bg-gradient-to-b from-shinobi-gold/10 via-surface-card to-surface-card p-6 shadow-tactile-card">
-          <div className="flex items-center gap-3">
-            <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-shinobi-gold/40 bg-surface-elevated shadow-tactile-inset">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/ranks/kage.jpg"
-                alt="Hokage"
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <div>
-              <h3 className="font-heading font-bold text-text-primary">Hokage of the Leaf</h3>
-              <p className="text-[11px] font-mono text-shinobi-gold">Top Weekly Solves</p>
-            </div>
+      <section>
+        <h2 className="font-heading text-2xl text-text-primary">Weekly titles</h2>
+        <dl className="mt-6 space-y-4">
+          <div className="border-t border-sumi/15 pt-4">
+            <dt className="text-sm font-medium text-text-primary">Hokage</dt>
+            <dd className="mt-1 text-sm text-text-secondary">Most counted solves in the week, if you hit the group goal. Holds 7 days.</dd>
           </div>
-          <p className="mt-4 text-xs leading-relaxed text-text-secondary">
-            Granted to the supreme solver of the week in every squad. Awarded automatically every Monday at 00:05 UTC.
-          </p>
-        </div>
+          <div className="border-t border-sumi/15 pt-4">
+            <dt className="text-sm font-medium text-text-primary">Itachi</dt>
+            <dd className="mt-1 text-sm text-text-secondary">Most hard problems that week. Holds 3 days.</dd>
+          </div>
+          <div className="border-t border-sumi/15 pt-4">
+            <dt className="text-sm font-medium text-text-primary">Rock Lee</dt>
+            <dd className="mt-1 text-sm text-text-secondary">Best comeback: zero last week, then at least 15 this week. Holds 3 days.</dd>
+          </div>
+        </dl>
+      </section>
 
-        <div className="rounded-2xl border border-red-500/30 bg-gradient-to-b from-red-500/10 via-surface-card to-surface-card p-6 shadow-tactile-card">
-          <div className="flex items-center gap-3">
-            <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-red-500/40 bg-surface-elevated shadow-tactile-inset">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/ranks/anbu.jpg"
-                alt="Itachi Uchiha"
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <div>
-              <h3 className="font-heading font-bold text-text-primary">Itachi (Master of Hards)</h3>
-              <p className="text-[11px] font-mono text-red-400">Most Hard Solves</p>
-            </div>
-          </div>
-          <p className="mt-4 text-xs leading-relaxed text-text-secondary">
-            Reserved for developers who tackle the most demanding algorithmic challenges. 1 holder per squad per week.
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-shinobi-flame/30 bg-gradient-to-b from-shinobi-flame/10 via-surface-card to-surface-card p-6 shadow-tactile-card">
-          <div className="flex items-center gap-3">
-            <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-shinobi-flame/40 bg-surface-elevated shadow-tactile-inset">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/ranks/rock_lee.jpg"
-                alt="Rock Lee"
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <div>
-              <h3 className="font-heading font-bold text-text-primary">Rock Lee (Relentless)</h3>
-              <p className="text-[11px] font-mono text-shinobi-flame">Longest Active Streak</p>
-            </div>
-          </div>
-          <p className="mt-4 text-xs leading-relaxed text-text-secondary">
-            Honors sheer consistency. When you show up and submit every day without breaking chain, you hold the title.
-          </p>
+      <section className="border-t border-sumi/15 pt-10">
+        <h2 className="font-heading text-2xl text-text-primary">How it stays honest</h2>
+        <ul className="mt-4 space-y-2 text-sm text-text-secondary">
+          <li>Hourly GraphQL sync. No self-reported solves.</li>
+          <li>One LeetCode name per account. Claimed names go through a dispute flow.</li>
+          <li>Weeks run Monday–Sunday UTC. Titles fire Monday 00:05 UTC.</li>
+          <li>Same slug twice in one week: zero extra weekly count, zero extra XP.</li>
+        </ul>
+        <div className="mt-8 flex flex-wrap gap-3">
+          {user ? (
+            <Link href="/dashboard" className="btn-tactile-primary px-5 py-2.5 text-sm">
+              Go to dashboard
+            </Link>
+          ) : (
+            <Link href="/login" className="btn-tactile-primary px-5 py-2.5 text-sm">
+              Sign in with Google
+            </Link>
+          )}
+          <Link href="/discover" className="btn-tactile-secondary px-5 py-2.5 text-sm">
+            Explore clubs
+          </Link>
         </div>
       </section>
 
-      {/* ─── Technical Architecture / Developer Spec ───────────────────────── */}
-      <section className="rounded-3xl border border-white/10 bg-surface-card p-8 shadow-tactile-card">
-        <div className="telemetry-tag border-shinobi-teal/30 bg-shinobi-teal/10 text-shinobi-teal">
-          <Terminal className="h-3.5 w-3.5" /> Architecture & Anti-Cheat Spec
-        </div>
-        <h2 className="mt-3 font-heading text-2xl font-extrabold text-text-primary">
-          Designed for Integrity & Zero Overhead
-        </h2>
-
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-white/[0.06] bg-surface-elevated/70 p-4 shadow-tactile-inset">
-            <CheckCircle2 className="h-4 w-4 text-shinobi-teal" />
-            <h4 className="mt-2 font-heading text-xs font-bold text-text-primary">Headless GraphQL Sync</h4>
-            <p className="mt-1 text-[11px] text-text-muted">
-              Syncs with LeetCode every hour via Vercel Cron. Zero manual solve submissions.
-            </p>
-          </div>
-          <div className="rounded-xl border border-white/[0.06] bg-surface-elevated/70 p-4 shadow-tactile-inset">
-            <CheckCircle2 className="h-4 w-4 text-shinobi-teal" />
-            <h4 className="mt-2 font-heading text-xs font-bold text-text-primary">Anti-Squat Verification</h4>
-            <p className="mt-1 text-[11px] text-text-muted">
-              Unique verification tokens in LeetCode About section prevent profile squatting.
-            </p>
-          </div>
-          <div className="rounded-xl border border-white/[0.06] bg-surface-elevated/70 p-4 shadow-tactile-inset">
-            <CheckCircle2 className="h-4 w-4 text-shinobi-teal" />
-            <h4 className="mt-2 font-heading text-xs font-bold text-text-primary">Mon–Sun UTC Week Cycle</h4>
-            <p className="mt-1 text-[11px] text-text-muted">
-              Deterministic weekly windows. Resets every Monday 00:05 UTC with title evaluation.
-            </p>
-          </div>
-          <div className="rounded-xl border border-white/[0.06] bg-surface-elevated/70 p-4 shadow-tactile-inset">
-            <CheckCircle2 className="h-4 w-4 text-shinobi-teal" />
-            <h4 className="mt-2 font-heading text-xs font-bold text-text-primary">Zero Resubmit Spam</h4>
-            <p className="mt-1 text-[11px] text-text-muted">
-              Difficulty XP is awarded strictly on first-ever AC per problem slug.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Bottom Call to Action ─────────────────────────────────────────── */}
-      <section className="relative overflow-hidden rounded-3xl border border-shinobi-gold/30 bg-gradient-to-b from-shinobi-gold/10 via-surface-card to-surface-card p-10 text-center shadow-tactile-card">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="font-heading text-3xl font-black tracking-tight text-text-primary sm:text-4xl">
-            Claim Your Ninja Headband
-          </h2>
-          <p className="mt-3 text-sm text-text-secondary leading-relaxed">
-            Create a private squad with your engineering team, join a public grind club, or challenge your arch-rival to a 1:1 duel.
-          </p>
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-            {user ? (
-              <Link
-                href="/dashboard"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-shinobi-gold px-8 py-3.5 text-sm font-bold text-black shadow-tactile-btn transition hover:bg-shinobi-gold/90 hover:brightness-105 active:scale-[0.98]"
-              >
-                Go to Dashboard <ArrowRight className="h-4 w-4" />
-              </Link>
-            ) : (
-              <Link
-                href="/login"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-shinobi-gold px-8 py-3.5 text-sm font-bold text-black shadow-tactile-btn transition hover:bg-shinobi-gold/90 hover:brightness-105 active:scale-[0.98]"
-              >
-                Get Started with Google <ArrowRight className="h-4 w-4" />
-              </Link>
-            )}
-            <Link
-              href="/discover"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-surface-elevated px-6 py-3.5 text-sm font-semibold text-text-secondary shadow-tactile-inset transition hover:border-white/20 hover:text-text-primary active:scale-[0.98]"
-            >
-              Explore Battle Clubs
+      <footer className="border-t border-sumi/15 pt-6 text-xs text-text-muted">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <span>ShinobiBoard</span>
+          <div className="flex gap-4">
+            <Link href="/discover" className="hover:text-text-primary">
+              Clubs
+            </Link>
+            <Link href="/dashboard" className="hover:text-text-primary">
+              Dashboard
+            </Link>
+            <Link href="/login" className="hover:text-text-primary">
+              Sign in
             </Link>
           </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-white/[0.08] pt-8 pb-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-text-muted">
-        <div className="flex items-center gap-2">
-          <span className="font-bold text-text-primary">ShinobiBoard</span>
-          <span>· LeetCode Board v1.1</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <Link href="/discover" className="hover:text-text-primary transition">
-            Clubs
-          </Link>
-          <Link href="/dashboard" className="hover:text-text-primary transition">
-            Dashboard
-          </Link>
-          <Link href="/login" className="hover:text-text-primary transition">
-            Sign In
-          </Link>
         </div>
       </footer>
     </main>

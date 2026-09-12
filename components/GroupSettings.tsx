@@ -81,12 +81,12 @@ export function GroupSettings({
             if (confirm(promptMsg)) call(`/api/groups/${groupId}/leave`);
           }}
           disabled={busy}
-          className="flex items-center gap-1.5 rounded-xl border border-rose-500/20 bg-rose-950/20 px-3.5 py-1.5 text-xs font-semibold text-rose-300 hover:bg-rose-900/30 hover:border-rose-500/40 transition-all disabled:opacity-50"
+          className="btn-tactile-danger"
         >
           <LogOut className="h-3.5 w-3.5" />
           <span>{type === "duel" ? "End Duel" : "Leave Squad"}</span>
         </button>
-        {msg && <span className={`text-xs ${msg.error ? "text-rose-400" : "text-emerald-400"}`}>{msg.text}</span>}
+        {msg && <span className={`text-xs ${msg.error ? "text-shinobi-flame" : "text-shinobi-teal"}`}>{msg.text}</span>}
       </div>
     );
   }
@@ -96,15 +96,15 @@ export function GroupSettings({
       <div className="flex flex-wrap items-center gap-2">
         {/* Invite Code Pill */}
         {code && (
-          <div className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-surface p-1 pl-2.5">
-            <span className="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">Code:</span>
-            <span className="font-mono text-xs font-bold text-amber-300">{code}</span>
+          <div className="flex items-center gap-1.5 rounded-xl border border-sumi/15 bg-surface p-1 pl-2.5">
+            <span className="text-[10px] font-semibold tracking-wider text-text-muted uppercase">Code:</span>
+            <span className="font-mono text-xs font-bold text-shinobi-gold">{code}</span>
             <button
               onClick={copyCode}
               title="Copy invite code"
-              className="rounded-lg p-1 text-slate-400 hover:bg-white/[0.08] hover:text-white transition-colors"
+              className="rounded-lg p-1 text-text-muted hover:bg-sumi/10 hover:text-text-primary transition-colors"
             >
-              {copied ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+              {copied ? <CheckCircle2 className="h-3.5 w-3.5 text-shinobi-teal" /> : <Copy className="h-3.5 w-3.5" />}
             </button>
           </div>
         )}
@@ -114,8 +114,8 @@ export function GroupSettings({
           onClick={() => setEditing(!editing)}
           className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all ${
             editing
-              ? "border-amber-500/40 bg-amber-950/30 text-amber-300"
-              : "border-white/[0.08] bg-surface text-slate-300 hover:border-white/[0.18]"
+              ? "border-sumi/40 bg-surface-elevated text-text-primary"
+              : "border-sumi/15 bg-surface text-text-secondary hover:border-sumi/30"
           }`}
         >
           <Settings className="h-3.5 w-3.5" />
@@ -124,24 +124,24 @@ export function GroupSettings({
       </div>
 
       {editing && (
-        <div className="mt-2 rounded-2xl border border-white/[0.1] bg-surface/95 p-4 shadow-2xl backdrop-blur-md">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-amber-300 mb-3">Owner Command Center</h4>
+        <div className="mt-2 rounded-2xl border border-sumi/15 bg-surface-card p-4 shadow-tactile-card">
+          <h4 className="font-heading text-xs font-bold uppercase tracking-wider text-text-primary mb-3">Owner Command Center</h4>
 
           <div className="grid gap-3 sm:grid-cols-2">
             {/* Rename */}
             <div>
-              <label className="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Rename</label>
+              <label className="block text-[10px] font-semibold uppercase text-text-muted mb-1">Rename</label>
               <div className="flex gap-1.5">
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="New group name"
-                  className="flex-1 rounded-lg border border-white/[0.1] bg-ink/90 px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none"
+                  className="flex-1 rounded-lg border border-sumi/15 bg-surface-elevated px-2.5 py-1.5 text-xs text-text-primary placeholder-text-muted focus:border-sumi/40 focus:outline-none"
                 />
                 <button
                   onClick={() => call(`/api/groups/${groupId}`, { name }, "PATCH")}
                   disabled={busy || !name.trim()}
-                  className="rounded-lg bg-white/[0.08] px-3 py-1.5 text-xs font-semibold hover:bg-white/[0.15] transition-colors disabled:opacity-50"
+                  className="rounded-lg bg-sumi/10 px-3 py-1.5 text-xs font-semibold hover:bg-sumi/15 transition-colors disabled:opacity-50"
                 >
                   Save
                 </button>
@@ -150,7 +150,7 @@ export function GroupSettings({
 
             {/* Change Goal */}
             <div>
-              <label className="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Weekly Goal (1–50)</label>
+              <label className="block text-[10px] font-semibold uppercase text-text-muted mb-1">Weekly Goal (1–50)</label>
               <div className="flex gap-1.5">
                 <input
                   type="number"
@@ -158,12 +158,12 @@ export function GroupSettings({
                   max={50}
                   value={newGoal}
                   onChange={(e) => setNewGoal(Number(e.target.value))}
-                  className="w-20 rounded-lg border border-white/[0.1] bg-ink/90 px-2.5 py-1.5 text-xs text-white focus:border-amber-400 focus:outline-none"
+                  className="w-20 rounded-lg border border-sumi/15 bg-surface-elevated px-2.5 py-1.5 text-xs text-text-primary focus:border-sumi/40 focus:outline-none"
                 />
                 <button
                   onClick={() => call(`/api/groups/${groupId}`, { goal: newGoal }, "PATCH")}
                   disabled={busy}
-                  className="rounded-lg bg-white/[0.08] px-3 py-1.5 text-xs font-semibold hover:bg-white/[0.15] transition-colors disabled:opacity-50"
+                  className="rounded-lg bg-sumi/10 px-3 py-1.5 text-xs font-semibold hover:bg-sumi/15 transition-colors disabled:opacity-50"
                 >
                   Set Goal
                 </button>
@@ -171,16 +171,16 @@ export function GroupSettings({
             </div>
           </div>
 
-          <div className="mt-3.5 flex flex-wrap items-center gap-2 border-t border-white/[0.06] pt-3">
+          <div className="mt-3.5 flex flex-wrap items-center gap-2 border-t border-sumi/10 pt-3">
             {/* Regen code */}
             {type !== "duel" && (
               <button
                 onClick={() => call(`/api/groups/${groupId}/regen-code`)}
                 disabled={busy}
-                className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-ink/80 px-2.5 py-1.5 text-xs text-slate-300 hover:border-white/[0.2] transition-colors"
+                className="flex items-center gap-1.5 rounded-lg border border-sumi/15 bg-surface-elevated px-2.5 py-1.5 text-xs text-text-secondary hover:border-sumi/25 transition-colors"
                 title="Regen invalidates previous code immediately"
               >
-                <RefreshCw className="h-3 w-3 text-cyan-400" />
+                <RefreshCw className="h-3 w-3 text-text-muted" />
                 <span>Rotate Code</span>
               </button>
             )}
@@ -190,9 +190,9 @@ export function GroupSettings({
               <button
                 onClick={() => call(`/api/groups/${groupId}`, { invite_enabled: !inviteEnabled }, "PATCH")}
                 disabled={busy}
-                className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-ink/80 px-2.5 py-1.5 text-xs text-slate-300 hover:border-white/[0.2] transition-colors"
+                className="flex items-center gap-1.5 rounded-lg border border-sumi/15 bg-surface-elevated px-2.5 py-1.5 text-xs text-text-secondary hover:border-sumi/25 transition-colors"
               >
-                {inviteEnabled ? <Lock className="h-3 w-3 text-amber-400" /> : <Unlock className="h-3 w-3 text-emerald-400" />}
+                {inviteEnabled ? <Lock className="h-3 w-3 text-shinobi-gold" /> : <Unlock className="h-3 w-3 text-shinobi-teal" />}
                 <span>{inviteEnabled ? "Close Invites" : "Open Invites"}</span>
               </button>
             )}
@@ -205,7 +205,7 @@ export function GroupSettings({
                 }
               }}
               disabled={busy}
-              className="flex items-center gap-1.5 rounded-lg border border-rose-500/20 bg-rose-950/20 px-2.5 py-1.5 text-xs text-rose-300 hover:bg-rose-900/30 transition-colors"
+              className="flex items-center gap-1.5 rounded-lg border border-shinobi-flame/30 bg-shinobi-flame/10 px-2.5 py-1.5 text-xs text-shinobi-flame hover:bg-shinobi-flame/20 transition-colors"
             >
               <LogOut className="h-3 w-3" />
               <span>Leave (Transfer)</span>
@@ -220,7 +220,7 @@ export function GroupSettings({
                   }
                 }}
                 disabled={busy}
-                className="flex items-center gap-1.5 rounded-lg border border-rose-600/40 bg-rose-950/40 px-2.5 py-1.5 text-xs text-rose-200 hover:bg-rose-900/50 transition-colors ml-auto"
+                className="flex items-center gap-1.5 rounded-lg border border-shinobi-flame/40 bg-shinobi-flame/10 px-2.5 py-1.5 text-xs text-shinobi-flame hover:bg-shinobi-flame/20 transition-colors ml-auto"
               >
                 <Trash2 className="h-3 w-3" />
                 <span>Delete Club</span>
@@ -229,7 +229,7 @@ export function GroupSettings({
           </div>
 
           {msg && (
-            <p className={`mt-2.5 text-xs font-medium ${msg.error ? "text-rose-400" : "text-emerald-400"}`}>
+            <p className={`mt-2.5 text-xs font-medium ${msg.error ? "text-shinobi-flame" : "text-shinobi-teal"}`}>
               {msg.text}
             </p>
           )}
@@ -273,13 +273,11 @@ export function DuelButtons({ groupId }: { groupId?: string }) {
   }
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-surface-card p-5 sm:p-6 shadow-tactile-card backdrop-blur-md flex flex-col justify-between">
-      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-shinobi-crimson/50 to-transparent" />
-
+    <div className="relative overflow-hidden rounded-2xl border border-sumi/15 bg-surface-card p-5 sm:p-6 flex flex-col justify-between shadow-tactile-card">
       <div>
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] shadow-tactile-inset">
-            <Swords className="h-5 w-5 text-rose-400" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sumi/15 bg-surface-elevated">
+            <Swords className="h-5 w-5 text-shinobi-flame" />
           </div>
           <div>
             <h2 className="font-heading text-sm font-bold tracking-tight text-text-primary sm:text-base">1:1 Duel Arena</h2>
@@ -292,19 +290,19 @@ export function DuelButtons({ groupId }: { groupId?: string }) {
         </p>
 
         {link && (
-          <div className="mt-3 rounded-xl border border-rose-500/30 bg-ink/90 p-3 shadow-tactile-inset">
-            <p className="text-[10px] font-mono font-semibold uppercase text-rose-300 mb-1">Single-use Challenge Link</p>
+          <div className="mt-3 rounded-xl border border-sumi/15 bg-surface-elevated p-3">
+            <p className="text-[10px] font-mono font-semibold uppercase text-text-secondary mb-1">Single-use Challenge Link</p>
             <div className="flex items-center gap-2">
               <input
                 readOnly
                 value={link}
-                className="w-full truncate rounded bg-white/[0.05] px-2 py-1 font-mono text-[11px] text-slate-300 select-all"
+                className="w-full truncate rounded border border-sumi/10 bg-surface px-2 py-1 font-mono text-[11px] text-text-secondary select-all"
               />
               <button
                 onClick={copyLink}
-                className="flex shrink-0 items-center gap-1 rounded-md bg-white/[0.08] px-2.5 py-1 text-xs font-semibold hover:bg-white/[0.15] transition-colors"
+                className="flex shrink-0 items-center gap-1 rounded-md bg-sumi/10 px-2.5 py-1 text-xs font-semibold hover:bg-sumi/15 transition-colors"
               >
-                {copied ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                {copied ? <CheckCircle2 className="h-3.5 w-3.5 text-shinobi-teal" /> : <Copy className="h-3.5 w-3.5" />}
                 <span>{copied ? "Copied" : "Copy"}</span>
               </button>
             </div>
