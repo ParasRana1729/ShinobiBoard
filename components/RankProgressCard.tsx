@@ -149,32 +149,60 @@ export default function RankProgressCard({
                 </li>
               </ul>
               <span className="mt-2 block text-[10px] text-text-muted">
-                Awarded only on the first Accepted submission of a problem slug.
+                Awarded on the first Accepted submission of each problem slug.
               </span>
             </div>
 
             <div className="rounded-xl border border-sumi/10 bg-surface-card p-3">
-              <span className="font-bold text-text-primary block">Streak Bonus (≥ 3 Days)</span>
-              <div className="mt-2 flex items-center gap-2 text-shinobi-flame">
-                <Flame className="h-4 w-4" />
-                <span className="font-mono text-sm font-black">+2 XP per solve</span>
+              <span className="font-bold text-text-primary block">Spaced Practice (Repeats)</span>
+              <ul className="mt-2 space-y-1 font-mono text-[11px] text-text-secondary">
+                <li className="flex justify-between">
+                  <span className="text-shinobi-teal">Repeat Easy:</span>
+                  <span className="font-bold text-text-primary">+1 XP</span>
+                </li>
+                <li className="flex justify-between">
+                  <span className="text-text-secondary">Repeat Medium:</span>
+                  <span className="font-bold text-text-primary">+4 XP</span>
+                </li>
+                <li className="flex justify-between">
+                  <span className="text-shinobi-flame">Repeat Hard:</span>
+                  <span className="font-bold text-text-primary">+10 XP</span>
+                </li>
+              </ul>
+              <span className="mt-2 block text-[10px] text-text-muted">
+                Awarded for re-solving in subsequent weeks to encourage spaced review.
+              </span>
+            </div>
+
+            <div className="rounded-xl border border-sumi/10 bg-surface-card p-3">
+              <span className="font-bold text-text-primary block">Dynamic Streak Bonus</span>
+              <div className="mt-2 space-y-1 font-mono text-[11px]">
+                <div className="flex items-center justify-between text-text-secondary">
+                  <span>3–6 Days:</span>
+                  <span className="font-bold text-shinobi-flame">+2 XP</span>
+                </div>
+                <div className="flex items-center justify-between text-text-secondary">
+                  <span>7–13 Days:</span>
+                  <span className="font-bold text-shinobi-flame">+3 XP</span>
+                </div>
+                <div className="flex items-center justify-between text-text-secondary">
+                  <span>14–29 Days:</span>
+                  <span className="font-bold text-shinobi-flame">+4 XP</span>
+                </div>
+                <div className="flex items-center justify-between text-text-secondary">
+                  <span>30+ Days:</span>
+                  <span className="font-bold text-shinobi-flame">+5 XP</span>
+                </div>
               </div>
               <span className="mt-2 block text-[10px] text-text-muted">
-                Applies to all counted weekly solves (even cross-week repeats) while streak is active.
+                Applied to all counted solves while maintaining your daily streak.
               </span>
-            </div>
-
-            <div className="rounded-xl border border-sumi/10 bg-surface-card p-3">
-              <span className="font-bold text-text-primary block">Weekly Goal Credit</span>
-              <p className="mt-1 text-[11px] text-text-secondary">
-                Counted solves advance your squad goal bar. Solves reset every Monday at 00:05 UTC.
-              </p>
             </div>
 
             <div className="rounded-xl border border-sumi/10 bg-surface-card p-3">
               <span className="font-bold text-text-primary block">Anti-Farm Integrity</span>
               <p className="mt-1 text-[11px] text-text-secondary">
-                Re-submitting the same problem in the same week awards 0 XP and 0 weekly count.
+                Re-submitting the same problem in the same week awards 0 XP and 0 weekly count. Weekly sprints reset Mondays at 00:05 UTC.
               </p>
             </div>
           </div>

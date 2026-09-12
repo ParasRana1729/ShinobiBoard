@@ -30,24 +30,33 @@ describe("ranks + xp", () => {
     expect(baseRankForXp(0)).toBe("Academy");
     expect(baseRankForXp(149)).toBe("Academy");
     expect(baseRankForXp(150)).toBe("Genin");
-    expect(baseRankForXp(600)).toBe("Chunin");
-    expect(baseRankForXp(1500)).toBe("Jonin");
-    expect(baseRankForXp(3000)).toBe("ANBU");
-    expect(baseRankForXp(5250)).toBe("Kage");
-    expect(baseRankForXp(99999)).toBe("Kage");
+    expect(baseRankForXp(500)).toBe("Chunin");
+    expect(baseRankForXp(1200)).toBe("Jonin");
+    expect(baseRankForXp(2500)).toBe("ANBU");
+    expect(baseRankForXp(4500)).toBe("Kage");
+    expect(baseRankForXp(7500)).toBe("Sage");
+    expect(baseRankForXp(99999)).toBe("Sage");
   });
   it("xpToNext", () => {
     expect(xpToNext(0)).toEqual({ next: "Genin", needed: 150 });
-    expect(xpToNext(5250)).toEqual({ next: null, needed: 0 });
+    expect(xpToNext(4500)).toEqual({ next: "Sage", needed: 3000 });
+    expect(xpToNext(7500)).toEqual({ next: null, needed: 0 });
   });
-  it("first-ever + streak bonus; re-submits score 0 (caller skips)", () => {
-    // Medium first-ever on streak 5 → 17 XP
+  it("first-ever + dynamic streak bonus + spaced repetition practice XP", () => {
+    // Medium first-ever on streak 5 (streak 3-6: +2) → 15 + 2 = 17 XP
     expect(scoreCountedSolve({ difficulty: "Medium", isFirstEver: true, streakAtSolve: 5 })).toBe(17);
-    // Same medium next week (repeat) on streak 5 → +1 weekly, +2 XP
-    expect(scoreCountedSolve({ difficulty: "Medium", isFirstEver: false, streakAtSolve: 5 })).toBe(2);
+    // Same medium next week (repeat: 4 XP) on streak 5 (+2) → 4 + 2 = 6 XP
+    expect(scoreCountedSolve({ difficulty: "Medium", isFirstEver: false, streakAtSolve: 5 })).toBe(6);
+    // Same medium repeat on streak 8 (streak 7-13: +3) → 4 + 3 = 7 XP
+    expect(scoreCountedSolve({ difficulty: "Medium", isFirstEver: false, streakAtSolve: 8 })).toBe(7);
+    // Same medium repeat on streak 15 (streak 14-29: +4) → 4 + 4 = 8 XP
+    expect(scoreCountedSolve({ difficulty: "Medium", isFirstEver: false, streakAtSolve: 15 })).toBe(8);
+    // Hard repeat on streak 35 (streak 30+: +5) → 10 + 5 = 15 XP
+    expect(scoreCountedSolve({ difficulty: "Hard", isFirstEver: false, streakAtSolve: 35 })).toBe(15);
     // No streak bonus below 3
     expect(scoreCountedSolve({ difficulty: "Hard", isFirstEver: true, streakAtSolve: 2 })).toBe(40);
-    expect(scoreCountedSolve({ difficulty: "Easy", isFirstEver: false, streakAtSolve: 0 })).toBe(0);
+    // Repeat Easy with 0 streak earns base practice XP: 1 + 0 = 1 XP
+    expect(scoreCountedSolve({ difficulty: "Easy", isFirstEver: false, streakAtSolve: 0 })).toBe(1);
   });
   it("getRankProgress calculates exact tier progress and gamer level", () => {
     const p0 = getRankProgress(0);
@@ -61,18 +70,25 @@ describe("ranks + xp", () => {
     expect(pMidAcademy.percentage).toBe(50);
     expect(pMidAcademy.needed).toBe(75);
 
-    const pGenin = getRankProgress(375); // 150 + 225 out of 450
+    const pGenin = getRankProgress(325); // 150 + 175 out of 350 (span 500-150)
     expect(pGenin.currentRank).toBe("Genin");
     expect(pGenin.percentage).toBe(50);
-    expect(pGenin.needed).toBe(225);
+    expect(pGenin.needed).toBe(175);
     expect(pGenin.level).toBe(4);
 
-    const pKage = getRankProgress(6000);
+    const pKage = getRankProgress(6000); // 4500 + 1500 out of 3000 (span 7500-4500)
     expect(pKage.currentRank).toBe("Kage");
-    expect(pKage.isMaxRank).toBe(true);
-    expect(pKage.percentage).toBe(100);
-    expect(pKage.needed).toBe(0);
-    expect(pKage.nextRank).toBeNull();
+    expect(pKage.isMaxRank).toBe(false);
+    expect(pKage.percentage).toBe(50);
+    expect(pKage.needed).toBe(1500);
+    expect(pKage.nextRank).toBe("Sage");
+
+    const pSage = getRankProgress(8000);
+    expect(pSage.currentRank).toBe("Sage");
+    expect(pSage.isMaxRank).toBe(true);
+    expect(pSage.percentage).toBe(100);
+    expect(pSage.needed).toBe(0);
+    expect(pSage.nextRank).toBeNull();
   });
   it("getRankMeta associates authentic anime character lore", () => {
     expect(getRankMeta("Academy").character).toBe("Konohamaru Sarutobi");
@@ -81,6 +97,7 @@ describe("ranks + xp", () => {
     expect(getRankMeta("Jonin").character).toBe("Kakashi Hatake");
     expect(getRankMeta("ANBU").character).toBe("Itachi Uchiha");
     expect(getRankMeta("Kage").character).toBe("Minato Namikaze");
+    expect(getRankMeta("Sage").character).toBe("Jiraiya");
   });
 });
 
