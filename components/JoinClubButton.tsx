@@ -33,18 +33,18 @@ export function JoinClubButton({ groupId, memberCount }: { groupId: string; memb
   const pct = Math.min(100, Math.round((memberCount / 150) * 100));
 
   return (
-    <div className="rounded-2xl border border-white/[0.08] bg-surface-card p-4 sm:p-5 shadow-tactile-card">
+    <div className="rounded-2xl border border-sumi/15 bg-surface-card p-4 sm:p-5 ">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-400" />
+            <span className="flex h-2 w-2 rounded-full bg-shinobi-teal" />
             <h3 className="font-heading text-sm font-bold text-text-primary">Public Club Membership</h3>
           </div>
           <p className="text-xs text-text-secondary">
             Open enrollment club · {memberCount} of 150 slots filled
           </p>
           <div className="h-1.5 w-48 overflow-hidden rounded-full bg-ink">
-            <div className={`h-full rounded-full ${isFull ? "bg-rose-500" : "bg-emerald-400"}`} style={{ width: `${pct}%` }} />
+            <div className={`h-full rounded-full ${isFull ? "bg-shinobi-flame" : "bg-shinobi-teal"}`} style={{ width: `${pct}%` }} />
           </div>
         </div>
 
@@ -66,7 +66,7 @@ export function JoinClubButton({ groupId, memberCount }: { groupId: string; memb
       </div>
 
       {msg && (
-        <p className={`mt-3 text-xs font-medium ${msg.waitlisted ? "text-amber-300" : "text-rose-400"}`}>
+        <p className={`mt-3 text-xs font-medium ${msg.waitlisted ? "text-shinobi-gold" : "text-shinobi-flame"}`}>
           {msg.text}
         </p>
       )}

@@ -1,24 +1,27 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { IBM_Plex_Sans, Newsreader, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { createClient } from "@/lib/supabase/server";
 import { Navbar, type NavUser } from "@/components/Navbar";
 import { redirect } from "next/navigation";
 
-const fontSans = Plus_Jakarta_Sans({
+const fontSans = IBM_Plex_Sans({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
   variable: "--font-sans",
   display: "swap",
 });
 
-const fontHeading = Space_Grotesk({
+const fontHeading = Newsreader({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
   variable: "--font-heading",
   display: "swap",
 });
 
-const fontMono = JetBrains_Mono({
+const fontMono = IBM_Plex_Mono({
   subsets: ["latin"],
+  weight: ["400", "500"],
   variable: "--font-mono",
   display: "swap",
 });
@@ -61,9 +64,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang="en"
-      className={`dark ${fontSans.variable} ${fontHeading.variable} ${fontMono.variable}`}
+      className={`${fontSans.variable} ${fontHeading.variable} ${fontMono.variable}`}
     >
-      <body className="flex min-h-screen flex-col bg-ink font-sans text-text-primary antialiased bg-grid selection:bg-shinobi-gold/30 selection:text-shinobi-gold">
+      <body className="flex min-h-screen flex-col bg-ink font-sans text-text-primary antialiased selection:bg-shinobi-gold/20 selection:text-sumi">
         <Navbar user={navUser} onSignOut={handleSignOut} />
         <div className="mx-auto w-full max-w-7xl flex-1 px-4 sm:px-6 lg:px-8 pb-16 pt-4">
           {children}
