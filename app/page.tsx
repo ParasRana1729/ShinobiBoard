@@ -13,7 +13,7 @@ export default async function Home() {
       <section>
         <p className="font-mono text-[11px] uppercase tracking-wide text-text-muted">ShinobiBoard</p>
         <h1 className="mt-4 font-heading text-4xl leading-tight text-text-primary sm:text-5xl">
-          Solo LeetCode grind dies after week 1. Your squad won&apos;t let it.
+          Solve in public. Let the leaderboard keep score.
         </h1>
         <p className="mt-5 max-w-xl text-base leading-relaxed text-text-secondary">
           Hourly sync from public LeetCode profiles. Weekly goals, ranks, and 1:1 duels — no manual logging.
