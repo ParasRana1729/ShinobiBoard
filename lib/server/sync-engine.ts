@@ -225,7 +225,7 @@ export async function syncUser(
       batchSeenEver.add(sub.slug);
     }
 
-    // Scoring: distinct slug per UTC week (§5). Cross-week repeats count weekly but earn no base XP.
+    // Scoring: distinct slug per UTC week (§5). Cross-week repeats count weekly and earn practice XP.
     const solveWeek = weekStartUTC(row.solved_at);
     if (solveWeek === thisWeek) {
       if (!seenThisWeek.has(sub.slug)) {

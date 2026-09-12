@@ -89,7 +89,7 @@ export default async function Home() {
       <section>
         <h2 className="font-heading text-2xl text-text-primary">Ranks</h2>
         <p className="mt-2 text-sm text-text-secondary">
-          XP on first-ever solves only: Easy 5, Medium 15, Hard 40. +2 while streak is 3 or more.
+          XP: Easy 5, Medium 15, Hard 40 (repeats earn 1/4/10 practice XP). Up to +5 XP dynamic streak bonus.
         </p>
         <div className="mt-6 divide-y divide-sumi/10 border-y border-sumi/15">
           {BASE_LADDER.map((tier) => {

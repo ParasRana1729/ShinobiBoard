@@ -37,14 +37,23 @@ export const FEED_RETENTION_DAYS = 30;
 export const FEED_CAP_PER_GROUP = 200;
 
 export const XP_BY_DIFFICULTY = { Easy: 5, Medium: 15, Hard: 40 } as const;
+export const PRACTICE_XP_BY_DIFFICULTY = { Easy: 1, Medium: 4, Hard: 10 } as const;
+
+export const STREAK_BONUS_TIERS = [
+  { minStreak: 30, bonus: 5 },
+  { minStreak: 14, bonus: 4 },
+  { minStreak: 7, bonus: 3 },
+  { minStreak: 3, bonus: 2 },
+] as const;
 
 export const BASE_LADDER = [
   { rank: "Academy", minXp: 0 },
   { rank: "Genin", minXp: 150 },
-  { rank: "Chunin", minXp: 600 },
-  { rank: "Jonin", minXp: 1500 },
-  { rank: "ANBU", minXp: 3000 },
-  { rank: "Kage", minXp: 5250 },
+  { rank: "Chunin", minXp: 500 },
+  { rank: "Jonin", minXp: 1200 },
+  { rank: "ANBU", minXp: 2500 },
+  { rank: "Kage", minXp: 4500 },
+  { rank: "Sage", minXp: 7500 },
 ] as const;
 
 export const TITLE_META = {
