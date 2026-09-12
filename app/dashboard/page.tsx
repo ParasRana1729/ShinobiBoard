@@ -104,18 +104,19 @@ export default async function DashboardPage() {
       </div>
 
       {/* Hero Ninja Dossier + Quests Grid */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3 items-stretch">
         {/* Ninja Dossier Character Sheet & XP Engine (2 cols) */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 flex flex-col">
           <RankProgressCard
             xp={profile?.xp ?? 0}
             streak={profile?.streak ?? 0}
             weeklyCount={currentWeeklyCount}
+            className="h-full"
           />
         </div>
 
         {/* Missions & Gamified Quests (1 col) */}
-        <div className="relative flex flex-col justify-between border border-sumi/15 bg-surface-card p-6">
+        <div className="relative flex flex-col justify-between rounded-2xl border border-sumi/15 bg-surface-card p-6 shadow-tactile-card h-full">
           <div>
             <div className="flex items-center gap-2 pb-3 border-b border-sumi/10">
               <Target className="h-4 w-4 text-shinobi-gold" />
@@ -124,7 +125,7 @@ export default async function DashboardPage() {
 
             <div className="mt-4 space-y-3">
               {/* Quest 1: Weekly Goal */}
-              <div className="rounded-xl border border-sumi/10 bg-surface-elevated/60 p-3.5 space-y-2 ">
+              <div className="rounded-xl border border-sumi/10 bg-surface-elevated p-3.5 space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold text-text-primary">Weekly Goal Pursuit</span>
                   <span className="font-mono text-xs font-bold text-shinobi-gold">{currentWeeklyCount}/7 solves</span>
@@ -196,7 +197,7 @@ export default async function DashboardPage() {
               <Link
                 key={m.group_id}
                 href={`/groups/${m.group.id}`}
-                className="group relative flex flex-col justify-between rounded-2xl border border-sumi/15 bg-surface-card p-5  hover:border-shinobi-gold/50 hover: transition-all"
+                className="group relative flex flex-col justify-between rounded-2xl border border-sumi/15 bg-surface-card p-5 shadow-tactile-card hover:border-shinobi-gold/50 transition-all min-h-[170px]"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2">
@@ -236,7 +237,7 @@ export default async function DashboardPage() {
           })}
 
           {groupsList.length === 0 && (
-            <div className="rounded-2xl border border-sumi/10 bg-surface-card/60 p-8 text-center text-text-muted sm:col-span-2 lg:col-span-3 ">
+            <div className="rounded-2xl border border-sumi/15 bg-surface-card p-8 text-center text-text-muted sm:col-span-2 lg:col-span-3 shadow-tactile-card">
               <Shield className="mx-auto h-8 w-8 text-text-muted mb-2 opacity-60" />
               <p className="font-heading text-sm font-semibold text-text-primary">No squads joined yet</p>
               <p className="mt-1 text-xs text-text-muted">Create a squad below, join with an invite code, or discover public clubs.</p>
@@ -245,11 +246,28 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Actions Toolbar Grid */}
-      <div className="grid gap-6 lg:grid-cols-3 pt-2">
-        <CreateGroupForm />
-        <JoinGroupForm />
-        <DuelButtons />
+      {/* Operations Hub (Balanced 2-Column Grid eliminating uneven blank spaces) */}
+      <div className="space-y-4 pt-2">
+        <div>
+          <h2 className="font-heading text-lg font-bold tracking-tight text-text-primary flex items-center gap-2">
+            <Zap className="h-4 w-4 text-shinobi-gold" />
+            <span>Operations Hub</span>
+          </h2>
+          <p className="text-xs text-text-secondary">Create new circles, redeem invites, or battle rivals</p>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-5 items-stretch">
+          {/* Create Squad / Club (3 cols on large screens) */}
+          <div className="lg:col-span-3 flex flex-col">
+            <CreateGroupForm />
+          </div>
+
+          {/* Stacked Join & Duel (2 cols on large screens) */}
+          <div className="lg:col-span-2 flex flex-col gap-6">
+            <JoinGroupForm />
+            <DuelButtons />
+          </div>
+        </div>
       </div>
     </main>
   );

@@ -69,7 +69,7 @@ export default async function GroupPage({ params }: { params: { id: string } }) 
       </div>
 
       {/* Group Command Bar Header */}
-      <div className="border border-sumi/15 bg-surface-card p-6">
+      <div className="rounded-2xl border border-sumi/15 bg-surface-card p-6 shadow-tactile-card">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">

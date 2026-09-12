@@ -78,7 +78,7 @@ export default async function DiscoverPage({
             return (
               <div
                 key={c.id}
-                className="group relative flex flex-col justify-between rounded-2xl border border-sumi/15 bg-surface-card p-5  hover:border-shinobi-gold/40 hover: transition-all"
+                className="group relative flex flex-col justify-between rounded-2xl border border-sumi/15 bg-surface-card p-5 shadow-tactile-card hover:border-shinobi-gold/40 transition-all min-h-[190px]"
               >
                 <div>
                   <div className="flex items-center justify-between">

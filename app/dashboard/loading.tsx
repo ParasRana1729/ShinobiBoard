@@ -55,7 +55,7 @@ export default function DashboardLoading() {
         </div>
 
         {/* Objectives Quest Card Skeleton (1 col) */}
-        <div className="rounded-2xl border border-sumi/15 bg-surface p-6 shadow-tactile-card space-y-4">
+        <div className="rounded-2xl border border-sumi/15 bg-surface-card p-6 shadow-tactile-card space-y-4 h-full">
           <div className="flex items-center gap-2 pb-3 border-b border-sumi/10">
             <div className="h-4 w-4 rounded-full bg-sumi/10 animate-pulse" />
             <div className="h-4 w-32 rounded bg-sumi/10 animate-pulse" />
@@ -80,7 +80,7 @@ export default function DashboardLoading() {
           {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-2xl border border-sumi/15 bg-surface-card p-5 shadow-tactile-card space-y-4"
+              className="rounded-2xl border border-sumi/15 bg-surface-card p-5 shadow-tactile-card space-y-4 min-h-[170px]"
             >
               <div className="flex items-center justify-between">
                 <div className="h-4 w-16 rounded-full bg-sumi/10 animate-pulse" />
@@ -96,6 +96,65 @@ export default function DashboardLoading() {
               <div className="h-8 w-full rounded-xl bg-sumi/[0.08] animate-pulse" />
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Operations Hub Skeleton (Balanced 2-Column Grid) */}
+      <div className="space-y-4 pt-2">
+        <div className="space-y-1">
+          <div className="h-5 w-36 rounded bg-sumi/10 animate-pulse" />
+          <div className="h-3.5 w-64 rounded bg-sumi/[0.08] animate-pulse" />
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-5 items-stretch">
+          {/* Create Form Skeleton */}
+          <div className="lg:col-span-3 rounded-2xl border border-sumi/15 bg-surface-card p-6 shadow-tactile-card space-y-4 h-[400px]">
+            <div className="flex items-center gap-2.5">
+              <div className="h-9 w-9 rounded-xl bg-sumi/10 animate-pulse" />
+              <div className="space-y-1.5">
+                <div className="h-4 w-36 rounded bg-sumi/10 animate-pulse" />
+                <div className="h-3 w-56 rounded bg-sumi/[0.08] animate-pulse" />
+              </div>
+            </div>
+            <div className="h-10 w-full rounded-xl bg-sumi/[0.08] animate-pulse" />
+            <div className="grid grid-cols-2 gap-2">
+              <div className="h-14 rounded-xl bg-sumi/[0.08] animate-pulse" />
+              <div className="h-14 rounded-xl bg-sumi/[0.08] animate-pulse" />
+            </div>
+            <div className="flex gap-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="h-9 flex-1 rounded-xl bg-sumi/[0.08] animate-pulse" />
+              ))}
+            </div>
+            <div className="h-10 w-full rounded-xl bg-sumi/10 animate-pulse mt-auto" />
+          </div>
+
+          {/* Stacked Join & Duel Skeleton */}
+          <div className="lg:col-span-2 flex flex-col gap-6">
+            <div className="rounded-2xl border border-sumi/15 bg-surface-card p-6 shadow-tactile-card space-y-3 h-[188px]">
+              <div className="flex items-center gap-2.5">
+                <div className="h-9 w-9 rounded-xl bg-sumi/10 animate-pulse" />
+                <div className="space-y-1">
+                  <div className="h-4 w-28 rounded bg-sumi/10 animate-pulse" />
+                  <div className="h-3 w-44 rounded bg-sumi/[0.08] animate-pulse" />
+                </div>
+              </div>
+              <div className="h-9 w-full rounded-xl bg-sumi/[0.08] animate-pulse" />
+              <div className="h-9 w-full rounded-xl bg-sumi/10 animate-pulse" />
+            </div>
+
+            <div className="rounded-2xl border border-sumi/15 bg-surface-card p-6 shadow-tactile-card space-y-3 h-[188px]">
+              <div className="flex items-center gap-2.5">
+                <div className="h-9 w-9 rounded-xl bg-sumi/10 animate-pulse" />
+                <div className="space-y-1">
+                  <div className="h-4 w-28 rounded bg-sumi/10 animate-pulse" />
+                  <div className="h-3 w-48 rounded bg-sumi/[0.08] animate-pulse" />
+                </div>
+              </div>
+              <div className="h-9 w-full rounded bg-sumi/[0.08] animate-pulse" />
+              <div className="h-9 w-full rounded-xl bg-sumi/10 animate-pulse" />
+            </div>
+          </div>
         </div>
       </div>
     </main>

@@ -33,7 +33,7 @@ export function JoinClubButton({ groupId, memberCount }: { groupId: string; memb
   const pct = Math.min(100, Math.round((memberCount / 150) * 100));
 
   return (
-    <div className="rounded-2xl border border-sumi/15 bg-surface-card p-4 sm:p-5 ">
+    <div className="rounded-2xl border border-sumi/15 bg-surface-card p-4 sm:p-5 shadow-tactile-card">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
