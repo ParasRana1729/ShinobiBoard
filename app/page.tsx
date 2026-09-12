@@ -34,7 +34,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="border border-sumi/15 bg-surface-card p-5 sm:p-6">
+      <section className="rounded-2xl border border-sumi/15 bg-surface-card p-5 sm:p-6 shadow-tactile-card">
         <div className="flex items-baseline justify-between border-b border-sumi/15 pb-3">
           <h2 className="font-heading text-lg text-text-primary">Hidden Leaf grinders</h2>
           <span className="font-mono text-[11px] text-text-muted">Goal 7 / week</span>

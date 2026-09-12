@@ -27,7 +27,7 @@ export function Navbar({
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-8">
           <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center border border-sumi bg-sumi font-heading text-base text-ink">
+            <span className="flex h-8 w-8 items-center justify-center rounded-md border border-shinobi-gold/60 bg-shinobi-gold font-heading text-base font-bold text-white shadow-sm">
               忍
             </span>
             <span className="font-heading text-lg text-text-primary">ShinobiBoard</span>

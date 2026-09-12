@@ -40,9 +40,8 @@ export function CreateGroupForm() {
   return (
     <form
       onSubmit={submit}
-      className="relative overflow-hidden rounded-2xl border border-sumi/15 bg-surface-card p-5 sm:p-6   flex flex-col justify-between"
+      className="relative overflow-hidden rounded-2xl border border-sumi/15 bg-surface-card p-5 sm:p-6 flex flex-col justify-between shadow-tactile-card h-full"
     >
-      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-shinobi-gold/50 to-transparent" />
 
       <div>
         <div className="flex items-center gap-2.5">
@@ -192,9 +191,8 @@ export function JoinGroupForm() {
   return (
     <form
       onSubmit={submit}
-      className="relative overflow-hidden rounded-2xl border border-sumi/15 bg-surface-card p-5 sm:p-6   flex flex-col justify-between"
+      className="relative overflow-hidden rounded-2xl border border-sumi/15 bg-surface-card p-5 sm:p-6 flex flex-col justify-between shadow-tactile-card"
     >
-      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-shinobi-teal/50 to-transparent" />
 
       <div>
         <div className="flex items-center gap-2.5">

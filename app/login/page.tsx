@@ -46,7 +46,7 @@ function LoginForm() {
         <ArrowLeft className="h-3.5 w-3.5" /> Back
       </Link>
 
-      <div className="mt-8 border border-sumi/15 bg-surface-card p-8">
+      <div className="mt-8 rounded-2xl border border-sumi/15 bg-surface-card p-8 shadow-tactile-card">
         <h1 className="font-heading text-3xl text-text-primary">Sign in</h1>
         <p className="mt-2 text-sm text-text-secondary">
           Google only. Public LeetCode solve counts, nothing else.
@@ -56,7 +56,7 @@ function LoginForm() {
           onClick={signIn}
           disabled={busy}
           type="button"
-          className="mt-8 flex w-full items-center justify-center gap-3 border border-sumi/25 bg-ink px-5 py-3 text-sm font-medium text-text-primary hover:border-sumi/50 disabled:opacity-50"
+          className="mt-8 flex w-full items-center justify-center gap-3 rounded-md border border-sumi/25 bg-surface-elevated px-5 py-3 text-sm font-medium text-text-primary hover:border-sumi/50 transition-colors disabled:opacity-50"
         >
           {busy ? (
             <>
