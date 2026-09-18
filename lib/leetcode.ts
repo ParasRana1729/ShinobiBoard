@@ -144,3 +144,50 @@ export async function fetchQuestionDifficulty(slug: string): Promise<{
 export function isRateLimited(e: unknown): boolean {
   return e instanceof LeetCodeError && e.kind === "rate_limited";
 }
+
+
+export interface DailyCodingChallenge {
+  date: string;
+  link: string;
+  question: {
+    questionId: string;
+    questionFrontendId: string;
+    title: string;
+    titleSlug: string;
+    difficulty: Difficulty;
+  };
+}
+
+interface DailyChallengeResponse {
+  activeDailyCodingChallengeQuestion: DailyCodingChallenge;
+}
+
+const DAILY_CHALLENGE_QUERY = `
+  query questionOfToday {
+    activeDailyCodingChallengeQuestion {
+      date
+      link
+      question {
+        questionId
+        questionFrontendId
+        title
+        titleSlug
+        difficulty
+      }
+    }
+  }
+`;
+
+export async function fetchDailyCodingChallenge(): Promise<DailyCodingChallenge | null> {
+  try {
+    const data = await gql<DailyChallengeResponse>({
+      query: DAILY_CHALLENGE_QUERY,
+    });
+    return data.activeDailyCodingChallengeQuestion ?? null;
+  } catch (err) {
+    if (err instanceof LeetCodeError && err.kind === "not_found") {
+      return null;
+    }
+    throw err;
+  }
+}

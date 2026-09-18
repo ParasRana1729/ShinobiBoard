@@ -1,3 +1,4 @@
+import { fetchDailyCodingChallenge } from "@/lib/leetcode";
 import { createServiceClient } from "@/lib/supabase/server";
 import { getAuthUserId } from "@/lib/auth";
 import { json, notFound, unauthorized, forbidden } from "@/lib/http";
@@ -165,5 +166,6 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     pageRows = rows.slice((page - 1) * ROSTER_PAGE_SIZE, page * ROSTER_PAGE_SIZE);
   }
 
-  return json({ rows: pageRows, total, page, pages, goal: group.goal, view, sort });
+  const dailyBounty = await fetchDailyCodingChallenge().catch(() => null);
+  return json({ rows: pageRows, total, page, pages, goal: group.goal, view, sort, dailyBounty });;
 }
