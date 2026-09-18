@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { getRankProgress } from "@/lib/ranks";
 import RankAvatar from "./RankAvatar";
-import { Zap, HelpCircle, ChevronRight, CheckCircle2, ShieldCheck, Flame } from "lucide-react";
+import { Zap, HelpCircle, ChevronRight, CheckCircle2, ShieldCheck, Flame, Share2, Copy, Check, ExternalLink, X } from "lucide-react";
 
 interface RankProgressCardProps {
   xp: number;
   streak?: number;
   weeklyCount?: number;
   weeklyGoal?: number;
+  username?: string | null;
   className?: string;
 }
 
@@ -18,9 +19,12 @@ export default function RankProgressCard({
   streak = 0,
   weeklyCount = 0,
   weeklyGoal = 7,
+  username = null,
   className = "",
 }: RankProgressCardProps) {
   const [showFormulaModal, setShowFormulaModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [copiedType, setCopiedType] = useState<string | null>(null);
   const progress = getRankProgress(xp);
 
   return (
@@ -63,14 +67,25 @@ export default function RankProgressCard({
           <p className="font-mono text-2xl font-black tracking-tight text-shinobi-gold sm:text-3xl">
             {xp.toLocaleString()} <span className="text-sm font-bold text-text-muted">XP</span>
           </p>
-          <button
-            onClick={() => setShowFormulaModal(!showFormulaModal)}
-            type="button"
-            className="mt-1 inline-flex items-center gap-1 text-[11px] text-text-muted transition hover:text-shinobi-gold"
-          >
-            <HelpCircle className="h-3 w-3" />
-            <span>XP Rules & Multipliers</span>
-          </button>
+          <div className="mt-1 flex items-center justify-end gap-2">
+            <button
+              onClick={() => setShowShareModal(true)}
+              type="button"
+              className="inline-flex items-center gap-1 text-[11px] font-medium text-shinobi-gold transition hover:text-[#c94427]"
+            >
+              <Share2 className="h-3 w-3" />
+              <span>Share Dossier</span>
+            </button>
+            <span className="text-sumi/20">·</span>
+            <button
+              onClick={() => setShowFormulaModal(!showFormulaModal)}
+              type="button"
+              className="inline-flex items-center gap-1 text-[11px] text-text-muted transition hover:text-shinobi-gold"
+            >
+              <HelpCircle className="h-3 w-3" />
+              <span>XP Rules</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -204,6 +219,140 @@ export default function RankProgressCard({
               <p className="mt-1 text-[11px] text-text-secondary">
                 Re-submitting the same problem in the same week awards 0 XP and 0 weekly count. Weekly sprints reset Mondays at 00:05 UTC.
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Share Shinobi Dossier Card Modal */}
+      {showShareModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="relative w-full max-w-xl rounded-2xl border border-sumi/15 bg-surface-card p-6 shadow-tactile-card space-y-5 animate-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between border-b border-sumi/10 pb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="rounded border border-shinobi-gold/30 bg-shinobi-gold/10 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-shinobi-gold">
+                    Shinobi Passport
+                  </span>
+                  <span className="font-mono text-xs text-text-muted">
+                    Live SVG Embed
+                  </span>
+                </div>
+                <h3 className="mt-1 font-heading text-xl font-bold text-text-primary">
+                  Share Your Shinobi Dossier
+                </h3>
+                <p className="mt-0.5 text-xs text-text-secondary">
+                  Embed your live rank, streak flame, and LeetCode solve split in your GitHub README or website.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowShareModal(false)}
+                type="button"
+                className="rounded-lg p-1.5 text-text-muted hover:bg-surface-elevated hover:text-text-primary transition"
+                aria-label="Close share modal"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Live SVG Card Preview */}
+            <div className="rounded-xl border border-sumi/10 bg-surface-base p-3 overflow-hidden flex justify-center">
+              {username ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={`/api/users/${encodeURIComponent(username)}/card.svg`}
+                  alt="Shinobi Dossier Live Preview"
+                  className="w-full max-w-[500px] rounded-lg shadow-tactile-card"
+                />
+              ) : (
+                <div className="py-8 text-center text-xs text-text-muted">
+                  Link your LeetCode username in settings to generate your live dossier card.
+                </div>
+              )}
+            </div>
+
+            {/* Embed Snippets & Copy Controls */}
+            {username && (
+              <div className="space-y-3">
+                {/* GitHub Markdown Embed */}
+                <div>
+                  <div className="flex items-center justify-between text-xs font-semibold text-text-primary mb-1.5">
+                    <span>GitHub README Markdown</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const origin = typeof window !== "undefined" ? window.location.origin : "https://shinobiboard.vercel.app";
+                        const md = `[![Shinobi Dossier](${origin}/api/users/${encodeURIComponent(username)}/card.svg)](${origin})`;
+                        navigator.clipboard.writeText(md);
+                        setCopiedType("markdown");
+                        setTimeout(() => setCopiedType(null), 2000);
+                      }}
+                      className="inline-flex items-center gap-1 rounded border border-sumi/15 bg-surface-elevated px-2 py-0.5 text-[11px] font-mono text-text-secondary hover:text-shinobi-gold hover:border-shinobi-gold/30 transition"
+                    >
+                      {copiedType === "markdown" ? (
+                        <>
+                          <Check className="h-3 w-3 text-shinobi-teal" />
+                          <span className="text-shinobi-teal">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3 w-3" />
+                          <span>Copy Markdown</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <div className="rounded-lg border border-sumi/10 bg-surface-elevated p-2.5 font-mono text-[11px] text-text-muted break-all select-all">
+                    {`[![Shinobi Dossier](${typeof window !== "undefined" ? window.location.origin : "https://shinobiboard.vercel.app"}/api/users/${encodeURIComponent(username)}/card.svg)](${typeof window !== "undefined" ? window.location.origin : "https://shinobiboard.vercel.app"})`}
+                  </div>
+                </div>
+
+                {/* Direct Image URL */}
+                <div>
+                  <div className="flex items-center justify-between text-xs font-semibold text-text-primary mb-1.5">
+                    <span>Direct Image URL</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const origin = typeof window !== "undefined" ? window.location.origin : "https://shinobiboard.vercel.app";
+                        const url = `${origin}/api/users/${encodeURIComponent(username)}/card.svg`;
+                        navigator.clipboard.writeText(url);
+                        setCopiedType("url");
+                        setTimeout(() => setCopiedType(null), 2000);
+                      }}
+                      className="inline-flex items-center gap-1 rounded border border-sumi/15 bg-surface-elevated px-2 py-0.5 text-[11px] font-mono text-text-secondary hover:text-shinobi-gold hover:border-shinobi-gold/30 transition"
+                    >
+                      {copiedType === "url" ? (
+                        <>
+                          <Check className="h-3 w-3 text-shinobi-teal" />
+                          <span className="text-shinobi-teal">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3 w-3" />
+                          <span>Copy URL</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <div className="rounded-lg border border-sumi/10 bg-surface-elevated p-2.5 font-mono text-[11px] text-text-muted break-all select-all">
+                    {`${typeof window !== "undefined" ? window.location.origin : "https://shinobiboard.vercel.app"}/api/users/${encodeURIComponent(username)}/card.svg`}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-between border-t border-sumi/10 pt-4 text-xs text-text-muted">
+              <span>Automatically updates on verified LeetCode syncs</span>
+              <button
+                type="button"
+                onClick={() => setShowShareModal(false)}
+                className="btn-tactile-secondary py-1.5 px-3"
+              >
+                Done
+              </button>
             </div>
           </div>
         </div>
