@@ -68,6 +68,15 @@ export interface BoardRow {
   pinned: boolean;
   group_rank: number;
   titles: { title: TitleKind; expires_at: string }[];
+  bounty_completed?: boolean;
+}
+
+export interface DailyBounty {
+  date: string;
+  link: string;
+  title: string;
+  slug: string;
+  difficulty: Difficulty;
 }
 
 export type BoardSort = "weekly" | "streak" | "xp" | "base_rank";
@@ -80,3 +89,23 @@ export interface RecentSolve {
   lang: string;
   solved_at: string;
 }
+
+export interface DuelDayComparison {
+  dayLabel: string;
+  date: string;
+  solvesA: number;
+  solvesB: number;
+  winner: "A" | "B" | "tie" | "none";
+}
+
+export interface DuelMatrixData {
+  userA: { id: string; name: string };
+  userB: { id: string; name: string };
+  lead: {
+    leaderId: string | null;
+    diff: number;
+  };
+  days: DuelDayComparison[];
+  mutualSlugs: { slug: string; title: string | null; diff: Difficulty }[];
+}
+

@@ -144,3 +144,76 @@ export async function fetchQuestionDifficulty(slug: string): Promise<{
 export function isRateLimited(e: unknown): boolean {
   return e instanceof LeetCodeError && e.kind === "rate_limited";
 }
+
+export interface DailyCodingChallenge {
+  date: string;
+  link: string;
+  question: {
+    title: string;
+    titleSlug: string;
+    difficulty: Difficulty;
+  };
+}
+
+let cachedDaily: { data: DailyCodingChallenge; fetchedAt: number } | null = null;
+
+export async function fetchDailyCodingChallenge(): Promise<DailyCodingChallenge> {
+  const now = Date.now();
+  if (cachedDaily && now - cachedDaily.fetchedAt < 15 * 60 * 1000) {
+    return cachedDaily.data;
+  }
+
+  const data = await gql<{
+    activeDailyCodingChallengeQuestion: null | {
+      date: string;
+      link: string;
+      question: {
+        title: string;
+        titleSlug: string;
+        difficulty: string;
+      };
+    };
+  }>({
+    operationName: "questionOfToday",
+    query: `
+      query questionOfToday {
+        activeDailyCodingChallengeQuestion {
+          date
+          link
+          question {
+            title
+            titleSlug
+            difficulty
+          }
+        }
+      }`,
+    variables: {},
+  });
+
+  if (!data?.activeDailyCodingChallengeQuestion?.question) {
+    throw new LeetCodeError("unknown", "No active daily coding challenge found");
+  }
+
+  const q = data.activeDailyCodingChallengeQuestion;
+  const result: DailyCodingChallenge = {
+    date: q.date,
+    link: q.link.startsWith("http") ? q.link : `https://leetcode.com${q.link}`,
+    question: {
+      title: q.question.title,
+      titleSlug: q.question.titleSlug,
+      difficulty: (q.question.difficulty as Difficulty) || "Medium",
+    },
+  };
+  cachedDaily = { data: result, fetchedAt: now };
+  return result;
+}
+
+export async function getDailyCodingChallenge(): Promise<DailyCodingChallenge | null> {
+  try {
+    return await fetchDailyCodingChallenge();
+  } catch (err) {
+    console.warn("Failed to fetch LeetCode Daily Challenge:", err);
+    return cachedDaily?.data ?? null;
+  }
+}
+

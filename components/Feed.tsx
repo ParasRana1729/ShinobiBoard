@@ -105,12 +105,21 @@ export function Feed({ groupId, initial }: { groupId: string; initial: FeedEvent
         )}
 
         {events.map((e) => {
-          const config = EVENT_CONFIG[e.type] ?? {
+          const isBounty = e.type === "goal_hit" && Boolean(e.payload?.bounty);
+          const baseConfig = EVENT_CONFIG[e.type] ?? {
             icon: Activity,
             color: "text-text-muted",
             label: e.type.replace("_", " "),
             badge: "bg-sumi/5 border-sumi/15 text-text-muted",
           };
+          const config = isBounty
+            ? {
+                icon: Target,
+                color: "text-shinobi-gold",
+                label: "Bounty Claim",
+                badge: "bg-shinobi-gold/10 border-shinobi-gold/30 text-shinobi-gold",
+              }
+            : baseConfig;
           const Icon = config.icon;
 
           return (

@@ -3,12 +3,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { timeAgo } from "@/lib/week";
 import { createClient } from "@/lib/supabase/client";
-import type { BoardRow, BoardSort } from "@/lib/types";
+import type { BoardRow, BoardSort, DailyBounty, DuelMatrixData } from "@/lib/types";
 import { getRankMeta } from "@/lib/ranks";
 import RankAvatar from "./RankAvatar";
 import BoardSkeleton from "./BoardSkeleton";
+import { DuelMatrix } from "./DuelMatrix";
+import { playSound } from "@/lib/sound";
 import {
   Trophy,
+  Target,
   Users,
   SlidersHorizontal,
   Flame,
@@ -34,7 +37,7 @@ import {
 } from "lucide-react";
 
 type View = "leaderboard" | "custom";
-type Filter = "all" | "stale" | "frozen" | "titles";
+type Filter = "all" | "goal_achieved" | "active_today" | "hard_hunters" | "titles" | "stale" | "frozen";
 
 interface Detail {
   recent: { title: string | null; slug: string; diff: string; lang: string; solved_at: string }[];
@@ -110,6 +113,8 @@ export function Board({
   const [msg, setMsg] = useState<{ text: string; error?: boolean } | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
   const [refreshingUser, setRefreshingUser] = useState<string | null>(null);
+  const [dailyBounty, setDailyBounty] = useState<DailyBounty | null>(null);
+  const [duelMatrix, setDuelMatrix] = useState<DuelMatrixData | null>(null);
 
   const searchRequired = memberCount > 50;
 
@@ -129,6 +134,8 @@ export function Board({
         setRows(j.rows ?? []);
         setTotal(j.total ?? 0);
         setPages(j.pages ?? 1);
+        setDailyBounty(j.daily_bounty ?? null);
+        setDuelMatrix(j.duel_matrix ?? null);
       } else {
         setMsg({ text: j.error ?? "Board load failed", error: true });
       }
@@ -192,6 +199,7 @@ export function Board({
     });
     const j = await res.json();
     if (res.ok) {
+      playSound("bell");
       setMsg({ text: "Nudged! Notification logged to squad feed." });
     } else {
       setMsg({ text: j.error ?? "Nudge failed", error: true });
@@ -209,6 +217,7 @@ export function Board({
       });
       const j = await res.json();
       if (res.ok) {
+        playSound("blade");
         setMsg({ text: `Sync complete — ${j.fetched ?? 0} new solves indexed.` });
         load();
       } else {
@@ -242,6 +251,50 @@ export function Board({
 
   return (
     <div className="space-y-4">
+      {/* Daily Shinobi Bounty Banner */}
+      {dailyBounty && (
+        <div className="relative overflow-hidden rounded-2xl border border-shinobi-gold/30 bg-surface-card p-4 shadow-tactile-card transition-all">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-shinobi-gold/40 bg-shinobi-gold/10 text-shinobi-gold shadow-tactile-card">
+                <Target className="h-5 w-5" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-shinobi-gold">
+                    Daily Shinobi Bounty
+                  </span>
+                  <DifficultyBadge diff={dailyBounty.difficulty} />
+                  <span className="font-mono text-[10px] text-text-muted">{dailyBounty.date}</span>
+                </div>
+                <h3 className="font-heading text-base sm:text-lg font-bold text-text-primary tracking-tight">
+                  {dailyBounty.title}
+                </h3>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-1.5 rounded-xl border border-sumi/15 bg-surface-elevated px-3 py-1.5 font-mono text-xs text-text-secondary">
+                <CheckCircle2 className="h-3.5 w-3.5 text-shinobi-teal" />
+                <span>
+                  {rows.filter((r) => r.bounty_completed).length} / {rows.length} Claimed
+                </span>
+              </div>
+
+              <a
+                href={dailyBounty.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-tactile-primary inline-flex items-center gap-1.5 px-3 py-1.5 text-xs"
+              >
+                <span>Solve on LeetCode</span>
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Controls Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-sumi/15 bg-surface-card/90 p-3  ">
         {/* Left: View Switcher */}
@@ -290,13 +343,16 @@ export function Board({
         {/* Right: Filters & Search */}
         <div className="flex flex-1 flex-wrap items-center justify-end gap-2 min-w-[280px]">
           {/* Filter Chips */}
-          <div className="flex rounded-xl border border-sumi/15 bg-ink/70 p-1 text-xs">
+          <div className="flex flex-wrap items-center rounded-xl border border-sumi/15 bg-ink/70 p-1 text-xs gap-0.5">
             {(
               [
                 { id: "all", label: "All" },
+                { id: "goal_achieved", label: "Goal Met" },
+                { id: "active_today", label: "Active Today" },
+                { id: "hard_hunters", label: "Hard Hunters" },
+                { id: "titles", label: "Titles" },
                 { id: "stale", label: "Stale" },
                 { id: "frozen", label: "Frozen" },
-                { id: "titles", label: "Titles" },
               ] as const
             ).map((f) => (
               <button
@@ -356,6 +412,11 @@ export function Board({
         <div className="h-0.5 w-full bg-sumi/[0.06] overflow-hidden rounded-full my-2">
           <div className="h-full bg-shinobi-gold animate-pulse w-1/2" />
         </div>
+      )}
+
+      {/* 1:1 Duel Head-to-Head Comparison Matrix */}
+      {isDuel && duelMatrix && (
+        <DuelMatrix matrix={duelMatrix} viewerId={viewerId} />
       )}
 
       {/* Cards Board Grid / Horizontal Scroll */}
@@ -472,6 +533,15 @@ export function Board({
 
                 {/* Badges / Active Titles */}
                 <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                  {r.bounty_completed && (
+                    <span
+                      title="Completed Today's Shinobi Bounty"
+                      className="inline-flex items-center gap-1 rounded-md border border-shinobi-gold/40 bg-shinobi-gold/15 px-1.5 py-0.5 font-mono text-[10px] font-bold text-shinobi-gold shadow-tactile-card"
+                    >
+                      <Target className="h-3 w-3 text-shinobi-gold" />
+                      <span>Bounty AC</span>
+                    </span>
+                  )}
                   {r.titles.map((t) => (
                     <span
                       key={t.title}

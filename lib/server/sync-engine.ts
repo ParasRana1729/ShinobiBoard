@@ -321,6 +321,33 @@ export async function syncUser(
     }
   }
 
+  // Daily Shinobi Bounty feed event
+  if (fresh.length > 0) {
+    try {
+      const { getDailyCodingChallenge } = await import("@/lib/leetcode");
+      const daily = await getDailyCodingChallenge();
+      if (daily) {
+        const todayUtc = new Date().toISOString().slice(0, 10);
+        const solvedBounty = fresh.find((s) => {
+          if (s.slug !== daily.question.titleSlug) return false;
+          const sDay = new Date(s.timestampSec * 1000).toISOString().slice(0, 10);
+          return sDay === todayUtc;
+        });
+        if (solvedBounty) {
+          await postEventToUserGroups(
+            db,
+            authUserId,
+            "goal_hit",
+            `🎯 Claimed today's Shinobi Bounty: ${daily.question.title}!`,
+            { bounty: true, slug: daily.question.titleSlug, title: daily.question.title }
+          );
+        }
+      }
+    } catch {
+      /* advisory feed */
+    }
+  }
+
   return { user_id: authUserId, status: "ok", fetched: fresh.length, counted, xp_gained: xpGain };
 }
 

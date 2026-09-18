@@ -2,9 +2,10 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { getAuthUserId } from "@/lib/auth";
 import { json, notFound, unauthorized, forbidden } from "@/lib/http";
 import { orderBySort, orderLeaderboard, withGroupRank } from "@/lib/scoring";
-import { weekStartUTC } from "@/lib/week";
+import { addDaysUTC, weekStartUTC } from "@/lib/week";
 import { BOARD_TOP_N, ROSTER_PAGE_SIZE } from "@/lib/constants";
-import type { BoardRow, BoardSort, Difficulty, SyncStatus, TitleKind } from "@/lib/types";
+import { getDailyCodingChallenge } from "@/lib/leetcode";
+import type { BoardRow, BoardSort, DailyBounty, Difficulty, DuelMatrixData, SyncStatus, TitleKind } from "@/lib/types";
 
 /**
  * GET /api/groups/[id]/board?view=leaderboard|custom&sort=weekly|streak|xp|base_rank&filter=all|stale|frozen|titles&q=&page=
@@ -43,12 +44,27 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   const ids = members.map((m) => m.user_id);
   if (ids.length === 0) return json({ rows: [], total: 0, page: 1, pages: 1, goal: group.goal });
 
-  const [{ data: prows }, { data: pins }, { data: trows }, { data: corders }] = await Promise.all([
+  const [{ data: prows }, { data: pins }, { data: trows }, { data: corders }, dailyChallenge] = await Promise.all([
     db.from("profiles").select("*").in("auth_user_id", ids),
     db.from("member_pins").select("pinned_user_id").eq("viewer_id", viewerId).eq("group_id", params.id),
     db.from("titles").select("user_id, title, expires_at").eq("group_id", params.id).gt("expires_at", new Date().toISOString()),
     db.from("custom_orders").select("target_user_id, position").eq("viewer_id", viewerId).eq("group_id", params.id),
+    getDailyCodingChallenge(),
   ]);
+
+  const bountySolvers = new Set<string>();
+  if (dailyChallenge) {
+    const todayUtc = new Date().toISOString().slice(0, 10);
+    const { data: bsolves } = await db
+      .from("solves")
+      .select("user_id")
+      .in("user_id", ids)
+      .eq("slug", dailyChallenge.question.titleSlug)
+      .gte("solved_at", `${todayUtc}T00:00:00.000Z`);
+    for (const s of (bsolves ?? []) as { user_id: string }[]) {
+      bountySolvers.add(s.user_id);
+    }
+  }
 
   const profiles = new Map(
     ((prows ?? []) as Record<string, unknown>[]).map((p) => [(p as { auth_user_id: string }).auth_user_id, p as Record<string, never>] as const)
@@ -109,13 +125,20 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       pinned: pinSet.has(uid) || globalPinByMembership.has(uid),
       group_rank: 0,
       titles: titlesByUser.get(uid) ?? [],
+      bounty_completed: bountySolvers.has(uid),
     };
   });
 
-  // Filters (§4): stale-only, frozen, title holders.
+  // Filters (§4): stale-only, frozen, title holders, goal_achieved, active_today, hard_hunters.
   if (filter === "stale") rows = rows.filter((r) => r.sync_status === "stale" || r.sync_status === "rate_limited");
   else if (filter === "frozen") rows = rows.filter((r) => r.sync_status === "frozen");
   else if (filter === "titles") rows = rows.filter((r) => r.titles.length > 0);
+  else if (filter === "goal_achieved") rows = rows.filter((r) => r.weekly_count >= group.goal);
+  else if (filter === "active_today") {
+    const todayUtc = new Date().toISOString().slice(0, 10);
+    rows = rows.filter((r) => r.last_solved_at && r.last_solved_at.startsWith(todayUtc));
+  }
+  else if (filter === "hard_hunters") rows = rows.filter((r) => r.weekly_hards > 0);
 
   // Search by display name / lc_username.
   if (q) {
@@ -165,5 +188,102 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     pageRows = rows.slice((page - 1) * ROSTER_PAGE_SIZE, page * ROSTER_PAGE_SIZE);
   }
 
-  return json({ rows: pageRows, total, page, pages, goal: group.goal, view, sort });
+  let duelMatrix: DuelMatrixData | null = null;
+  if (group.type === "duel" && ids.length === 2) {
+    const uAId = ids[0];
+    const uBId = ids[1];
+    const pA = profiles.get(uAId) as { display_name?: string } | undefined;
+    const pB = profiles.get(uBId) as { display_name?: string } | undefined;
+
+    const { data: dsolves } = await db
+      .from("solves")
+      .select("user_id, slug, title, diff, solved_at")
+      .in("user_id", ids)
+      .eq("week_start", currentWeek);
+
+    const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const solvesAByDay: Record<string, number> = {};
+    const solvesBByDay: Record<string, number> = {};
+    const slugsA = new Map<string, { title: string | null; diff: Difficulty }>();
+    const slugsB = new Map<string, { title: string | null; diff: Difficulty }>();
+
+    for (const s of (dsolves ?? []) as { user_id: string; slug: string; title: string | null; diff: Difficulty; solved_at: string }[]) {
+      const day = s.solved_at.slice(0, 10);
+      if (s.user_id === uAId) {
+        solvesAByDay[day] = (solvesAByDay[day] ?? 0) + 1;
+        slugsA.set(s.slug, { title: s.title, diff: s.diff });
+      } else if (s.user_id === uBId) {
+        solvesBByDay[day] = (solvesBByDay[day] ?? 0) + 1;
+        slugsB.set(s.slug, { title: s.title, diff: s.diff });
+      }
+    }
+
+    const days = DAY_LABELS.map((dayLabel, idx) => {
+      const date = addDaysUTC(currentWeek, idx);
+      const a = solvesAByDay[date] ?? 0;
+      const b = solvesBByDay[date] ?? 0;
+      let winner: "A" | "B" | "tie" | "none" = "none";
+      if (a === 0 && b === 0) winner = "none";
+      else if (a > b) winner = "A";
+      else if (b > a) winner = "B";
+      else winner = "tie";
+
+      return {
+        dayLabel,
+        date,
+        solvesA: a,
+        solvesB: b,
+        winner,
+      };
+    });
+
+    const totalA = slugsA.size;
+    const totalB = slugsB.size;
+    let leaderId: string | null = null;
+    let diff = 0;
+    if (totalA > totalB) {
+      leaderId = uAId;
+      diff = totalA - totalB;
+    } else if (totalB > totalA) {
+      leaderId = uBId;
+      diff = totalB - totalA;
+    }
+
+    const mutualSlugs: { slug: string; title: string | null; diff: Difficulty }[] = [];
+    for (const [slug, meta] of slugsA.entries()) {
+      if (slugsB.has(slug)) {
+        mutualSlugs.push({ slug, title: meta.title, diff: meta.diff });
+      }
+    }
+
+    duelMatrix = {
+      userA: { id: uAId, name: pA?.display_name ?? "Challenger A" },
+      userB: { id: uBId, name: pB?.display_name ?? "Challenger B" },
+      lead: { leaderId, diff },
+      days,
+      mutualSlugs,
+    };
+  }
+
+  const dailyBounty: DailyBounty | null = dailyChallenge
+    ? {
+        date: dailyChallenge.date,
+        link: dailyChallenge.link,
+        title: dailyChallenge.question.title,
+        slug: dailyChallenge.question.titleSlug,
+        difficulty: dailyChallenge.question.difficulty,
+      }
+    : null;
+
+  return json({
+    rows: pageRows,
+    total,
+    page,
+    pages,
+    goal: group.goal,
+    view,
+    sort,
+    daily_bounty: dailyBounty,
+    duel_matrix: duelMatrix,
+  });
 }
