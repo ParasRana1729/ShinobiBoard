@@ -21,7 +21,8 @@ import {
   Zap,
   CheckCircle2,
   Lock,
-  ChevronRight
+  ChevronRight,
+  Clock,
 } from "lucide-react";
 
 const RANK_BADGE: Record<string, { label: string; emblem: string; badge: string; border: string }> = {
@@ -38,9 +39,11 @@ export default async function DashboardPage() {
   const { data } = await supabase.auth.getUser();
   if (!data.user) redirect("/login");
 
-  const [{ data: profile }, { data: memberships }] = await Promise.all([
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const [{ data: profile }, { data: memberships }, { data: todaySolves }] = await Promise.all([
     supabase.from("profiles").select("*").eq("auth_user_id", data.user.id).single(),
     supabase.from("memberships").select("group_id, role, joined_at, groups(id, name, type, goal, member_count)").eq("user_id", data.user.id),
+    supabase.from("solves").select("diff, solved_at").eq("user_id", data.user.id).gte("solved_at", `${todayStr}T00:00:00.000Z`),
   ]);
 
   const currentWeek = weekStartUTC(new Date());
@@ -60,9 +63,61 @@ export default async function DashboardPage() {
   }
 
   // Calculate days remaining in current UTC week (Mon–Sun)
-  const todayStr = new Date().toISOString().slice(0, 10);
   const nextMonday = addDaysUTC(currentWeek, 7);
   const daysRemainingInWeek = Math.max(1, diffDaysUTC(todayStr, nextMonday));
+
+  const todayMediums = (todaySolves ?? []).filter((s) => s.diff === "Medium").length;
+  const todayCount = (todaySolves ?? []).length;
+  const solvedBeforeNoon = (todaySolves ?? []).some((s) => {
+    const hr = new Date(s.solved_at).getUTCHours();
+    return hr < 12;
+  });
+
+  const nowUTC = new Date();
+  const hoursUntilMidnight = 23 - nowUTC.getUTCHours();
+  const minsUntilMidnight = 59 - nowUTC.getUTCMinutes();
+
+  // Deterministic 2-quest daily rotation based on UTC date
+  const dayIndex = nowUTC.getUTCDate() % 2;
+  const dailyQuests = dayIndex === 0 ? [
+    {
+      id: "shadow_clone",
+      title: "Shadow Clone",
+      desc: "Solve 2 Medium problems today",
+      reward: "+10 XP",
+      current: todayMediums,
+      target: 2,
+      completed: todayMediums >= 2,
+    },
+    {
+      id: "dawn_grinder",
+      title: "Dawn Grinder",
+      desc: "Submit an AC solve before 12:00 UTC",
+      reward: "+5 XP",
+      current: solvedBeforeNoon ? 1 : 0,
+      target: 1,
+      completed: solvedBeforeNoon,
+    },
+  ] : [
+    {
+      id: "chakra_surge",
+      title: "Chakra Surge",
+      desc: "Solve 2 problems of any difficulty today",
+      reward: "+10 XP",
+      current: todayCount,
+      target: 2,
+      completed: todayCount >= 2,
+    },
+    {
+      id: "hard_hunter",
+      title: "ANBU Hard Target",
+      desc: "Conquer at least 1 Hard problem this week",
+      reward: "+25 XP",
+      current: currentWeeklyHards,
+      target: 1,
+      completed: currentWeeklyHards >= 1,
+    },
+  ];
 
   const groupsList = (memberships ?? []).map((m: {
     group_id: string;
@@ -111,6 +166,7 @@ export default async function DashboardPage() {
             xp={profile?.xp ?? 0}
             streak={profile?.streak ?? 0}
             weeklyCount={currentWeeklyCount}
+            username={profile?.lc_username ?? profile?.display_name}
             className="h-full"
           />
         </div>
@@ -118,13 +174,21 @@ export default async function DashboardPage() {
         {/* Missions & Gamified Quests (1 col) */}
         <div className="relative flex flex-col justify-between rounded-2xl border border-sumi/15 bg-surface-card p-6 shadow-tactile-card h-full">
           <div>
-            <div className="flex items-center gap-2 pb-3 border-b border-sumi/10">
-              <Target className="h-4 w-4 text-shinobi-gold" />
-              <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-text-primary">Active Objectives</h3>
+            <div className="flex items-center justify-between pb-3 border-b border-sumi/10">
+              <div className="flex items-center gap-2">
+                <Target className="h-4 w-4 text-shinobi-gold" />
+                <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-text-primary">
+                  Active Objectives
+                </h3>
+              </div>
+              <div className="flex items-center gap-1 font-mono text-[10px] text-text-muted">
+                <Clock className="h-3 w-3 text-shinobi-gold" />
+                <span>{hoursUntilMidnight}h {minsUntilMidnight}m left</span>
+              </div>
             </div>
 
             <div className="mt-4 space-y-3">
-              {/* Quest 1: Weekly Goal */}
+              {/* Sprint Goal */}
               <div className="rounded-xl border border-sumi/10 bg-surface-elevated p-3.5 space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold text-text-primary">Weekly Goal Pursuit</span>
@@ -132,42 +196,54 @@ export default async function DashboardPage() {
                 </div>
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink">
                   <div
-                    className="h-full rounded-full bg-shinobi-gold"
+                    className="h-full rounded-full bg-shinobi-gold transition-all duration-500"
                     style={{ width: `${Math.min(100, Math.round((currentWeeklyCount / 7) * 100))}%` }}
                   />
                 </div>
-                <p className="text-[10px] text-text-muted font-mono">Hokage title qualification requires hitting your goal</p>
+                <p className="text-[10px] text-text-muted font-mono">Hokage title qualification requires hitting weekly goal</p>
               </div>
 
-              {/* Quest 2: Streak Bonus */}
-              <div className="rounded-xl border border-sumi/10 bg-surface-elevated p-3.5 space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-text-primary">Streak Amplifier</span>
-                  <span className={`font-mono text-xs font-bold ${(profile?.streak ?? 0) >= 3 ? "text-shinobi-teal" : "text-text-muted"}`}>
-                    {(profile?.streak ?? 0) >= 3 ? "Active (+2 XP)" : `${profile?.streak ?? 0}/3 days`}
-                  </span>
-                </div>
-                <p className="text-[10px] text-text-muted leading-relaxed">
-                  Earn +2 bonus XP per solve when streak is 3 or higher.
-                </p>
-              </div>
-
-              {/* Quest 3: Hard Hunter */}
-              <div className="rounded-xl border border-sumi/10 bg-surface-elevated p-3.5 space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-text-primary">Itachi Contender</span>
-                  <span className="font-mono text-xs font-bold text-shinobi-flame">{currentWeeklyHards} hard solves</span>
-                </div>
-                <p className="text-[10px] text-text-muted leading-relaxed">
-                  Most hard problems solved wins the limited Itachi title on Monday.
-                </p>
-              </div>
+              {/* Dynamic Daily Quests */}
+              {dailyQuests.map((q) => {
+                const pct = Math.min(100, Math.round((q.current / q.target) * 100));
+                return (
+                  <div key={q.id} className="rounded-xl border border-sumi/10 bg-surface-elevated p-3.5 space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-semibold text-text-primary">{q.title}</span>
+                        <span className="rounded border border-shinobi-gold/30 bg-shinobi-gold/10 px-1.5 py-0.2 font-mono text-[10px] font-bold text-shinobi-gold">
+                          {q.reward}
+                        </span>
+                      </div>
+                      {q.completed ? (
+                        <span className="flex items-center gap-1 font-mono text-[11px] font-bold text-shinobi-teal">
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          <span>Done</span>
+                        </span>
+                      ) : (
+                        <span className="font-mono text-xs font-bold text-text-secondary">
+                          {q.current}/{q.target}
+                        </span>
+                      )}
+                    </div>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          q.completed ? "bg-shinobi-teal" : "bg-shinobi-gold"
+                        }`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <p className="text-[10px] text-text-muted leading-relaxed">{q.desc}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
           <div className="mt-4 pt-3 border-t border-sumi/10 text-center">
-            <span className="text-[11px] text-text-muted">
-              Reset every Mon 00:05 UTC · Anti-farming verified
+            <span className="text-[11px] text-text-muted font-mono">
+              Quests reset daily at 00:00 UTC · Weekly reset Mon 00:05 UTC
             </span>
           </div>
         </div>
