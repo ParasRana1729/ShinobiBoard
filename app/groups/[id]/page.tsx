@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Board } from "@/components/Board";
 import { Feed } from "@/components/Feed";
 import { GroupSettings } from "@/components/GroupSettings";
+import { HallOfFameDrawer } from "@/components/HallOfFameDrawer";
 import { JoinClubButton } from "@/components/JoinClubButton";
 import { ArrowLeft, Users, Target, Shield, Swords, Lock, Compass } from "lucide-react";
 
@@ -101,14 +102,17 @@ export default async function GroupPage({ params }: { params: { id: string } }) 
             </h1>
           </div>
 
-          <GroupSettings
-            groupId={group.id}
-            isOwner={isOwner}
-            inviteEnabled={group.invite_enabled}
-            code={group.code}
-            goal={group.goal}
-            type={group.type}
-          />
+          <div className="flex items-center gap-2">
+            <HallOfFameDrawer groupId={group.id} />
+            <GroupSettings
+              groupId={group.id}
+              isOwner={isOwner}
+              inviteEnabled={group.invite_enabled}
+              code={group.code}
+              goal={group.goal}
+              type={group.type}
+            />
+          </div>
         </div>
       </div>
 
