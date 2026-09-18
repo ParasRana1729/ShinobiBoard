@@ -10,7 +10,7 @@
 
 ShinobiBoard is a high-density, competitive LeetCode group dashboard and rivalry arena built around weekly Mon–Sun UTC solve sprints, Naruto-themed progression tiers, deterministic tiebreakers, and real-time live activity feeds.
 
-### 1.1 Verified Health Status (2026-09-12)
+### 1.1 Verified Health Status (2026-09-18)
 
 All metrics below represent genuine, reproducible verification benchmarks executed against the repository:
 
@@ -18,17 +18,16 @@ All metrics below represent genuine, reproducible verification benchmarks execut
 | :--- | :--- | :--- | :--- |
 | **Type Safety** | `npm run typecheck` (`tsc --noEmit`) | **PASS (0 errors)** | Clean exit code 0. Full strict TypeScript compliance across all routes, components, and domain modules. |
 | **Business Logic Unit Tests** | `npm test` (`vitest run`) | **PASS (19/19 passing)** | Clean exit code 0 across 6 test suites in `lib/__tests__/scoring.test.ts` (duration ~700ms). Corrects stale legacy docs claiming 17 tests. |
-| **Production Build** | `npm run build` (`next build`) | **PASS (32 routes)** | Next.js 14.2.35 production bundle clean. 32 dynamic routes (`ƒ`): 6 page routes, 1 `_not-found`, 24 `/api/*` endpoints, 1 `/auth/callback`. Shared JS: 87.3 kB; Middleware: 86.2 kB. |
+| **Lint & Code Quality** | `npm run lint` (`next lint`) | **PASS (0 warnings/errors)** | Configured with `.eslintrc.json` extending `next/core-web-vitals` with ESLint 8.57.1. Fully automated for non-interactive CI/CD. |
+| **Production Build** | `npm run build` (`next build`) | **PASS (34 routes)** | Next.js 14.2.35 production bundle clean. 34 dynamic routes (`ƒ`): 6 page routes, 1 `_not-found`, 26 `/api/*` endpoints, 1 `/auth/callback`. Shared JS: 87.3 kB; Middleware: 86.2 kB. |
 
 ### 1.2 Known Build & Runtime Caveats
 
 1. **Font Optimization Metric Warning**:
    - `⨯ Failed to find font override values for font 'Newsreader'`: Emitted by Next.js `next/font` during page optimization. Non-fatal fallback that does not impede build compilation or runtime rendering.
-2. **ESLint Setup Prompt**:
-   - `npm run lint` (`next lint`): Currently prompts interactively because no `.eslintrc*` file is committed. Running in non-interactive CI/CD fails with exit code 1 unless configured.
-3. **Database Migration State**:
+2. **Database Migration State**:
    - Migration files in `supabase/migrations/` (`0001_init.sql` and `0002_custom_orders.sql`) are syntactically and logically complete, but have not yet been applied to a live hosted Supabase Postgres instance. Run `supabase db push` to dev before launch.
-4. **Vite Node API Deprecation**:
+3. **Vite Node API Deprecation**:
    - Vitest emits a deprecation notice for Vite's CJS Node API. Upstream tooling notice; unit tests execute cleanly in-memory.
 
 ---
@@ -53,22 +52,25 @@ ShinobiBoard/
 │   │   ├── loading.tsx               # Board skeleton loader
 │   │   └── page.tsx                  # Dynamic SSR board view (RLS gate, Board, Feed)
 │   ├── auth/callback/route.ts        # Supabase PKCE OAuth code exchange & profile bootstrap
-│   └── api/                          # 24 discrete route handlers (see Route Manifest)
+│   └── api/                          # 26 discrete route handlers (see Route Manifest)
 ├── components/                       # React client and server UI components
 │   ├── Board.tsx                     # Main leaderboard matrix, card renderers, drawer, drag reorder
+│   ├── DuelMatrix.tsx                # 1:1 Duel 7-day head-to-head matrix & mutual solves clash
 │   ├── Feed.tsx                      # Realtime activity stream with isolated channels & polling fallback
 │   ├── GroupForms.tsx                # Create squad/club form and join-by-code form
 │   ├── GroupSettings.tsx             # Owner controls (rename, code regen, goal change, transfer, kick)
+│   ├── HallOfFameDrawer.tsx          # Scroll of Past Hokages historical champions drawer
 │   ├── JoinClubButton.tsx            # Club enrollment CTA with automated waitlist toggle at 150 cap
 │   ├── VerifyLeetCode.tsx            # Fast-path link, dispute challenge, and unlinking dialogs
 │   ├── RankAvatar.tsx                # Dynamic character avatar renderer with tier borders & levels
 │   ├── RankProgressCard.tsx          # Dashboard XP meter, level calculator, and scoring rules modal
-│   ├── Navbar.tsx                    # Top navigation bar, streak counter, XP badge, sign-out handler
+│   ├── Navbar.tsx                    # Top navigation bar, streak counter, XP badge, sign-out handler, sound toggle
 │   └── BoardSkeleton.tsx             # Geometry-accurate card loading skeleton
 ├── lib/                              # Pure, environment-free domain logic & shared contracts
 │   ├── week.ts                       # Mon–Sun UTC week windows, streak calculations, date diffs
-│   ├── ranks.ts                      # 6-tier ladder, XP thresholds, character lore, tier progress
+│   ├── ranks.ts                      # 7-tier ladder, XP thresholds, character lore, tier progress
 │   ├── scoring.ts                    # Leaderboard sorting, deterministic tiebreakers, title pickers
+│   ├── sound.ts                      # Web Audio API synthesized dojo sfx (clapper, blade, bell)
 │   ├── sync.ts                       # Sync health state machine, backoff calculation, cursor checks
 │   ├── invite.ts                     # 8-character collision-resistant group invite codes
 │   ├── duel.ts                       # 7-day duel invite JWT token minting and signature verification
@@ -87,6 +89,7 @@ ShinobiBoard/
 ├── supabase/migrations/              # PostgreSQL schema migrations
 │   ├── 0001_init.sql                 # Baseline schema (13 tables, triggers, RLS policies, indexes)
 │   └── 0002_custom_orders.sql        # Custom viewer card ordering table and RLS policies
+├── .eslintrc.json                    # ESLint configuration extending next/core-web-vitals
 ├── middleware.ts                     # Edge middleware: cookie session refreshes & login redirects
 ├── vercel.json                       # Vercel Cron schedule definitions
 ├── tailwind.config.ts                # Tailwind design system configuration (sumi, shinobi-gold)
@@ -94,7 +97,7 @@ ShinobiBoard/
 └── package.json                      # Project dependencies and script commands
 ```
 
-### 2.1 Complete Route Handlers Manifest (25 Endpoints)
+### 2.1 Complete Route Handlers Manifest (27 Endpoints)
 
 All API route handlers enforce strict input validation, uniform error responses via `lib/http.ts`, and authorization boundaries:
 
@@ -112,8 +115,9 @@ All API route handlers enforce strict input validation, uniform error responses 
 | `/api/groups/[id]` | `PATCH` | Owner Only | Zod `{ name?, goal?, invite_enabled? }` | Updates metadata; regenerates code if reopening | 200, 400, 401, 403, 404 |
 | `/api/groups/[id]` | `POST` | Owner Only | Same as PATCH | Alias pointing directly to PATCH handler | 200, 400, 401, 403, 404 |
 | `/api/groups/[id]` | `DELETE` | Owner Only | None | Deletes club; archives duel; rejects squad deletion | 200, 400, 401, 403, 404 |
-| `/api/groups/[id]/board` | `GET` | Member or Open Club | Query `view, sort, filter, q, page` | Paged card roster, pins, stats, streak decay checks | 200, 401, 403, 404 |
+| `/api/groups/[id]/board` | `GET` | Member or Open Club | Query `view, sort, filter, q, page` | Paged card roster, pins, bounty, duel matrix, filters | 200, 401, 403, 404 |
 | `/api/groups/[id]/feed` | `GET` | Member or Open Club | None | Returns latest 100 activity events for group feed | 200, 401, 403 |
+| `/api/groups/[id]/history` | `GET` | Member or Open Club | None | Scroll of Past Hokages (chronological weekly title archive) | 200, 401, 403 |
 | `/api/groups/[id]/join` | `POST` | `getAuthUserId()` | None | Instant join for open clubs; waitlists if $\ge 150$ | 201, 202, 400, 401, 404 |
 | `/api/groups/[id]/kick` | `POST` | Owner Only | Zod `{ user_id: uuid }` | Evicts member, removes their pins, posts event | 200, 400, 401, 403, 404 |
 | `/api/groups/[id]/leave` | `POST` | Member Only | None | Leaves group; auto-transfers ownership to oldest | 200, 400, 401 |
@@ -124,6 +128,7 @@ All API route handlers enforce strict input validation, uniform error responses 
 | `/api/nudge` | `POST` | Co-member in group | Zod `{ to_user: uuid, group_id: uuid }` | Sends daily nudge (1/day per target per group) | 201, 400, 401 |
 | `/api/sync/poll` | `GET` | `isCronAuthorized()` | Query `?trigger=` or `Bearer` | Direct handler alias exporting `/api/cron/sync` | 200, 401 |
 | `/api/sync/refresh` | `POST` | Co-member in group | Zod `{ user_id: uuid }` | Manual card sync (10m card cooldown, 10/hr user cap) | 200, 400, 401, 429 |
+| `/api/users/[username]/card.svg` | `GET` | Public | None | Dynamic 500x195 SVG Shinobi dossier card for GitHub embeds | 200, 404 |
 | `/api/verify/link` | `POST` | `getAuthUserId()` | Zod `{ leetcode_username }` | Instant unclaimed link; sets 7-day backfill cursor | 200, 400, 401 |
 | `/api/verify/start` | `POST` | `getAuthUserId()` | Zod `{ leetcode_username }` | Starts dispute flow; generates `SB-XXXXXX` (30m TTL) | 200, 400, 401 |
 | `/api/verify/confirm` | `POST` | `getAuthUserId()` | Zod `{ leetcode_username }` | Verifies `SB-XXXXXX` in About Me, reclaims handle | 200, 400, 401 |

@@ -44,17 +44,18 @@ Layout: Trello-like horizontal board, cards = people. Mobile <768px: vertical st
 ## 5. Ranking — Naruto system (reskinnable)
 IP note: working titles, reskin to original names pre-launch.
 
-**Counted solve (anti-farm):** ingestion dedupes on `submissionId`, but scoring counts **distinct `slug` per UTC week**. Re-submitting same problem same week = 0 extra. Re-solving across different weeks = +1 weekly (practice credit) but no base XP (below).
+**Counted solve (anti-farm):** ingestion dedupes on `submissionId`, but scoring counts **distinct `slug` per UTC week**. Re-submitting same problem same week = 0 extra. Re-solving across different weeks = +1 weekly (practice credit) plus spaced repetition practice XP and dynamic streak bonus.
 
-**XP (first-ever only + streak bonus):**
+**XP (first-ever only, practice XP + dynamic streak bonus):**
 - Easy 5 / Medium 15 / Hard 40 — awarded only on **first-ever AC of slug per user**.
-- +2 per counted weekly solve while streak >= 3 at solve time (applies even to cross-week repeats).
+- Spaced repetition practice XP on cross-week repeats: Easy 1 / Medium 4 / Hard 10 (contributes +1 to weekly count).
+- Dynamic streak bonus tiers: 1–2 days (+0), 3–6 days (+2), 7–13 days (+3), 14–29 days (+4), 30+ days (+5) (awarded at solve time based on active streak).
 - Re-submits same week: 0 XP, 0 weekly.
-- Example: Medium first-ever on streak 5 → 17 XP. Same Medium re-solved next week on streak 5 → +1 weekly, +2 XP.
+- Example: Medium first-ever on streak 5 → 17 XP (15 base + 2 streak). Same Medium re-solved next week on streak 5 → +1 weekly, +6 XP (4 practice + 2 streak).
 
 **Base ladder (permanent, global, never drops):**
-Academy 0 / Genin 150 / Chunin 600 / Jonin 1500 / ANBU 3000 / Kage 5250.
-Kage ≈ 350 first-ever mediums, ≈131 hards, ≈1050 easies (streak bonus lowers this ~10%).
+Academy 0 / Genin 150 / Chunin 500 / Jonin 1200 / ANBU 2500 / Kage 4500 / Sage 7500.
+Sage is the pinnacle master tier (Jiraiya, 7500+ XP).
 
 **Streak:** consecutive UTC calendar days with ≥1 counted solve. Break → 0. No grace days v1. Frozen days do not extend streak.
 
