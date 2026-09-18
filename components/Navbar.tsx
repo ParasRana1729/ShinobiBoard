@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, Volume2, VolumeX } from "lucide-react";
-import { isSoundEnabled, setSoundEnabled, playSound } from "@/lib/sound";
+import { LogOut, Flame } from "lucide-react";
 
 export interface NavUser {
   id: string;
@@ -23,23 +21,6 @@ export function Navbar({
   onSignOut?: () => Promise<void>;
 }) {
   const pathname = usePathname();
-  const [soundOn, setSoundOn] = useState(false);
-
-  useEffect(() => {
-    setSoundOn(isSoundEnabled());
-    const handler = () => setSoundOn(isSoundEnabled());
-    window.addEventListener("sb-sound-change", handler);
-    return () => window.removeEventListener("sb-sound-change", handler);
-  }, []);
-
-  const toggleSound = () => {
-    const next = !soundOn;
-    setSoundEnabled(next);
-    setSoundOn(next);
-    if (next) {
-      playSound("bell");
-    }
-  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-sumi/15 bg-ink">
@@ -79,23 +60,18 @@ export function Navbar({
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={toggleSound}
-            title={soundOn ? "Dojo sound effects enabled (click to mute)" : "Dojo sound effects muted (click to enable)"}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-sumi/15 bg-surface-card text-text-muted hover:text-shinobi-gold hover:border-sumi/30 transition-colors"
-          >
-            {soundOn ? <Volume2 className="h-4 w-4 text-shinobi-gold" /> : <VolumeX className="h-4 w-4" />}
-          </button>
 
           {user ? (
             <div className="flex items-center gap-3">
-              <span
+              <div
                 title={`${user.streak ?? 0} consecutive UTC days`}
-                className="font-mono text-xs text-text-secondary"
+                className="flex items-center gap-1 rounded-md border border-sumi/10 bg-surface-elevated/80 px-2 py-0.5"
               >
-                {user.streak ?? 0}d
-              </span>
+                <Flame className={`h-3.5 w-3.5 ${(user.streak ?? 0) > 0 ? "text-shinobi-flame fill-shinobi-flame/30" : "text-text-muted"}`} />
+                <span className="font-mono text-xs font-bold text-shinobi-flame">
+                  {user.streak ?? 0}d
+                </span>
+              </div>
               <span className="hidden font-mono text-xs text-text-muted sm:inline">
                 {user.base_rank ?? "Academy"} · {user.xp ?? 0} XP
               </span>

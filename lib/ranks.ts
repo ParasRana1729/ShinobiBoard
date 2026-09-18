@@ -26,12 +26,12 @@ export const RANK_METAS: Record<string, RankMeta> = {
     tagline: "Starting from scratch. Dreaming of becoming Hokage one day.",
     minXp: 0,
     nextXp: 150,
-    image: "/ranks/academy.jpg",
-    badgeColor: "border-sumi/20 text-text-secondary",
-    textColor: "text-text-secondary",
-    glowColor: "transparent",
-    borderColor: "border-sumi/20",
-    accentBg: "from-surface-card to-surface-card",
+    image: "/ranks/academy.webp",
+    badgeColor: "border-slate-500/30 bg-slate-500/10 text-slate-400",
+    textColor: "text-slate-400",
+    glowColor: "rgba(148, 163, 184, 0.15)",
+    borderColor: "border-slate-600/40",
+    accentBg: "from-slate-900/40 to-surface-card",
   },
   Genin: {
     rank: "Genin",
@@ -41,12 +41,12 @@ export const RANK_METAS: Record<string, RankMeta> = {
     tagline: "Wearing the Leaf headband. Ready to grind arrays and loops until midnight.",
     minXp: 150,
     nextXp: 500,
-    image: "/ranks/genin.jpg",
-    badgeColor: "border-sumi/20 text-text-secondary",
-    textColor: "text-text-secondary",
-    glowColor: "transparent",
-    borderColor: "border-sumi/20",
-    accentBg: "from-surface-card to-surface-card",
+    image: "/ranks/genin.webp",
+    badgeColor: "border-shinobi-teal/40 bg-shinobi-teal/10 text-shinobi-teal",
+    textColor: "text-shinobi-teal",
+    glowColor: "rgba(20, 184, 166, 0.3)",
+    borderColor: "border-shinobi-teal/50",
+    accentBg: "from-teal-950/40 to-surface-card",
   },
   Chunin: {
     rank: "Chunin",
@@ -56,12 +56,12 @@ export const RANK_METAS: Record<string, RankMeta> = {
     tagline: "Tactical Trees, Graphs, BFS/DFS & Recursion.",
     minXp: 500,
     nextXp: 1200,
-    image: "/ranks/chunin.jpg",
-    badgeColor: "border-sumi/20 text-text-secondary",
-    textColor: "text-text-secondary",
-    glowColor: "transparent",
-    borderColor: "border-sumi/20",
-    accentBg: "from-surface-card to-surface-card",
+    image: "/ranks/chunin.webp",
+    badgeColor: "border-sky-500/40 bg-sky-500/10 text-sky-400",
+    textColor: "text-sky-400",
+    glowColor: "rgba(56, 189, 248, 0.3)",
+    borderColor: "border-sky-500/50",
+    accentBg: "from-sky-950/40 to-surface-card",
   },
   Jonin: {
     rank: "Jonin",
@@ -71,12 +71,12 @@ export const RANK_METAS: Record<string, RankMeta> = {
     tagline: "Lightning execution on Dynamic Programming & Backtracking.",
     minXp: 1200,
     nextXp: 2500,
-    image: "/ranks/jonin.jpg",
-    badgeColor: "border-sumi/20 text-text-secondary",
-    textColor: "text-text-secondary",
-    glowColor: "transparent",
-    borderColor: "border-sumi/20",
-    accentBg: "from-surface-card to-surface-card",
+    image: "/ranks/jonin.webp",
+    badgeColor: "border-shinobi-violet/40 bg-shinobi-violet/10 text-shinobi-violet",
+    textColor: "text-shinobi-violet",
+    glowColor: "rgba(167, 139, 250, 0.35)",
+    borderColor: "border-shinobi-violet/50",
+    accentBg: "from-purple-950/40 to-surface-card",
   },
   ANBU: {
     rank: "ANBU",
@@ -86,12 +86,12 @@ export const RANK_METAS: Record<string, RankMeta> = {
     tagline: "Operating in the dark corners of LeetCode Hard problems.",
     minXp: 2500,
     nextXp: 4500,
-    image: "/ranks/anbu.jpg",
-    badgeColor: "border-sumi/20 text-shinobi-gold",
-    textColor: "text-shinobi-gold",
-    glowColor: "transparent",
-    borderColor: "border-sumi/25",
-    accentBg: "from-surface-card to-surface-card",
+    image: "/ranks/anbu.webp",
+    badgeColor: "border-shinobi-crimson/40 bg-shinobi-crimson/10 text-shinobi-crimson",
+    textColor: "text-shinobi-crimson",
+    glowColor: "rgba(239, 68, 68, 0.4)",
+    borderColor: "border-shinobi-crimson/50",
+    accentBg: "from-red-950/40 to-surface-card",
   },
   Kage: {
     rank: "Kage",
@@ -101,12 +101,12 @@ export const RANK_METAS: Record<string, RankMeta> = {
     tagline: "Supreme master of algorithms. Protector of the code village.",
     minXp: 4500,
     nextXp: 7500,
-    image: "/ranks/kage.jpg",
-    badgeColor: "border-shinobi-gold/40 text-shinobi-gold",
-    textColor: "text-shinobi-gold",
-    glowColor: "transparent",
-    borderColor: "border-shinobi-gold/40",
-    accentBg: "from-surface-card to-surface-card",
+    image: "/ranks/kage.webp",
+    badgeColor: "border-shinobi-amber/50 bg-shinobi-amber/15 text-shinobi-amber",
+    textColor: "text-shinobi-amber",
+    glowColor: "rgba(229, 169, 60, 0.45)",
+    borderColor: "border-shinobi-amber/60",
+    accentBg: "from-amber-950/40 to-surface-card",
   },
   Sage: {
     rank: "Sage",
@@ -116,17 +116,35 @@ export const RANK_METAS: Record<string, RankMeta> = {
     tagline: "Master of Senjutsu, deep intuition, and pinnacle algorithmic wisdom.",
     minXp: 7500,
     nextXp: null,
-    image: "/ranks/sage.jpg",
-    badgeColor: "border-orange-500/40 text-orange-400",
+    image: "/ranks/sage.webp",
+    badgeColor: "border-orange-500/50 bg-orange-500/15 text-orange-400",
     textColor: "text-orange-400",
-    glowColor: "rgba(249, 115, 22, 0.2)",
-    borderColor: "border-orange-500/40",
-    accentBg: "from-surface-card to-surface-card",
+    glowColor: "rgba(249, 115, 22, 0.5)",
+    borderColor: "border-orange-500/60",
+    accentBg: "from-orange-950/40 to-surface-card",
   },
 };
 
+export function normalizeRank(rank: string): string {
+  if (!rank) return "Academy";
+  const lower = rank.toLowerCase().trim();
+  const map: Record<string, string> = {
+    academy: "Academy",
+    genin: "Genin",
+    chunin: "Chunin",
+    jonin: "Jonin",
+    anbu: "ANBU",
+    kage: "Kage",
+    sage: "Sage",
+  };
+  return map[lower] ?? rank;
+}
+
 export function getRankMeta(rank: string): RankMeta {
-  return RANK_METAS[rank] ?? RANK_METAS.Academy;
+  if (!rank) return RANK_METAS.Academy;
+  if (RANK_METAS[rank]) return RANK_METAS[rank];
+  const normalized = normalizeRank(rank);
+  return RANK_METAS[normalized] ?? RANK_METAS.Academy;
 }
 
 export interface RankProgress {

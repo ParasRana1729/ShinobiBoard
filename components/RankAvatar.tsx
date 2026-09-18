@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { getRankMeta } from "@/lib/ranks";
 
 interface RankAvatarProps {
@@ -10,6 +11,7 @@ interface RankAvatarProps {
   showBadge?: boolean;
   showCharacterName?: boolean;
   className?: string;
+  priority?: boolean;
 }
 
 const sizeClasses = {
@@ -21,6 +23,15 @@ const sizeClasses = {
   "2xl": "h-28 w-28 text-3xl",
 };
 
+const pixelSizes = {
+  xs: 24,
+  sm: 32,
+  md: 44,
+  lg: 56,
+  xl: 80,
+  "2xl": 112,
+};
+
 export default function RankAvatar({
   rank,
   size = "md",
@@ -28,33 +39,36 @@ export default function RankAvatar({
   showBadge = false,
   showCharacterName = false,
   className = "",
+  priority,
 }: RankAvatarProps) {
   const meta = getRankMeta(rank);
   const [imageError, setImageError] = useState(false);
 
   const dimension = sizeClasses[size] || sizeClasses.md;
+  const px = pixelSizes[size] || pixelSizes.md;
+  const isPriority = priority ?? (size === "lg" || size === "xl" || size === "2xl");
+  const hasGlow = showGlow && meta.glowColor && meta.glowColor !== "transparent";
 
   return (
     <div className={`relative inline-flex flex-col items-center ${className}`}>
       {/* Outer Glow container */}
       <div
-        className={`relative flex items-center justify-center rounded-full transition duration-200 ${dimension} ${
-          ""
-        }`}
-        style={undefined}
+        className={`relative flex items-center justify-center rounded-full transition-all duration-300 ${dimension}`}
+        style={hasGlow ? { boxShadow: `0 0 16px ${meta.glowColor}` } : undefined}
       >
         {/* Avatar Circle */}
         <div
           className={`relative h-full w-full overflow-hidden rounded-full border-2 bg-surface-elevated ${meta.borderColor}`}
         >
           {!imageError ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={meta.image}
               alt={`${meta.character} (${rank})`}
+              width={px}
+              height={px}
+              priority={isPriority}
               className="h-full w-full object-cover select-none"
               onError={() => setImageError(true)}
-              loading="lazy"
             />
           ) : (
             <div
@@ -68,7 +82,7 @@ export default function RankAvatar({
         {/* Small corner badge if requested */}
         {showBadge && (
           <div
-            className={`absolute -bottom-1 -right-1 rounded-sm border border-sumi/20 bg-ink px-1.5 py-0.5 text-[9px] uppercase tracking-wide ${meta.badgeColor}`}
+            className={`absolute -bottom-1 -right-1 rounded-sm border bg-ink px-1.5 py-0.5 text-[9px] uppercase tracking-wide font-mono font-bold ${meta.badgeColor}`}
           >
             {meta.rank}
           </div>

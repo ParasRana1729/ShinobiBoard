@@ -17,17 +17,15 @@ All metrics below represent genuine, reproducible verification benchmarks execut
 | Verification Stage | Command | Status | Details & Execution Metrics |
 | :--- | :--- | :--- | :--- |
 | **Type Safety** | `npm run typecheck` (`tsc --noEmit`) | **PASS (0 errors)** | Clean exit code 0. Full strict TypeScript compliance across all routes, components, and domain modules. |
-| **Business Logic Unit Tests** | `npm test` (`vitest run`) | **PASS (19/19 passing)** | Clean exit code 0 across 6 test suites in `lib/__tests__/scoring.test.ts` (duration ~700ms). Corrects stale legacy docs claiming 17 tests. |
+| **Business Logic Unit Tests** | `npm test` (`vitest run`) | **PASS (20/20 passing)** | Clean exit code 0 across 6 test suites in `lib/__tests__/scoring.test.ts` (duration ~700ms). |
 | **Lint & Code Quality** | `npm run lint` (`next lint`) | **PASS (0 warnings/errors)** | Configured with `.eslintrc.json` extending `next/core-web-vitals` with ESLint 8.57.1. Fully automated for non-interactive CI/CD. |
 | **Production Build** | `npm run build` (`next build`) | **PASS (34 routes)** | Next.js 14.2.35 production bundle clean. 34 dynamic routes (`ƒ`): 6 page routes, 1 `_not-found`, 26 `/api/*` endpoints, 1 `/auth/callback`. Shared JS: 87.3 kB; Middleware: 86.2 kB. |
 
 ### 1.2 Known Build & Runtime Caveats
 
-1. **Font Optimization Metric Warning**:
-   - `⨯ Failed to find font override values for font 'Newsreader'`: Emitted by Next.js `next/font` during page optimization. Non-fatal fallback that does not impede build compilation or runtime rendering.
-2. **Database Migration State**:
+1. **Database Migration State**:
    - Migration files in `supabase/migrations/` (`0001_init.sql` and `0002_custom_orders.sql`) are syntactically and logically complete, but have not yet been applied to a live hosted Supabase Postgres instance. Run `supabase db push` to dev before launch.
-3. **Vite Node API Deprecation**:
+2. **Vite Node API Deprecation**:
    - Vitest emits a deprecation notice for Vite's CJS Node API. Upstream tooling notice; unit tests execute cleanly in-memory.
 
 ---
@@ -64,13 +62,13 @@ ShinobiBoard/
 │   ├── VerifyLeetCode.tsx            # Fast-path link, dispute challenge, and unlinking dialogs
 │   ├── RankAvatar.tsx                # Dynamic character avatar renderer with tier borders & levels
 │   ├── RankProgressCard.tsx          # Dashboard XP meter, level calculator, and scoring rules modal
-│   ├── Navbar.tsx                    # Top navigation bar, streak counter, XP badge, sign-out handler, sound toggle
+│   ├── Navbar.tsx                    # Top navigation bar, streak counter, XP badge, sign-out handler
 │   └── BoardSkeleton.tsx             # Geometry-accurate card loading skeleton
 ├── lib/                              # Pure, environment-free domain logic & shared contracts
 │   ├── week.ts                       # Mon–Sun UTC week windows, streak calculations, date diffs
 │   ├── ranks.ts                      # 7-tier ladder, XP thresholds, character lore, tier progress
 │   ├── scoring.ts                    # Leaderboard sorting, deterministic tiebreakers, title pickers
-│   ├── sound.ts                      # Web Audio API synthesized dojo sfx (clapper, blade, bell)
+│   ├── sound.ts                      # Deprecated audio stubs (audio system removed per UI cleanup)
 │   ├── sync.ts                       # Sync health state machine, backoff calculation, cursor checks
 │   ├── invite.ts                     # 8-character collision-resistant group invite codes
 │   ├── duel.ts                       # 7-day duel invite JWT token minting and signature verification

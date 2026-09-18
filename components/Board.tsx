@@ -8,21 +8,17 @@ import { getRankMeta } from "@/lib/ranks";
 import RankAvatar from "./RankAvatar";
 import BoardSkeleton from "./BoardSkeleton";
 import { DuelMatrix } from "./DuelMatrix";
-import { playSound } from "@/lib/sound";
 import {
   Trophy,
   Target,
-  Users,
   SlidersHorizontal,
   Flame,
-  Shield,
   Crown,
   Pin,
   RefreshCw,
   Bell,
   Search,
   ChevronDown,
-  ChevronUp,
   Swords,
   Snowflake,
   AlertTriangle,
@@ -34,6 +30,7 @@ import {
   ExternalLink,
   ChevronLeft,
   ChevronRight,
+  X,
 } from "lucide-react";
 
 type View = "leaderboard" | "custom";
@@ -51,12 +48,13 @@ interface Detail {
 }
 
 const RANK_CONFIG: Record<string, { label: string; emblem: string; badgeColor: string }> = {
-  Academy: { label: "Academy", emblem: "🎒", badgeColor: "border-sumi/15 bg-surface-elevated text-text-muted" },
-  Genin: { label: "Genin", emblem: "🍃", badgeColor: "border-shinobi-teal/30 bg-shinobi-teal/10 text-shinobi-teal" },
-  Chunin: { label: "Chunin", emblem: "⭐", badgeColor: "border-sumi/20 bg-surface-elevated text-text-primary" },
-  Jonin: { label: "Jonin", emblem: "⚔️", badgeColor: "border-sumi/25 bg-surface-elevated text-text-primary" },
-  ANBU: { label: "ANBU", emblem: "🎭", badgeColor: "border-sumi/30 bg-surface-elevated text-text-primary" },
-  Kage: { label: "Kage", emblem: "👑", badgeColor: "border-shinobi-gold/30 bg-shinobi-gold/10 text-shinobi-gold" },
+  Academy: { label: "Academy", emblem: "🎒", badgeColor: "border-slate-500/30 bg-slate-500/10 text-slate-400" },
+  Genin: { label: "Genin", emblem: "🍃", badgeColor: "border-shinobi-teal/40 bg-shinobi-teal/10 text-shinobi-teal" },
+  Chunin: { label: "Chunin", emblem: "⭐", badgeColor: "border-sky-500/40 bg-sky-500/10 text-sky-400" },
+  Jonin: { label: "Jonin", emblem: "⚔️", badgeColor: "border-shinobi-violet/40 bg-shinobi-violet/10 text-shinobi-violet" },
+  ANBU: { label: "ANBU", emblem: "🎭", badgeColor: "border-shinobi-crimson/40 bg-shinobi-crimson/10 text-shinobi-crimson" },
+  Kage: { label: "Kage", emblem: "👑", badgeColor: "border-shinobi-amber/50 bg-shinobi-amber/15 text-shinobi-amber" },
+  Sage: { label: "Sage", emblem: "🐸", badgeColor: "border-orange-500/50 bg-orange-500/15 text-orange-400" },
 };
 
 function DifficultyBadge({ diff }: { diff: string }) {
@@ -108,8 +106,10 @@ export function Board({
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [inspectUserId, setInspectUserId] = useState<string | null>(null);
+  const [inspectUser, setInspectUser] = useState<BoardRow | null>(null);
   const [detail, setDetail] = useState<Detail | null>(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
   const [msg, setMsg] = useState<{ text: string; error?: boolean } | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
   const [refreshingUser, setRefreshingUser] = useState<string | null>(null);
@@ -168,16 +168,58 @@ export function Board({
     };
   }, [groupId, load]);
 
-  async function openCard(userId: string) {
-    if (expanded === userId) {
-      setExpanded(null);
-      setDetail(null);
-      return;
+  // Sync inspectUser if rows refresh in background
+  useEffect(() => {
+    if (inspectUserId && rows.length > 0) {
+      const refreshed = rows.find((r) => r.user_id === inspectUserId);
+      if (refreshed) setInspectUser(refreshed);
     }
-    setExpanded(userId);
+  }, [rows, inspectUserId]);
+
+  const closeDrawer = useCallback(() => {
+    setInspectUserId(null);
+    setInspectUser(null);
     setDetail(null);
-    const res = await fetch(`/api/groups/${groupId}/member/${userId}`);
-    if (res.ok) setDetail(await res.json());
+  }, []);
+
+  // Lock body scroll when slide-over drawer is open
+  useEffect(() => {
+    if (inspectUserId) {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prevOverflow;
+      };
+    }
+  }, [inspectUserId]);
+
+  // Handle Escape key to close the inspect slide-over drawer
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        closeDrawer();
+      }
+    }
+    if (inspectUserId) {
+      window.addEventListener("keydown", onKeyDown);
+      return () => window.removeEventListener("keydown", onKeyDown);
+    }
+  }, [inspectUserId, closeDrawer]);
+
+  async function openCard(userId: string, member?: BoardRow) {
+    const target = member ?? rows.find((r) => r.user_id === userId) ?? null;
+    setInspectUser(target);
+    setInspectUserId(userId);
+    setDetail(null);
+    setLoadingDetail(true);
+    try {
+      const res = await fetch(`/api/groups/${groupId}/member/${userId}`);
+      if (res.ok) {
+        setDetail(await res.json());
+      }
+    } finally {
+      setLoadingDetail(false);
+    }
   }
 
   async function togglePin(userId: string, pinned: boolean) {
@@ -199,7 +241,6 @@ export function Board({
     });
     const j = await res.json();
     if (res.ok) {
-      playSound("bell");
       setMsg({ text: "Nudged! Notification logged to squad feed." });
     } else {
       setMsg({ text: j.error ?? "Nudge failed", error: true });
@@ -217,7 +258,6 @@ export function Board({
       });
       const j = await res.json();
       if (res.ok) {
-        playSound("blade");
         setMsg({ text: `Sync complete — ${j.fetched ?? 0} new solves indexed.` });
         load();
       } else {
@@ -248,6 +288,8 @@ export function Board({
     persistOrder(ids);
     setDragId(null);
   }
+
+  const inspectedMember = inspectUser ?? (inspectUserId ? rows.find((r) => r.user_id === inspectUserId) ?? null : null);
 
   return (
     <div className="space-y-4">
@@ -295,85 +337,54 @@ export function Board({
         </div>
       )}
 
-      {/* Controls Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-sumi/15 bg-surface-card/90 p-3  ">
-        {/* Left: View Switcher */}
-        <div className="flex items-center gap-2">
-          <div className="flex rounded-xl border border-sumi/15 bg-surface-elevated p-1 ">
-            <button
-              onClick={() => setView("leaderboard")}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
-                view === "leaderboard"
-                  ? "bg-shinobi-gold text-black shadow-tactile-btn"
-                  : "text-text-muted hover:text-text-primary"
-              }`}
-            >
-              <Trophy className="h-3.5 w-3.5" />
-              <span>Leaderboard</span>
-            </button>
-            <button
-              onClick={() => setView("custom")}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
-                view === "custom"
-                  ? "bg-shinobi-gold text-black shadow-tactile-btn"
-                  : "text-text-muted hover:text-text-primary"
-              }`}
-            >
-              <SlidersHorizontal className="h-3.5 w-3.5" />
-              <span>Custom Order</span>
-            </button>
-          </div>
-
-          {/* Sort Dropdown */}
-          <div className="relative">
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value as BoardSort)}
-              className="appearance-none rounded-xl border border-sumi/15 bg-surface-elevated py-1.5 pl-3 pr-8 text-xs font-medium text-text-primary  focus:border-shinobi-gold focus:outline-none"
-            >
-              <option value="weekly">Sort: Weekly Solves</option>
-              <option value="streak">Sort: Longest Streak</option>
-              <option value="xp">Sort: Total XP</option>
-              <option value="base_rank">Sort: Base Rank</option>
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-text-muted" />
-          </div>
-        </div>
-
-        {/* Right: Filters & Search */}
-        <div className="flex flex-1 flex-wrap items-center justify-end gap-2 min-w-[280px]">
-          {/* Filter Chips */}
-          <div className="flex flex-wrap items-center rounded-xl border border-sumi/15 bg-ink/70 p-1 text-xs gap-0.5">
-            {(
-              [
-                { id: "all", label: "All" },
-                { id: "goal_achieved", label: "Goal Met" },
-                { id: "active_today", label: "Active Today" },
-                { id: "hard_hunters", label: "Hard Hunters" },
-                { id: "titles", label: "Titles" },
-                { id: "stale", label: "Stale" },
-                { id: "frozen", label: "Frozen" },
-              ] as const
-            ).map((f) => (
+      {/* Controls Bar: Two-tier layout eliminating awkward filter wrapping */}
+      <div className="space-y-3 rounded-2xl border border-sumi/15 bg-surface-card/90 p-3.5 shadow-tactile-card">
+        {/* Tier 1: View Switchers, Sort dropdown & Search */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex rounded-xl border border-sumi/15 bg-surface-elevated p-1">
               <button
-                key={f.id}
-                onClick={() => {
-                  setFilter(f.id);
-                  setPage(1);
-                }}
-                className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-all ${
-                  filter === f.id
-                    ? "bg-surface-elevated text-text-primary border border-sumi/20"
+                onClick={() => setView("leaderboard")}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
+                  view === "leaderboard"
+                    ? "bg-shinobi-gold text-white shadow-tactile-btn"
                     : "text-text-muted hover:text-text-primary"
                 }`}
               >
-                {f.label}
+                <Trophy className="h-3.5 w-3.5" />
+                <span>Leaderboard</span>
               </button>
-            ))}
+              <button
+                onClick={() => setView("custom")}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
+                  view === "custom"
+                    ? "bg-shinobi-gold text-white shadow-tactile-btn"
+                    : "text-text-muted hover:text-text-primary"
+                }`}
+              >
+                <SlidersHorizontal className="h-3.5 w-3.5" />
+                <span>Custom Order</span>
+              </button>
+            </div>
+
+            {/* Sort Dropdown */}
+            <div className="relative">
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value as BoardSort)}
+                className="appearance-none rounded-xl border border-sumi/15 bg-surface-elevated py-1.5 pl-3 pr-8 text-xs font-medium text-text-primary focus:border-shinobi-gold focus:outline-none"
+              >
+                <option value="weekly">Sort: Weekly Solves</option>
+                <option value="streak">Sort: Longest Streak</option>
+                <option value="xp">Sort: Total XP</option>
+                <option value="base_rank">Sort: Base Rank</option>
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-text-muted" />
+            </div>
           </div>
 
           {/* Search Bar */}
-          <div className="relative min-w-[180px] max-w-xs flex-1">
+          <div className="relative w-full sm:w-64 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-text-muted" />
             <input
               value={q}
@@ -385,6 +396,37 @@ export function Board({
               className="w-full rounded-xl border border-sumi/15 bg-surface-elevated py-1.5 pl-8 pr-3 text-xs text-text-primary placeholder-text-muted focus:border-sumi/40 focus:outline-none"
             />
           </div>
+        </div>
+
+        {/* Tier 2: Filter Chips Rail (No awkward wrapping, smooth horizontal scroll on small screens) */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pt-1 border-t border-sumi/10 scrollbar-none">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-text-muted shrink-0 pr-1">Filter:</span>
+          {(
+            [
+              { id: "all", label: "All" },
+              { id: "goal_achieved", label: "Goal Met" },
+              { id: "active_today", label: "Active Today" },
+              { id: "hard_hunters", label: "Hard Hunters" },
+              { id: "titles", label: "Titles" },
+              { id: "stale", label: "Stale" },
+              { id: "frozen", label: "Frozen" },
+            ] as const
+          ).map((f) => (
+            <button
+              key={f.id}
+              onClick={() => {
+                setFilter(f.id);
+                setPage(1);
+              }}
+              className={`shrink-0 whitespace-nowrap rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-all ${
+                filter === f.id
+                  ? "bg-shinobi-gold/20 text-shinobi-gold border border-shinobi-gold/40"
+                  : "bg-surface-elevated/70 text-text-muted hover:text-text-primary hover:bg-surface-elevated border border-sumi/10"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -419,9 +461,9 @@ export function Board({
         <DuelMatrix matrix={duelMatrix} viewerId={viewerId} />
       )}
 
-      {/* Cards Board Grid / Horizontal Scroll */}
+      {/* Cards Board Grid */}
       {loading && rows.length === 0 ? (
-        <BoardSkeleton count={Math.min(memberCount || 3, 4)} />
+        <BoardSkeleton count={Math.min(memberCount || 4, 6)} />
       ) : rows.length === 0 ? (
         <div className="rounded-2xl border border-sumi/15 bg-surface-card p-12 text-center text-text-muted shadow-tactile-card my-3">
           <Trophy className="mx-auto h-10 w-10 text-text-muted mb-2 opacity-50" />
@@ -431,376 +473,490 @@ export function Board({
           </p>
         </div>
       ) : (
-        <div className="board-scroll flex gap-4 overflow-x-auto pb-4 pt-1 max-md:flex-col">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-4">
           {rows.map((r, index) => {
-          const rankMeta = RANK_CONFIG[r.base_rank] ?? RANK_CONFIG.Academy;
-          const isHokage = r.titles.some((t) => t.title === "hokage");
-          const isFrozen = r.sync_status === "frozen";
-          const isRateLimited = r.sync_status === "rate_limited";
-          const isTop3 = index < 3 && !isFrozen && view === "leaderboard";
-          const goalMet = r.weekly_count >= goal;
+            const rankMeta = RANK_CONFIG[r.base_rank] ?? RANK_CONFIG.Academy;
+            const fullMeta = getRankMeta(r.base_rank);
+            const isHokage = r.titles.some((t) => t.title === "hokage");
+            const isFrozen = r.sync_status === "frozen";
+            const isRateLimited = r.sync_status === "rate_limited";
+            const isTop3 = index < 3 && !isFrozen && view === "leaderboard";
+            const goalMet = r.weekly_count >= goal;
 
-          // Podium border styling
-          let cardBorder = "border-sumi/15 hover:border-sumi/25";
-          if (isTop3 && index === 0) {
-            cardBorder = "border-shinobi-gold/60 hover:border-shinobi-gold";
-          } else if (isTop3 && index === 1) {
-            cardBorder = "border-sumi/35 hover:border-sumi/50";
-          } else if (isTop3 && index === 2) {
-            cardBorder = "border-sumi/25 hover:border-sumi/40";
-          } else if (isFrozen) {
-            cardBorder = "border-sumi/10 bg-surface-elevated/40 opacity-70";
-          }
+            // Podium border and glow styling
+            let cardBorder = "border-sumi/15 hover:border-sumi/30";
+            let cardGlow = "";
+            if (isTop3 && index === 0) {
+              cardBorder = "border-shinobi-gold/60 hover:border-shinobi-gold";
+              cardGlow = "shadow-[0_0_20px_rgba(224,86,56,0.12)]";
+            } else if (isTop3 && index === 1) {
+              cardBorder = "border-sumi/35 hover:border-sumi/50";
+            } else if (isTop3 && index === 2) {
+              cardBorder = "border-sumi/25 hover:border-sumi/40";
+            } else if (isFrozen) {
+              cardBorder = "border-sumi/10";
+            }
 
-          return (
-            <div
-              key={r.user_id}
-              draggable={view === "custom"}
-              onDragStart={() => setDragId(r.user_id)}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={() => onDrop(r.user_id)}
-              className={`relative flex w-72 shrink-0 flex-col justify-between rounded-2xl border bg-surface-card p-4 transition-all max-md:w-full ${cardBorder} ${
-                r.pinned ? "ring-1 ring-shinobi-gold" : ""
-              }`}
-            >
-              {/* Card Header: Drag handle, Rank, Avatar, Title */}
-              <div>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2.5">
-                    {view === "custom" && (
-                      <GripVertical className="h-4 w-4 text-text-muted cursor-grab active:cursor-grabbing" />
-                    )}
+            const cardBg = isFrozen
+              ? "bg-surface-elevated/40 opacity-70"
+              : `bg-gradient-to-b ${fullMeta.accentBg}`;
 
-                    {/* Avatar with Anime Rank Emblem */}
-                    <div className="relative">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={r.avatar_url ?? `https://api.dicebear.com/7.x/identicon/svg?seed=${r.user_id}`}
-                        alt=""
-                        className={`h-10 w-10 rounded-xl object-cover border ${
-                          isHokage
-                            ? "border-shinobi-gold"
-                            : isTop3
-                            ? "border-sumi/30"
-                            : "border-sumi/15"
-                        } bg-surface-elevated`}
-                      />
-                      <RankAvatar
-                        rank={r.base_rank}
-                        size="xs"
-                        className="absolute -bottom-1 -right-1.5 z-10"
-                      />
-                      {r.pinned && (
-                        <span className="absolute -top-1.5 -right-1.5 rounded-full bg-shinobi-gold p-0.5 text-ink shadow-sm z-20">
-                          <Pin className="h-2.5 w-2.5 fill-ink" />
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Names */}
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <p className="truncate text-xs font-heading font-bold text-text-primary tracking-tight">
-                          {r.display_name}
-                        </p>
-                      </div>
-                      <p className="truncate font-mono text-[11px] text-text-muted">
-                        @{r.lc_username ?? "unlinked"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Rank Position */}
-                  <div className="flex flex-col items-end">
-                    <span
-                      className={`font-mono text-xs font-black ${
-                        index === 0 && !isFrozen
-                          ? "text-shinobi-gold font-extrabold text-sm"
-                          : index === 1
-                          ? "text-text-secondary"
-                          : index === 2
-                          ? "text-text-secondary"
-                          : "text-text-muted"
-                      }`}
-                    >
-                      #{r.group_rank || index + 1}
-                    </span>
-                    <span className="mt-0.5 inline-flex items-center gap-1 text-[10px] font-mono font-semibold text-text-muted">
-                      {r.base_rank}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Badges / Active Titles */}
-                <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                  {r.bounty_completed && (
-                    <span
-                      title="Completed Today's Shinobi Bounty"
-                      className="inline-flex items-center gap-1 rounded-md border border-shinobi-gold/40 bg-shinobi-gold/15 px-1.5 py-0.5 font-mono text-[10px] font-bold text-shinobi-gold shadow-tactile-card"
-                    >
-                      <Target className="h-3 w-3 text-shinobi-gold" />
-                      <span>Bounty AC</span>
-                    </span>
-                  )}
-                  {r.titles.map((t) => (
-                    <span
-                      key={t.title}
-                      className="inline-flex items-center gap-1 rounded-md border border-shinobi-gold/30 bg-shinobi-gold/10 px-1.5 py-0.5 font-mono text-[10px] font-bold text-shinobi-gold shadow-tactile-card"
-                    >
-                      <Crown className="h-3 w-3 fill-shinobi-gold" />
-                      <span className="capitalize">{t.title.replace("_", " ")}</span>
-                    </span>
-                  ))}
-
-                  <span className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold ${rankMeta.badgeColor}`}>
-                    <span>{rankMeta.label}</span>
-                  </span>
-
-                  {isFrozen && (
-                    <span className="inline-flex items-center gap-1 rounded-md border border-sumi/20 bg-surface-elevated px-1.5 py-0.5 text-[10px] font-bold text-text-muted">
-                      <Snowflake className="h-2.5 w-2.5" />
-                      <span>FROZEN</span>
-                    </span>
-                  )}
-
-                  {isRateLimited && (
-                    <span className="rounded-md border border-shinobi-gold/30 bg-shinobi-gold/10 px-1.5 py-0.5 text-[10px] font-medium text-shinobi-gold">
-                      Sync Paused
-                    </span>
-                  )}
-                </div>
-
-                {/* Weekly Goal Progress */}
-                <div className="mt-3.5 space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-text-secondary">
-                      Weekly Solves
-                    </span>
-                    <span className="font-mono font-bold text-text-primary">
-                      <span className={goalMet ? "text-shinobi-teal" : "text-shinobi-gold"}>{r.weekly_count}</span>
-                      <span className="text-text-muted"> / {goal}</span>
-                    </span>
-                  </div>
-                  <ProgressBar value={r.weekly_count} goal={goal} />
-                </div>
-
-                {/* Streak & Last Solved */}
-                <div className="mt-3 rounded-xl border border-sumi/10 bg-surface-elevated p-2.5 text-xs space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-1 text-[11px] font-semibold text-text-secondary">
-                      <Flame className="h-3.5 w-3.5 text-shinobi-flame fill-shinobi-flame/30" />
-                      <span>Streak</span>
-                    </span>
-                    <span className="font-mono text-xs font-bold text-shinobi-flame">
-                      {r.streak} {r.streak === 1 ? "day" : "days"}
-                    </span>
-                  </div>
-
-                  <div className="border-t border-sumi/10 pt-1.5 flex items-center justify-between gap-1 text-[11px]">
-                    {r.last_solved_slug ? (
-                      <>
-                        <span className="truncate text-text-secondary max-w-[130px]" title={r.last_solved_slug}>
-                          {r.last_solved_slug}
-                        </span>
-                        <div className="flex shrink-0 items-center gap-1">
-                          {r.last_solved_diff && <DifficultyBadge diff={r.last_solved_diff} />}
-                          <span className="text-[10px] text-text-muted">{timeAgo(r.last_solved_at)}</span>
-                        </div>
-                      </>
-                    ) : (
-                      <span className="text-text-muted italic">No solves recorded yet</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Card Actions Toolbar */}
-              <div className="mt-3.5 flex items-center justify-between border-t border-sumi/10 pt-3">
-                <button
-                  onClick={() => openCard(r.user_id)}
-                  className="flex items-center gap-1 text-xs font-semibold text-text-secondary hover:text-text-primary transition-colors"
-                >
-                  <span>{expanded === r.user_id ? "Collapse" : "Inspect"}</span>
-                  {expanded === r.user_id ? (
-                    <ChevronUp className="h-3.5 w-3.5" />
-                  ) : (
-                    <ChevronDown className="h-3.5 w-3.5" />
-                  )}
-                </button>
-
-                <div className="flex items-center gap-1">
-                  {r.user_id !== viewerId && (
-                    <button
-                      onClick={() => nudge(r.user_id)}
-                      title="Nudge friend (1/day)"
-                      className="rounded-lg p-1.5 text-text-muted hover:bg-sumi/[0.08] hover:text-text-primary transition-colors"
-                    >
-                      <Bell className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-
-                  <button
-                    onClick={() => refresh(r.user_id)}
-                    disabled={refreshingUser === r.user_id}
-                    title="Refresh profile stats (10-min shared cooldown)"
-                    className="rounded-lg p-1.5 text-text-muted hover:bg-sumi/[0.08] hover:text-shinobi-gold transition-colors"
-                  >
-                    <RefreshCw
-                      className={`h-3.5 w-3.5 ${refreshingUser === r.user_id ? "animate-spin text-shinobi-gold" : ""}`}
-                    />
-                  </button>
-
-                  <button
-                    onClick={() => togglePin(r.user_id, r.pinned)}
-                    title={r.pinned ? "Unpin card" : "Pin card to top (max 2)"}
-                    className={`rounded-lg p-1.5 transition-colors ${
-                      r.pinned
-                        ? "text-shinobi-gold bg-shinobi-gold/10 border border-shinobi-gold/30"
-                        : "text-text-muted hover:bg-sumi/[0.08] hover:text-text-primary"
-                    }`}
-                  >
-                    <Pin className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Expanded Card Drawer */}
-              {expanded === r.user_id && (
-                <div className="mt-3 border-t border-sumi/15 pt-3 text-xs space-y-3 animate-in fade-in duration-200">
-                  {!detail ? (
-                    <div className="py-4 text-center text-text-muted font-mono text-xs">
-                      Fetching shinobi profile…
-                    </div>
-                  ) : (
-                    <>
-                      {/* 7-Day Activity Sparkline */}
-                      <div>
-                        <p className="text-[11px] font-semibold text-text-secondary mb-1 flex items-center gap-1">
-                          <Calendar className="h-3 w-3 text-shinobi-teal" />
-                          <span>7-Day Activity (UTC)</span>
-                        </p>
-                        <div className="flex gap-1">
-                          {detail.dots.map((d) => (
-                            <div
-                              key={d.day}
-                              title={`${d.day}: ${d.count} solves`}
-                              className={`flex-1 h-5 rounded-md flex items-center justify-center font-mono text-[9px] font-bold ${
-                                d.count > 0
-                                  ? "bg-shinobi-teal text-ink border border-shinobi-teal"
-                                  : "bg-surface-elevated text-text-muted border border-sumi/10"
-                              }`}
-                            >
-                              {d.count > 0 ? d.count : ""}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* E/M/H Breakdown */}
-                      <div className="rounded-xl border border-sumi/10 bg-surface-elevated p-2.5">
-                        <p className="text-[11px] font-semibold text-text-secondary mb-1.5 flex items-center gap-1">
-                          <Layers className="h-3 w-3 text-text-secondary" />
-                          <span>All-Time Solves ({detail.split.total} distinct)</span>
-                        </p>
-                        <div className="grid grid-cols-3 gap-1.5 text-center font-mono">
-                          <div className="rounded-lg bg-surface border border-sumi/15 p-1">
-                            <span className="block text-[10px] text-shinobi-teal font-bold">Easy</span>
-                            <span className="text-xs text-text-primary font-black">{detail.split.Easy}</span>
-                          </div>
-                          <div className="rounded-lg bg-surface border border-sumi/15 p-1">
-                            <span className="block text-[10px] text-text-secondary font-bold">Med</span>
-                            <span className="text-xs text-text-primary font-black">{detail.split.Medium}</span>
-                          </div>
-                          <div className="rounded-lg bg-surface border border-sumi/15 p-1">
-                            <span className="block text-[10px] text-shinobi-flame font-bold">Hard</span>
-                            <span className="text-xs text-text-primary font-black">{detail.split.Hard}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Character Dossier & Base Rank XP Target */}
-                      <div className="flex items-center gap-3 rounded-xl border border-sumi/10 bg-surface-elevated p-2.5">
-                        <RankAvatar rank={r.base_rank} size="md" />
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-text-primary">
-                              {getRankMeta(r.base_rank).character}
-                            </span>
-                            <span className="font-mono text-[11px] font-bold text-shinobi-gold">
-                              {r.base_rank}
-                            </span>
-                          </div>
-                          <p className="text-[10px] text-text-muted truncate">
-                            {getRankMeta(r.base_rank).characterTitle}
-                          </p>
-                          <div className="mt-1 flex items-center justify-between text-[10px] font-mono text-text-muted border-t border-sumi/10 pt-1">
-                            <span>{r.xp.toLocaleString()} XP</span>
-                            <span className="text-shinobi-gold font-semibold">
-                              {detail.xp_to_next.next
-                                ? `+${detail.xp_to_next.needed} XP to ${detail.xp_to_next.next}`
-                                : "MAX (Kage)"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Duel W/L/D if duel group */}
-                      {isDuel && detail.duel_record && (
-                        <div className="rounded-xl border border-sumi/15 bg-surface-elevated p-2.5">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="flex items-center gap-1 font-semibold text-shinobi-flame">
-                              <Swords className="h-3.5 w-3.5" />
-                              <span>Duel Scoreboard</span>
-                            </span>
-                            <span className="font-mono font-bold text-text-primary">
-                              <span className="text-shinobi-teal">{detail.duel_record.w}W</span> ·{" "}
-                              <span className="text-shinobi-flame">{detail.duel_record.l}L</span> ·{" "}
-                              <span className="text-text-muted">{detail.duel_record.d}D</span>
-                            </span>
-                          </div>
-                        </div>
+            return (
+              <div
+                key={r.user_id}
+                draggable={view === "custom"}
+                onDragStart={() => setDragId(r.user_id)}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={() => onDrop(r.user_id)}
+                className={`group relative flex w-full flex-col justify-between rounded-2xl border ${cardBg} p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${cardBorder} ${cardGlow} ${
+                  r.pinned ? "ring-1 ring-shinobi-gold/70" : ""
+                }`}
+              >
+                <div>
+                  {/* Card Header: Drag handle, Avatar, Names, Rank Position */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      {view === "custom" && (
+                        <GripVertical className="h-4 w-4 text-text-muted cursor-grab active:cursor-grabbing shrink-0" />
                       )}
 
-                      {/* Recent 5 Solves List */}
-                      <div>
-                        <p className="text-[11px] font-semibold text-text-secondary mb-1">
-                          Recent Counted Solves
-                        </p>
-                        <ul className="space-y-1">
-                          {detail.recent.length === 0 && (
-                            <li className="text-[11px] text-text-muted italic">No recent solves</li>
-                          )}
-                          {detail.recent.slice(0, 5).map((s) => (
-                            <li
-                              key={s.slug + s.solved_at}
-                              className="flex items-center justify-between gap-1.5 rounded-lg border border-sumi/10 bg-surface-elevated px-2 py-1 text-[11px]"
-                            >
-                              <span className="truncate text-text-primary" title={s.title ?? s.slug}>
-                                {s.title ?? s.slug}
-                              </span>
-                              <div className="flex shrink-0 items-center gap-1">
-                                <DifficultyBadge diff={s.diff} />
-                                <span className="font-mono text-[9px] text-text-muted">{s.lang}</span>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      {/* Sync Diagnostics */}
-                      <div className="border-t border-sumi/10 pt-2 text-[10px] text-text-muted">
-                        <p>{detail.sync_label}</p>
-                        {detail.fix_hint && (
-                          <p className="mt-0.5 text-shinobi-gold font-medium">💡 {detail.fix_hint}</p>
+                      {/* Avatar with Anime Rank Emblem */}
+                      <div className="relative shrink-0">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={r.avatar_url ?? `https://api.dicebear.com/7.x/identicon/svg?seed=${r.user_id}`}
+                          alt=""
+                          className={`h-10 w-10 rounded-xl object-cover border ${
+                            isHokage
+                              ? "border-shinobi-gold"
+                              : isTop3
+                              ? "border-sumi/30"
+                              : "border-sumi/15"
+                          } bg-surface-elevated`}
+                        />
+                        <RankAvatar
+                          rank={r.base_rank}
+                          size="xs"
+                          className="absolute -bottom-1 -right-1.5 z-10"
+                        />
+                        {r.pinned && (
+                          <span className="absolute -top-1.5 -right-1.5 rounded-full bg-shinobi-gold p-0.5 text-ink shadow-sm z-20">
+                            <Pin className="h-2.5 w-2.5 fill-ink" />
+                          </span>
                         )}
                       </div>
-                    </>
+
+                      {/* Names */}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-bold text-text-primary tracking-tight">
+                          {r.display_name}
+                        </p>
+                        <p className="truncate font-mono text-[11px] text-text-muted">
+                          @{r.lc_username ?? "unlinked"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Rank Position */}
+                    <div className="flex flex-col items-end shrink-0">
+                      <span
+                        className={`font-mono text-xs font-black ${
+                          index === 0 && !isFrozen
+                            ? "text-shinobi-gold font-extrabold text-sm"
+                            : index === 1
+                            ? "text-text-secondary"
+                            : index === 2
+                            ? "text-text-secondary"
+                            : "text-text-muted"
+                        }`}
+                      >
+                        #{r.group_rank || index + 1}
+                      </span>
+                      <span className={`mt-0.5 inline-flex items-center gap-1 text-[10px] font-mono font-semibold ${fullMeta.textColor}`}>
+                        {r.base_rank}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Badges / Active Titles */}
+                  <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                    {r.bounty_completed && (
+                      <span
+                        title="Completed Today's Shinobi Bounty"
+                        className="inline-flex items-center gap-1 rounded-md border border-shinobi-gold/40 bg-shinobi-gold/15 px-1.5 py-0.5 font-mono text-[10px] font-bold text-shinobi-gold shadow-tactile-card"
+                      >
+                        <Target className="h-3 w-3 text-shinobi-gold" />
+                        <span>Bounty AC</span>
+                      </span>
+                    )}
+                    {r.titles.map((t) => (
+                      <span
+                        key={t.title}
+                        className="inline-flex items-center gap-1 rounded-md border border-shinobi-gold/30 bg-shinobi-gold/10 px-1.5 py-0.5 font-mono text-[10px] font-bold text-shinobi-gold shadow-tactile-card"
+                      >
+                        <Crown className="h-3 w-3 fill-shinobi-gold" />
+                        <span className="capitalize">{t.title.replace("_", " ")}</span>
+                      </span>
+                    ))}
+
+                    <span className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold ${rankMeta.badgeColor}`}>
+                      <span>{rankMeta.label}</span>
+                    </span>
+
+                    {isFrozen && (
+                      <span className="inline-flex items-center gap-1 rounded-md border border-sumi/20 bg-surface-elevated px-1.5 py-0.5 text-[10px] font-bold text-text-muted">
+                        <Snowflake className="h-2.5 w-2.5" />
+                        <span>FROZEN</span>
+                      </span>
+                    )}
+
+                    {isRateLimited && (
+                      <span className="rounded-md border border-shinobi-gold/30 bg-shinobi-gold/10 px-1.5 py-0.5 text-[10px] font-medium text-shinobi-gold">
+                        Sync Paused
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Weekly Goal Progress */}
+                  <div className="mt-3 space-y-1.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-medium text-text-secondary">
+                        Weekly Solves
+                      </span>
+                      <span className="font-mono font-bold text-text-primary">
+                        <span className={goalMet ? "text-shinobi-teal" : "text-shinobi-gold"}>{r.weekly_count}</span>
+                        <span className="text-text-muted"> / {goal}</span>
+                      </span>
+                    </div>
+                    <ProgressBar value={r.weekly_count} goal={goal} />
+                  </div>
+
+                  {/* Streak & XP Metric Bar (Clean, uncluttered, no redundant problem slug) */}
+                  <div className="mt-3 flex items-center justify-between rounded-xl border border-sumi/10 bg-surface-elevated/70 px-3 py-2 text-xs">
+                    <div className="flex items-center gap-1.5">
+                      <Flame className={`h-4 w-4 ${r.streak > 0 ? "text-shinobi-flame fill-shinobi-flame/30" : "text-text-muted"}`} />
+                      <span className="text-[11px] font-semibold text-text-secondary">Streak</span>
+                      <span className="font-mono text-xs font-bold text-shinobi-flame">
+                        {r.streak}d
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 text-right">
+                      <Zap className="h-3.5 w-3.5 text-shinobi-gold" />
+                      <span className="font-mono text-xs font-bold text-text-primary">
+                        {r.xp.toLocaleString()} <span className="text-[10px] text-text-muted font-normal">XP</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Actions Toolbar */}
+                <div className="mt-3.5 flex items-center justify-between border-t border-sumi/10 pt-3">
+                  <button
+                    onClick={() => openCard(r.user_id, r)}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-shinobi-gold hover:text-white transition-colors"
+                  >
+                    <SlidersHorizontal className="h-3.5 w-3.5" />
+                    <span>Inspect Shinobi</span>
+                  </button>
+
+                  <div className="flex items-center gap-1">
+                    {r.user_id !== viewerId && (
+                      <button
+                        onClick={() => nudge(r.user_id)}
+                        title="Nudge friend (1/day)"
+                        className="rounded-lg p-1.5 text-text-muted hover:bg-sumi/[0.08] hover:text-text-primary transition-colors"
+                      >
+                        <Bell className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => refresh(r.user_id)}
+                      disabled={refreshingUser === r.user_id}
+                      title="Refresh profile stats (10-min shared cooldown)"
+                      className="rounded-lg p-1.5 text-text-muted hover:bg-sumi/[0.08] hover:text-shinobi-gold transition-colors"
+                    >
+                      <RefreshCw
+                        className={`h-3.5 w-3.5 ${refreshingUser === r.user_id ? "animate-spin text-shinobi-gold" : ""}`}
+                      />
+                    </button>
+
+                    <button
+                      onClick={() => togglePin(r.user_id, r.pinned)}
+                      title={r.pinned ? "Unpin card" : "Pin card to top (max 2)"}
+                      className={`rounded-lg p-1.5 transition-colors ${
+                        r.pinned
+                          ? "text-shinobi-gold bg-shinobi-gold/10 border border-shinobi-gold/30"
+                          : "text-text-muted hover:bg-sumi/[0.08] hover:text-text-primary"
+                      }`}
+                    >
+                      <Pin className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Inspect Shinobi Slide-Over Drawer */}
+      {inspectUserId && inspectedMember && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="drawer-member-name"
+          className="fixed inset-0 z-50 flex justify-end bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
+        >
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 cursor-pointer"
+            onClick={closeDrawer}
+          />
+
+          {/* Slide-over sheet */}
+          <div className="relative z-10 flex h-full w-full max-w-md flex-col border-l border-sumi/20 bg-surface-card p-6 shadow-2xl animate-in slide-in-from-right duration-200 overflow-y-auto">
+            {/* Drawer Header */}
+            <div className="flex items-start justify-between border-b border-sumi/10 pb-4">
+              <div className="flex items-center gap-3.5">
+                <div className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={inspectedMember.avatar_url ?? `https://api.dicebear.com/7.x/identicon/svg?seed=${inspectedMember.user_id}`}
+                    alt=""
+                    className="h-12 w-12 rounded-xl object-cover border border-sumi/20 bg-surface-elevated"
+                  />
+                  <RankAvatar
+                    rank={inspectedMember.base_rank}
+                    size="sm"
+                    className="absolute -bottom-1 -right-1 z-10"
+                  />
+                </div>
+                <div>
+                  <h3 id="drawer-member-name" className="font-heading text-lg font-bold text-text-primary">
+                    {inspectedMember.display_name}
+                  </h3>
+                  {inspectedMember.lc_username ? (
+                    <a
+                      href={`https://leetcode.com/${inspectedMember.lc_username}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 font-mono text-xs text-shinobi-gold hover:underline"
+                    >
+                      <span>@{inspectedMember.lc_username}</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  ) : (
+                    <span className="font-mono text-xs text-text-muted">@unlinked</span>
                   )}
                 </div>
+              </div>
+
+              <button
+                onClick={closeDrawer}
+                aria-label="Close drawer"
+                className="rounded-lg p-1.5 text-text-muted hover:bg-sumi/10 hover:text-text-primary transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Quick Actions Bar */}
+            <div className="mt-4 flex items-center gap-2">
+              {inspectedMember.user_id !== viewerId && (
+                <button
+                  onClick={() => nudge(inspectedMember.user_id)}
+                  className="flex-1 btn-tactile-secondary py-1.5 text-xs inline-flex items-center justify-center gap-1.5"
+                >
+                  <Bell className="h-3.5 w-3.5 text-shinobi-gold" />
+                  <span>Nudge</span>
+                </button>
+              )}
+              <button
+                onClick={() => refresh(inspectedMember.user_id)}
+                disabled={refreshingUser === inspectedMember.user_id}
+                className="flex-1 btn-tactile-secondary py-1.5 text-xs inline-flex items-center justify-center gap-1.5"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${refreshingUser === inspectedMember.user_id ? "animate-spin text-shinobi-gold" : ""}`} />
+                <span>Refresh</span>
+              </button>
+              <button
+                onClick={() => togglePin(inspectedMember.user_id, inspectedMember.pinned)}
+                className={`btn-tactile-secondary py-1.5 text-xs inline-flex items-center justify-center gap-1.5 px-3 ${
+                  inspectedMember.pinned ? "text-shinobi-gold border-shinobi-gold/40" : ""
+                }`}
+              >
+                <Pin className="h-3.5 w-3.5" />
+                <span>{inspectedMember.pinned ? "Pinned" : "Pin"}</span>
+              </button>
+            </div>
+
+            {/* Drawer Body Content */}
+            <div className="mt-5 space-y-4">
+              {loadingDetail || !detail ? (
+                <div className="py-12 text-center text-text-muted font-mono text-xs space-y-2">
+                  <div className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-shinobi-gold border-t-transparent" />
+                  <p>Fetching shinobi profile and records…</p>
+                </div>
+              ) : (
+                <>
+                  {/* 7-Day Activity Sparkline */}
+                  <div className="rounded-xl border border-sumi/10 bg-surface-elevated/70 p-3.5 space-y-2">
+                    <p className="text-xs font-semibold text-text-secondary flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5 text-shinobi-teal" />
+                      <span>7-Day Activity (UTC)</span>
+                    </p>
+                    <div className="flex gap-1.5">
+                      {detail.dots.map((d) => (
+                        <div
+                          key={d.day}
+                          title={`${d.day}: ${d.count} solves`}
+                          className={`flex-1 h-7 rounded-md flex flex-col items-center justify-center font-mono text-[10px] font-bold ${
+                            d.count > 0
+                              ? "bg-shinobi-teal text-ink border border-shinobi-teal"
+                              : "bg-surface-elevated text-text-muted border border-sumi/10"
+                          }`}
+                        >
+                          <span>{d.count > 0 ? d.count : "-"}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* All-Time Solves Breakdown */}
+                  <div className="rounded-xl border border-sumi/10 bg-surface-elevated/70 p-3.5 space-y-2">
+                    <p className="text-xs font-semibold text-text-secondary flex items-center gap-1.5">
+                      <Layers className="h-3.5 w-3.5 text-text-secondary" />
+                      <span>All-Time Solves ({detail.split.total} distinct)</span>
+                    </p>
+                    <div className="grid grid-cols-3 gap-2 text-center font-mono">
+                      <div className="rounded-lg bg-surface border border-sumi/15 p-2">
+                        <span className="block text-[10px] text-shinobi-teal font-bold uppercase">Easy</span>
+                        <span className="text-sm text-text-primary font-black">{detail.split.Easy}</span>
+                      </div>
+                      <div className="rounded-lg bg-surface border border-sumi/15 p-2">
+                        <span className="block text-[10px] text-text-secondary font-bold uppercase">Med</span>
+                        <span className="text-sm text-text-primary font-black">{detail.split.Medium}</span>
+                      </div>
+                      <div className="rounded-lg bg-surface border border-sumi/15 p-2">
+                        <span className="block text-[10px] text-shinobi-flame font-bold uppercase">Hard</span>
+                        <span className="text-sm text-text-primary font-black">{detail.split.Hard}</span>
+                      </div>
+                    </div>
+                    {detail.split.total > 0 && (
+                      <div className="mt-1 flex h-1.5 w-full overflow-hidden rounded-full border border-sumi/10 bg-surface">
+                        <div
+                          style={{ width: `${(detail.split.Easy / detail.split.total) * 100}%` }}
+                          className="bg-shinobi-teal"
+                          title={`Easy: ${detail.split.Easy}`}
+                        />
+                        <div
+                          style={{ width: `${(detail.split.Medium / detail.split.total) * 100}%` }}
+                          className="bg-sky-400"
+                          title={`Medium: ${detail.split.Medium}`}
+                        />
+                        <div
+                          style={{ width: `${(detail.split.Hard / detail.split.total) * 100}%` }}
+                          className="bg-shinobi-flame"
+                          title={`Hard: ${detail.split.Hard}`}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Character Dossier & Base Rank XP Target */}
+                  <div className="flex items-center gap-3.5 rounded-xl border border-sumi/10 bg-surface-elevated/70 p-3.5">
+                    <RankAvatar rank={inspectedMember.base_rank} size="lg" showGlow />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-bold text-text-primary">
+                          {getRankMeta(inspectedMember.base_rank).character}
+                        </span>
+                        <span className={`font-mono text-xs font-bold ${getRankMeta(inspectedMember.base_rank).textColor}`}>
+                          {inspectedMember.base_rank}
+                        </span>
+                      </div>
+                      <p className="text-xs text-text-muted truncate">
+                        {getRankMeta(inspectedMember.base_rank).characterTitle}
+                      </p>
+                      <div className="mt-2 flex items-center justify-between text-xs font-mono text-text-muted border-t border-sumi/10 pt-1.5">
+                        <span>{inspectedMember.xp.toLocaleString()} XP</span>
+                        <span className="text-shinobi-gold font-semibold">
+                          {detail.xp_to_next.next
+                            ? `+${detail.xp_to_next.needed} XP to ${detail.xp_to_next.next}`
+                            : "MAX TIER (Sage)"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Duel W/L/D if duel group */}
+                  {isDuel && detail.duel_record && (
+                    <div className="rounded-xl border border-sumi/15 bg-surface-elevated/70 p-3.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="flex items-center gap-1 font-semibold text-shinobi-flame">
+                          <Swords className="h-3.5 w-3.5" />
+                          <span>Duel Scoreboard</span>
+                        </span>
+                        <span className="font-mono font-bold text-text-primary">
+                          <span className="text-shinobi-teal">{detail.duel_record.w}W</span> ·{" "}
+                          <span className="text-shinobi-flame">{detail.duel_record.l}L</span> ·{" "}
+                          <span className="text-text-muted">{detail.duel_record.d}D</span>
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Recent Solves List */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-text-secondary">
+                      Recent Counted Solves
+                    </p>
+                    <ul className="space-y-1.5">
+                      {detail.recent.length === 0 && (
+                        <li className="rounded-lg border border-sumi/10 bg-surface-elevated p-3 text-center text-xs text-text-muted italic">
+                          No recent counted solves recorded
+                        </li>
+                      )}
+                      {detail.recent.slice(0, 5).map((s) => (
+                        <li
+                          key={s.slug + s.solved_at}
+                          className="flex items-center justify-between gap-2 rounded-lg border border-sumi/10 bg-surface-elevated/80 px-3 py-2 text-xs"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <a
+                              href={`https://leetcode.com/problems/${s.slug}/`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="truncate font-medium text-text-primary hover:text-shinobi-gold transition-colors block"
+                              title={s.title ?? s.slug}
+                            >
+                              {s.title ?? s.slug}
+                            </a>
+                            <span className="font-mono text-[10px] text-text-muted">{timeAgo(s.solved_at)}</span>
+                          </div>
+                          <div className="flex shrink-0 items-center gap-1.5">
+                            <DifficultyBadge diff={s.diff} />
+                            <span className="font-mono text-[10px] text-text-muted bg-surface px-1.5 py-0.5 rounded border border-sumi/10">
+                              {s.lang}
+                            </span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Sync Diagnostics */}
+                  <div className="rounded-xl border border-sumi/10 bg-surface-elevated/40 p-3 text-[11px] text-text-muted space-y-1">
+                    <p className="font-mono">{detail.sync_label}</p>
+                    {detail.fix_hint && (
+                      <p className="text-shinobi-gold font-medium">💡 {detail.fix_hint}</p>
+                    )}
+                  </div>
+                </>
               )}
             </div>
-          );
-          })}
+          </div>
         </div>
       )}
 

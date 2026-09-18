@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, Newsreader, IBM_Plex_Mono } from "next/font/google";
+import { IBM_Plex_Sans, Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { createClient } from "@/lib/supabase/server";
 import { Navbar, type NavUser } from "@/components/Navbar";
@@ -12,9 +12,9 @@ const fontSans = IBM_Plex_Sans({
   display: "swap",
 });
 
-const fontHeading = Newsreader({
+const fontHeading = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700", "800"],
   variable: "--font-heading",
   display: "swap",
 });

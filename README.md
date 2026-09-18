@@ -10,7 +10,7 @@ ShinobiBoard turns the solitary LeetCode grind into a shared daily habit. Compet
 
 - **Framework**: [Next.js 14.2](https://nextjs.org/) (App Router, Server Components & Route Handlers, TypeScript)
 - **Database & Auth**: [Supabase](https://supabase.com/) (PostgreSQL with RLS, Auth via Google OAuth only, Realtime WebSocket subscriptions)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/) (Dark Sumi Obsidian theme, Newsreader serif headings, IBM Plex typography)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) (Dark Sumi Obsidian theme, Inter display headings, IBM Plex typography)
 - **Background Jobs**: Vercel Cron (hourly sync polling & Monday 00:05 UTC reset worker)
 - **Icons**: [Lucide React](https://lucide.dev/)
 - **Testing**: [Vitest](https://vitest.dev/) (pure in-memory unit tests for scoring & domain rules)

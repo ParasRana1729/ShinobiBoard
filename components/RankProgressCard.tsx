@@ -38,6 +38,7 @@ export default function RankProgressCard({
             rank={progress.currentRank}
             size="xl"
             showBadge
+            showGlow
           />
           <div>
             <div className="flex items-center gap-2">

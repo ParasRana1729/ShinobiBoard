@@ -99,6 +99,15 @@ describe("ranks + xp", () => {
     expect(getRankMeta("Kage").character).toBe("Minato Namikaze");
     expect(getRankMeta("Sage").character).toBe("Jiraiya");
   });
+  it("getRankMeta is case-insensitive and provides WebP assets with glow colors", () => {
+    expect(getRankMeta("anbu").character).toBe("Itachi Uchiha");
+    expect(getRankMeta("kage").character).toBe("Minato Namikaze");
+    expect(getRankMeta("SAGE").character).toBe("Jiraiya");
+    expect(getRankMeta("academy").image).toBe("/ranks/academy.webp");
+    expect(getRankMeta("anbu").image).toBe("/ranks/anbu.webp");
+    expect(getRankMeta("sage").glowColor).toContain("rgba");
+    expect(getRankMeta("unknown-rank").rank).toBe("Academy");
+  });
 });
 
 function row(over: Partial<BoardRow> & { user_id: string }): BoardRow {

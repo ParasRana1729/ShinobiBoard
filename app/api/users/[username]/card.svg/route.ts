@@ -120,7 +120,7 @@ export async function GET(
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="500" height="195" viewBox="0 0 500 195" fill="none">
   <defs>
     <style>
-      .serif { font-family: 'Newsreader', Georgia, serif; }
+      .heading { font-family: 'Inter', system-ui, -apple-system, sans-serif; letter-spacing: -0.02em; }
       .sans { font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif; }
       .mono { font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace; }
     </style>
@@ -149,7 +149,7 @@ export async function GET(
   <text x="58" y="119" class="mono" font-size="9.5" font-weight="600" fill="#9ba1ad" text-anchor="middle">LV. ${progress.level} · ${baseRank.toUpperCase()}</text>
 
   <!-- Header: Display Name & Handle -->
-  <text x="114" y="42" class="serif" font-size="18" font-weight="600" fill="#f3eee4">${displayName}</text>
+  <text x="114" y="42" class="heading" font-size="18" font-weight="700" fill="#f3eee4">${displayName}</text>
   <text x="114" y="58" class="mono" font-size="11" fill="#636a77">@${lcUsername || "unlinked"}</text>
 
   <!-- Character Persona & Tier -->
