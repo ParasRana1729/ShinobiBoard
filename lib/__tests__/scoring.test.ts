@@ -188,13 +188,27 @@ describe("sync policy", () => {
 });
 
 describe("invite codes", () => {
-  it("8 chars, no 0/O/1/I", () => {
+  it("8 chars, no 0/O/1/I, uppercase base32", () => {
     for (let i = 0; i < 50; i++) {
       const c = generateInviteCode();
       expect(c).toHaveLength(8);
       expect(isValidInviteCode(c)).toBe(true);
-      expect(/[0O1I]/.test(c)).toBe(false);
+      expect(/[0O1I]/i.test(c)).toBe(false);
+      expect(/^[2-9A-HJ-NP-Z]{8}$/.test(c)).toBe(true);
     }
+  });
+
+  it("validates case-insensitively and rejects invalid characters", () => {
+    const c = generateInviteCode();
+    expect(isValidInviteCode(c.toLowerCase())).toBe(true);
+    expect(isValidInviteCode(c.toUpperCase())).toBe(true);
     expect(isValidInviteCode("bad!")).toBe(false);
+    expect(isValidInviteCode("")).toBe(false);
+    expect(isValidInviteCode("12345678")).toBe(false); // contains 1
+    expect(isValidInviteCode("02345678")).toBe(false); // contains 0
+    expect(isValidInviteCode("2345678O")).toBe(false); // contains O
+    expect(isValidInviteCode("2345678o")).toBe(false); // contains o
+    expect(isValidInviteCode("2345678I")).toBe(false); // contains I
+    expect(isValidInviteCode("2345678i")).toBe(false); // contains i
   });
 });

@@ -3,6 +3,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { getAuthUserId } from "@/lib/auth";
 import { badRequest, json, unauthorized } from "@/lib/http";
 import { CLUB_MAX, SQUAD_MAX } from "@/lib/constants";
+import { isValidInviteCode } from "@/lib/invite";
 import { postEvent } from "@/lib/server/events";
 
 const Body = z.object({ code: z.string().min(8).max(8) });
@@ -14,8 +15,11 @@ export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return badRequest("8-char invite code required");
 
+  const normalizedCode = parsed.data.code.trim().toUpperCase();
+  if (!isValidInviteCode(normalizedCode)) return badRequest("Invalid or closed invite code");
+
   const db = createServiceClient();
-  const { data: grow } = await db.from("groups").select("*").eq("code", parsed.data.code.trim()).single();
+  const { data: grow } = await db.from("groups").select("*").ilike("code", normalizedCode).maybeSingle();
   const group = grow as unknown as null | {
     id: string; type: string; name: string; invite_enabled: boolean; member_count: number;
   };
