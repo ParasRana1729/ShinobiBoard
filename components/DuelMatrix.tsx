@@ -152,13 +152,13 @@ export function DuelMatrix({
                     <span className="inline-block rounded border border-sumi/20 bg-surface-card px-1.5 py-0.5 font-mono text-[9px] font-bold text-text-secondary">
                       TIE
                     </span>
-                  ) : d.winner === "A" ? (
-                    <span className="inline-block truncate max-w-full rounded border border-shinobi-gold/30 bg-shinobi-gold/10 px-1.5 py-0.5 font-mono text-[9px] font-bold text-shinobi-gold">
-                      {userA.name.slice(0, 6)} AC
+                  ) : (d.winner === "A" && isUserA) || (d.winner === "B" && !isUserA) ? (
+                    <span className="inline-block truncate max-w-full rounded border border-shinobi-teal/40 bg-shinobi-teal/15 px-1.5 py-0.5 font-mono text-[9px] font-bold text-shinobi-teal">
+                      WIN (+{Math.abs(d.solvesA - d.solvesB)})
                     </span>
                   ) : (
-                    <span className="inline-block truncate max-w-full rounded border border-shinobi-gold/30 bg-shinobi-gold/10 px-1.5 py-0.5 font-mono text-[9px] font-bold text-shinobi-gold">
-                      {userB.name.slice(0, 6)} AC
+                    <span className="inline-block truncate max-w-full rounded border border-shinobi-flame/30 bg-shinobi-flame/10 px-1.5 py-0.5 font-mono text-[9px] font-bold text-shinobi-flame">
+                      {d.winner === "A" ? userA.name.slice(0, 6) : userB.name.slice(0, 6)} AC
                     </span>
                   )}
                 </div>

@@ -258,13 +258,23 @@ export default function RankProgressCard({
             </div>
 
             {/* Live SVG Card Preview */}
-            <div className="rounded-xl border border-sumi/10 bg-surface-base p-3 overflow-hidden flex justify-center">
+            <div className="rounded-xl border border-sumi/10 bg-surface-base p-3 overflow-hidden flex justify-center min-h-[160px] items-center">
               {username ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={`/api/users/${encodeURIComponent(username)}/card.svg`}
                   alt="Shinobi Dossier Live Preview"
                   className="w-full max-w-[500px] rounded-lg shadow-tactile-card"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.style.display = "none";
+                    if (target.parentElement) {
+                      const div = document.createElement("div");
+                      div.className = "py-6 text-center text-xs text-text-muted";
+                      div.innerText = "Dossier preview will appear as soon as your LeetCode profile finishes its first hourly sync.";
+                      target.parentElement.appendChild(div);
+                    }
+                  }}
                 />
               ) : (
                 <div className="py-8 text-center text-xs text-text-muted">

@@ -35,27 +35,35 @@ body {
 
 @layer components {
   .surface-panel {
-    @apply bg-surface-card border border-sumi/15;
+    @apply bg-surface-card border border-sumi/15 transition-colors duration-150;
   }
   .surface-elevated {
-    @apply bg-surface-elevated border border-sumi/15;
+    @apply bg-surface-elevated border border-sumi/15 transition-colors duration-150;
   }
   .surface-hover {
     @apply transition-colors duration-150 hover:border-sumi/30 hover:bg-surface-hover;
   }
 
   .btn-tactile-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md bg-shinobi-gold px-4 py-2 text-xs font-semibold text-white transition-colors duration-150 hover:bg-[#c94427] active:translate-y-px;
+    @apply inline-flex items-center justify-center gap-2 rounded-md bg-shinobi-gold px-4 py-2 text-xs font-semibold text-white shadow-tactile-btn transition-all duration-150 hover:bg-[#c94427] hover:shadow-glow-gold active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shinobi-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink disabled:opacity-50 disabled:pointer-events-none;
   }
   .btn-tactile-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md border border-sumi/20 bg-surface-elevated/70 px-4 py-2 text-xs font-medium text-text-primary transition-colors duration-150 hover:border-sumi/40 hover:bg-surface-elevated active:translate-y-px;
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-sumi/20 bg-surface-elevated/80 px-4 py-2 text-xs font-medium text-text-primary shadow-tactile-btn transition-all duration-150 hover:border-sumi/40 hover:bg-surface-elevated active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sumi/40 focus-visible:ring-offset-2 focus-visible:ring-offset-ink disabled:opacity-50 disabled:pointer-events-none;
   }
   .btn-tactile-danger {
-    @apply inline-flex items-center justify-center gap-2 rounded-md border border-shinobi-flame/40 bg-shinobi-flame/10 px-4 py-2 text-xs font-medium text-shinobi-flame transition-colors duration-150 hover:bg-shinobi-flame/20 active:translate-y-px;
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-shinobi-flame/40 bg-shinobi-flame/10 px-4 py-2 text-xs font-medium text-shinobi-flame shadow-tactile-btn transition-all duration-150 hover:bg-shinobi-flame/20 hover:border-shinobi-flame/60 active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shinobi-flame/60 focus-visible:ring-offset-2 focus-visible:ring-offset-ink disabled:opacity-50 disabled:pointer-events-none;
   }
 
   .telemetry-tag {
     @apply inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wide text-text-muted;
+  }
+
+  .ninja-card {
+    @apply rounded-2xl border border-sumi/15 bg-surface-card transition-all duration-200 shadow-tactile-card;
+  }
+
+  .ninja-card-hover {
+    @apply hover:-translate-y-0.5 hover:shadow-tactile-card-hover hover:border-sumi/30;
   }
 }
 

@@ -63,7 +63,7 @@ export function CreateGroupForm() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. blind-75-fall-26"
-              className="w-full rounded-xl border border-sumi/15 bg-surface-elevated px-3.5 py-2.5 text-sm text-text-primary placeholder-text-muted focus:border-sumi/40 focus:outline-none focus:ring-1 focus:ring-sumi/40 transition-all"
+              className="w-full rounded-xl border border-sumi/15 bg-surface-elevated px-3.5 py-2.5 text-sm text-text-primary placeholder-text-muted focus:border-shinobi-gold focus:outline-none focus:ring-1 focus:ring-shinobi-gold transition-all"
               required
               maxLength={80}
             />
@@ -79,7 +79,7 @@ export function CreateGroupForm() {
                 onClick={() => setType("squad")}
                 className={`flex flex-col items-start rounded-xl border p-2.5 text-left transition-all ${
                   type === "squad"
-                    ? "border-sumi/40 bg-surface text-text-primary"
+                    ? "border-shinobi-gold/50 bg-surface text-text-primary ring-1 ring-shinobi-gold/30"
                     : "border-sumi/10 bg-surface-elevated text-text-muted hover:border-sumi/20"
                 }`}
               >
@@ -95,7 +95,7 @@ export function CreateGroupForm() {
                 onClick={() => setType("club")}
                 className={`flex flex-col items-start rounded-xl border p-2.5 text-left transition-all ${
                   type === "club"
-                    ? "border-sumi/40 bg-surface text-text-primary"
+                    ? "border-shinobi-teal/50 bg-surface text-text-primary ring-1 ring-shinobi-teal/30"
                     : "border-sumi/10 bg-surface-elevated text-text-muted hover:border-sumi/20"
                 }`}
               >
@@ -120,7 +120,7 @@ export function CreateGroupForm() {
                 max={50}
                 value={goal}
                 onChange={(e) => setGoal(Math.max(1, Math.min(50, Number(e.target.value))))}
-                className="w-14 rounded-lg border border-sumi/15 bg-surface-elevated px-2 py-0.5 text-right font-mono text-xs text-text-primary focus:border-sumi/40 focus:outline-none"
+                className="w-14 rounded-lg border border-sumi/15 bg-surface-elevated px-2 py-0.5 text-right font-mono text-xs text-text-primary focus:border-shinobi-gold focus:outline-none"
               />
             </div>
             <div className="flex items-center gap-1.5">
@@ -131,7 +131,7 @@ export function CreateGroupForm() {
                   onClick={() => setGoal(p)}
                   className={`flex-1 rounded-lg border py-1 text-xs font-mono transition-all ${
                     goal === p
-                      ? "border-sumi/40 bg-surface text-text-primary font-bold"
+                      ? "border-shinobi-gold/50 bg-shinobi-gold/15 text-shinobi-gold font-bold"
                       : "border-sumi/10 bg-surface-elevated text-text-muted hover:text-text-primary"
                   }`}
                 >
@@ -153,7 +153,7 @@ export function CreateGroupForm() {
           <span>Create Group</span>
         </button>
 
-        {msg && <p className="mt-2 text-center text-xs font-medium text-rose-400">{msg}</p>}
+        {msg && <p className="mt-2 text-center text-xs font-medium text-shinobi-flame">{msg}</p>}
       </div>
     </form>
   );

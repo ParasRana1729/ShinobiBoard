@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { timeAgo } from "@/lib/week";
 import { createClient } from "@/lib/supabase/client";
 import type { BoardRow, BoardSort, DailyBounty, DuelMatrixData } from "@/lib/types";
@@ -100,7 +100,8 @@ export function Board({
   const [view, setView] = useState<View>("leaderboard");
   const [sort, setSort] = useState<BoardSort>("weekly");
   const [filter, setFilter] = useState<Filter>("all");
-  const [q, setQ] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [rows, setRows] = useState<BoardRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -112,23 +113,42 @@ export function Board({
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [msg, setMsg] = useState<{ text: string; error?: boolean } | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
   const [refreshingUser, setRefreshingUser] = useState<string | null>(null);
   const [dailyBounty, setDailyBounty] = useState<DailyBounty | null>(null);
   const [duelMatrix, setDuelMatrix] = useState<DuelMatrixData | null>(null);
 
   const searchRequired = memberCount > 50;
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Debounce search query by 250ms to prevent request thrashing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery.trim());
+      setPage(1);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const load = useCallback(async () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const ac = new AbortController();
+    abortControllerRef.current = ac;
+
     setLoading(true);
     try {
       const params = new URLSearchParams({
         view,
         sort,
         filter,
-        q,
+        q: debouncedQuery,
         page: String(page),
       });
-      const res = await fetch(`/api/groups/${groupId}/board?${params}`);
+      const res = await fetch(`/api/groups/${groupId}/board?${params}`, {
+        signal: ac.signal,
+      });
       const j = await res.json();
       if (res.ok) {
         setRows(j.rows ?? []);
@@ -139,18 +159,26 @@ export function Board({
       } else {
         setMsg({ text: j.error ?? "Board load failed", error: true });
       }
-    } catch {
-      setMsg({ text: "Failed to connect to board service", error: true });
+    } catch (err: unknown) {
+      if ((err as Error)?.name !== "AbortError") {
+        setMsg({ text: "Failed to connect to board service", error: true });
+      }
     } finally {
       setLoading(false);
     }
-  }, [groupId, view, sort, filter, q, page]);
+  }, [groupId, view, sort, filter, debouncedQuery, page]);
+
+  // Keep a stable ref to load to avoid re-subscribing realtime channels on filter/search changes
+  const loadRef = useRef(load);
+  useEffect(() => {
+    loadRef.current = load;
+  });
 
   useEffect(() => {
     load();
   }, [load]);
 
-  // Realtime subscription via Supabase channel per group
+  // Stable Realtime subscription via Supabase channel per group (NEVER torn down on search/filter changes)
   useEffect(() => {
     const supabase = createClient();
     const ch = supabase
@@ -158,15 +186,15 @@ export function Board({
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "events", filter: `group_id=eq.${groupId}` },
-        () => load()
+        () => loadRef.current()
       )
       .subscribe();
-    const t = setInterval(load, 30_000);
+    const t = setInterval(() => loadRef.current(), 30_000);
     return () => {
       clearInterval(t);
       supabase.removeChannel(ch);
     };
-  }, [groupId, load]);
+  }, [groupId]);
 
   // Sync inspectUser if rows refresh in background
   useEffect(() => {
@@ -223,14 +251,28 @@ export function Board({
   }
 
   async function togglePin(userId: string, pinned: boolean) {
-    const res = await fetch(`/api/groups/${groupId}/pin`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id: userId, pinned: !pinned }),
-    });
-    const j = await res.json();
-    if (!res.ok) setMsg({ text: j.error ?? "Pin limit reached (max 2)", error: true });
-    else load();
+    // Optimistic toggle for instant tactile feedback
+    setRows((prev) =>
+      prev.map((r) => (r.user_id === userId ? { ...r, pinned: !pinned } : r))
+    );
+    try {
+      const res = await fetch(`/api/groups/${groupId}/pin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId, pinned: !pinned }),
+      });
+      const j = await res.json();
+      if (!res.ok) {
+        setMsg({ text: j.error ?? "Pin limit reached (max 2)", error: true });
+        load();
+      } else {
+        load();
+      }
+    } catch {
+      setMsg({ text: "Pin operation failed", error: true });
+      load();
+    }
+    setTimeout(() => setMsg(null), 3000);
   }
 
   async function nudge(toUser: string) {
@@ -287,6 +329,7 @@ export function Board({
     setRows(ids.map((id) => rows.find((r) => r.user_id === id)!));
     persistOrder(ids);
     setDragId(null);
+    setDragOverId(null);
   }
 
   const inspectedMember = inspectUser ?? (inspectUserId ? rows.find((r) => r.user_id === inspectUserId) ?? null : null);
@@ -383,18 +426,25 @@ export function Board({
             </div>
           </div>
 
-          {/* Search Bar */}
+          {/* Search Bar with Instant Clear Button */}
           <div className="relative w-full sm:w-64 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-text-muted" />
             <input
-              value={q}
-              onChange={(e) => {
-                setQ(e.target.value);
-                setPage(1);
-              }}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={searchRequired ? "Search required (club > 50)" : "Search ninja or @leetcode…"}
-              className="w-full rounded-xl border border-sumi/15 bg-surface-elevated py-1.5 pl-8 pr-3 text-xs text-text-primary placeholder-text-muted focus:border-sumi/40 focus:outline-none"
+              className="w-full rounded-xl border border-sumi/15 bg-surface-elevated py-1.5 pl-8 pr-8 text-xs text-text-primary placeholder-text-muted focus:border-shinobi-gold focus:outline-none focus:ring-1 focus:ring-shinobi-gold transition-colors"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-0.5 text-text-muted hover:text-text-primary transition-colors"
+                title="Clear search"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
           </div>
         </div>
 
@@ -420,7 +470,7 @@ export function Board({
               }}
               className={`shrink-0 whitespace-nowrap rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-all ${
                 filter === f.id
-                  ? "bg-shinobi-gold/20 text-shinobi-gold border border-shinobi-gold/40"
+                  ? "bg-shinobi-gold/20 text-shinobi-gold border border-shinobi-gold/40 shadow-sm"
                   : "bg-surface-elevated/70 text-text-muted hover:text-text-primary hover:bg-surface-elevated border border-sumi/10"
               }`}
             >
@@ -431,9 +481,10 @@ export function Board({
       </div>
 
       {view === "custom" && (
-        <p className="text-[11px] text-text-muted italic">
-          💡 Custom View: Drag and drop cards to organize your personal priority board. Stored per viewer.
-        </p>
+        <div className="flex items-center gap-2 rounded-xl border border-sumi/15 bg-surface-elevated/70 px-3 py-2 text-[11px] text-text-secondary">
+          <GripVertical className="h-3.5 w-3.5 text-shinobi-gold" />
+          <span><b>Custom Roster View:</b> Drag and drop cards to organize your personal accountability list. Order saved automatically.</span>
+        </div>
       )}
 
       {msg && (
@@ -469,8 +520,23 @@ export function Board({
           <Trophy className="mx-auto h-10 w-10 text-text-muted mb-2 opacity-50" />
           <p className="text-sm font-semibold text-text-secondary">No shinobi cards found</p>
           <p className="mt-1 text-xs text-text-muted">
-            {q ? `No members matched "${q}". Try adjusting your search.` : filter !== "all" ? `No members match the "${filter}" filter.` : "This squad is currently waiting for members to join."}
+            {debouncedQuery
+              ? `No members matched "${debouncedQuery}". Try adjusting your search.`
+              : filter !== "all"
+              ? `No members match the "${filter}" filter.`
+              : "This squad is currently waiting for members to join."}
           </p>
+          {(debouncedQuery || filter !== "all") && (
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setFilter("all");
+              }}
+              className="mt-3 btn-tactile-secondary py-1.5 px-3 text-xs"
+            >
+              Reset Filters & Search
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-4">
@@ -482,17 +548,20 @@ export function Board({
             const isRateLimited = r.sync_status === "rate_limited";
             const isTop3 = index < 3 && !isFrozen && view === "leaderboard";
             const goalMet = r.weekly_count >= goal;
+            const isDragTarget = dragOverId === r.user_id && dragId !== r.user_id;
 
             // Podium border and glow styling
             let cardBorder = "border-sumi/15 hover:border-sumi/30";
             let cardGlow = "";
-            if (isTop3 && index === 0) {
-              cardBorder = "border-shinobi-gold/60 hover:border-shinobi-gold";
-              cardGlow = "shadow-[0_0_20px_rgba(224,86,56,0.12)]";
+            if (isDragTarget) {
+              cardBorder = "border-dashed border-shinobi-teal ring-2 ring-shinobi-teal/50";
+            } else if (isTop3 && index === 0) {
+              cardBorder = "border-shinobi-gold/60 hover:border-shinobi-gold shadow-tactile-podium";
+              cardGlow = "shadow-[0_0_24px_rgba(224,86,56,0.18)]";
             } else if (isTop3 && index === 1) {
-              cardBorder = "border-sumi/35 hover:border-sumi/50";
+              cardBorder = "border-slate-400/40 hover:border-slate-300";
             } else if (isTop3 && index === 2) {
-              cardBorder = "border-sumi/25 hover:border-sumi/40";
+              cardBorder = "border-amber-700/40 hover:border-amber-600";
             } else if (isFrozen) {
               cardBorder = "border-sumi/10";
             }
@@ -506,9 +575,15 @@ export function Board({
                 key={r.user_id}
                 draggable={view === "custom"}
                 onDragStart={() => setDragId(r.user_id)}
-                onDragOver={(e) => e.preventDefault()}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  if (dragOverId !== r.user_id) setDragOverId(r.user_id);
+                }}
+                onDragLeave={() => {
+                  if (dragOverId === r.user_id) setDragOverId(null);
+                }}
                 onDrop={() => onDrop(r.user_id)}
-                className={`group relative flex w-full flex-col justify-between rounded-2xl border ${cardBg} p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${cardBorder} ${cardGlow} ${
+                className={`group relative flex w-full flex-col justify-between rounded-2xl border ${cardBg} p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-tactile-card-hover ${cardBorder} ${cardGlow} ${
                   r.pinned ? "ring-1 ring-shinobi-gold/70" : ""
                 }`}
               >
@@ -528,7 +603,7 @@ export function Board({
                           alt=""
                           className={`h-10 w-10 rounded-xl object-cover border ${
                             isHokage
-                              ? "border-shinobi-gold"
+                              ? "border-shinobi-gold ring-1 ring-shinobi-gold/50"
                               : isTop3
                               ? "border-sumi/30"
                               : "border-sumi/15"
@@ -557,22 +632,27 @@ export function Board({
                       </div>
                     </div>
 
-                    {/* Rank Position */}
+                    {/* Rank Position Podium Badge */}
                     <div className="flex flex-col items-end shrink-0">
-                      <span
-                        className={`font-mono text-xs font-black ${
-                          index === 0 && !isFrozen
-                            ? "text-shinobi-gold font-extrabold text-sm"
-                            : index === 1
-                            ? "text-text-secondary"
-                            : index === 2
-                            ? "text-text-secondary"
-                            : "text-text-muted"
-                        }`}
-                      >
-                        #{r.group_rank || index + 1}
-                      </span>
-                      <span className={`mt-0.5 inline-flex items-center gap-1 text-[10px] font-mono font-semibold ${fullMeta.textColor}`}>
+                      {index === 0 && !isFrozen && view === "leaderboard" ? (
+                        <span className="inline-flex items-center gap-1 rounded-md border border-shinobi-gold/50 bg-shinobi-gold/15 px-2 py-0.5 font-mono text-xs font-black text-shinobi-gold shadow-tactile-btn">
+                          <Crown className="h-3 w-3 fill-shinobi-gold" />
+                          <span>#1 HOKAGE</span>
+                        </span>
+                      ) : index === 1 && !isFrozen && view === "leaderboard" ? (
+                        <span className="inline-flex items-center gap-1 rounded-md border border-slate-400/40 bg-slate-400/10 px-1.5 py-0.5 font-mono text-xs font-black text-slate-300">
+                          <span>#2</span>
+                        </span>
+                      ) : index === 2 && !isFrozen && view === "leaderboard" ? (
+                        <span className="inline-flex items-center gap-1 rounded-md border border-amber-700/40 bg-amber-800/15 px-1.5 py-0.5 font-mono text-xs font-black text-amber-500">
+                          <span>#3</span>
+                        </span>
+                      ) : (
+                        <span className="font-mono text-xs font-bold text-text-muted">
+                          #{r.group_rank || index + 1}
+                        </span>
+                      )}
+                      <span className={`mt-1 inline-flex items-center gap-1 text-[10px] font-mono font-semibold ${fullMeta.textColor}`}>
                         {r.base_rank}
                       </span>
                     </div>
@@ -620,8 +700,14 @@ export function Board({
                   {/* Weekly Goal Progress */}
                   <div className="mt-3 space-y-1.5">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-medium text-text-secondary">
-                        Weekly Solves
+                      <span className="font-medium text-text-secondary flex items-center gap-1.5">
+                        <span>Weekly Solves</span>
+                        {goalMet && (
+                          <span className="inline-flex items-center gap-1 rounded bg-shinobi-teal/15 px-1.5 py-0.5 font-mono text-[9px] font-bold text-shinobi-teal border border-shinobi-teal/30">
+                            <CheckCircle2 className="h-2.5 w-2.5" />
+                            <span>Goal Met</span>
+                          </span>
+                        )}
                       </span>
                       <span className="font-mono font-bold text-text-primary">
                         <span className={goalMet ? "text-shinobi-teal" : "text-shinobi-gold"}>{r.weekly_count}</span>

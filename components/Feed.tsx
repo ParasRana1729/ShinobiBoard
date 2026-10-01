@@ -60,7 +60,7 @@ export function Feed({ groupId, initial }: { groupId: string; initial: FeedEvent
     }
   }
 
-  // Realtime subscription via Supabase channel per group
+  // Realtime subscription via Supabase channel per group with periodic fallback heartbeat
   useEffect(() => {
     const supabase = createClient();
     const ch = supabase
@@ -71,17 +71,25 @@ export function Feed({ groupId, initial }: { groupId: string; initial: FeedEvent
         () => refresh()
       )
       .subscribe();
+
+    // 45-second fallback polling interval ensures feed remains active across tab sleeps
+    const t = setInterval(refresh, 45_000);
+
     return () => {
+      clearInterval(t);
       supabase.removeChannel(ch);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupId]);
 
   return (
-    <div className="relative flex flex-col rounded-2xl border border-sumi/15 bg-surface-card p-5  ">
+    <div className="relative flex flex-col rounded-2xl border border-sumi/15 bg-surface-card p-5 shadow-tactile-card">
       <div className="flex items-center justify-between pb-3 border-b border-sumi/10">
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-shinobi-teal" />
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-shinobi-teal opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-shinobi-teal" />
+          </span>
           <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-text-primary">Live Squad Activity</h3>
         </div>
 
@@ -89,7 +97,7 @@ export function Feed({ groupId, initial }: { groupId: string; initial: FeedEvent
           onClick={refresh}
           disabled={refreshing}
           title="Refresh activity"
-          className="rounded-lg p-1.5 text-text-muted hover:bg-sumi/[0.08] hover:text-text-primary transition-colors"
+          className="rounded-lg p-1.5 text-text-muted hover:bg-sumi/[0.08] hover:text-text-primary transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-shinobi-gold/60"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin text-shinobi-gold" : ""}`} />
         </button>

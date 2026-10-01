@@ -34,12 +34,12 @@ export function Navbar({
           </Link>
 
           {user && (
-            <nav className="hidden items-center gap-5 md:flex">
+            <nav className="flex items-center gap-4 sm:gap-6">
               <Link
                 href="/dashboard"
-                className={`text-sm ${
+                className={`text-xs sm:text-sm font-medium transition-colors ${
                   pathname === "/dashboard"
-                    ? "text-text-primary underline decoration-shinobi-gold underline-offset-4"
+                    ? "text-text-primary underline decoration-shinobi-gold decoration-2 underline-offset-8"
                     : "text-text-secondary hover:text-text-primary"
                 }`}
               >
@@ -47,9 +47,9 @@ export function Navbar({
               </Link>
               <Link
                 href="/discover"
-                className={`text-sm ${
+                className={`text-xs sm:text-sm font-medium transition-colors ${
                   pathname === "/discover"
-                    ? "text-text-primary underline decoration-shinobi-gold underline-offset-4"
+                    ? "text-text-primary underline decoration-shinobi-gold decoration-2 underline-offset-8"
                     : "text-text-secondary hover:text-text-primary"
                 }`}
               >

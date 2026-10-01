@@ -41,15 +41,24 @@ export default async function DiscoverPage({
         </p>
 
         {/* Search Input */}
-        <form className="mt-6 flex max-w-md gap-2">
+        <form className="mt-6 flex flex-col sm:flex-row max-w-lg gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
             <input
               name="q"
               defaultValue={searchParams.q ?? ""}
               placeholder="Search by club name (e.g. blind-75)…"
-              className="w-full rounded-xl border border-sumi/15 bg-ink py-2.5 pl-10 pr-3.5 text-xs text-text-primary placeholder-text-muted  focus:border-shinobi-gold focus:outline-none focus:ring-1 focus:ring-shinobi-gold"
+              className="w-full rounded-xl border border-sumi/15 bg-ink py-2.5 pl-10 pr-9 text-xs text-text-primary placeholder-text-muted focus:border-shinobi-gold focus:outline-none focus:ring-1 focus:ring-shinobi-gold transition-colors"
             />
+            {searchParams.q && (
+              <Link
+                href="/discover"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary text-xs"
+                title="Clear search"
+              >
+                ✕
+              </Link>
+            )}
           </div>
           <button
             type="submit"
@@ -58,6 +67,20 @@ export default async function DiscoverPage({
             Search
           </button>
         </form>
+
+        {/* Popular Topic Badges */}
+        <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
+          <span className="font-mono text-[11px] text-text-muted">Popular topics:</span>
+          {["blind-75", "neetcode", "leetcode-hard", "faang-prep"].map((tag) => (
+            <Link
+              key={tag}
+              href={`/discover?q=${tag}`}
+              className="rounded-lg border border-sumi/15 bg-surface-elevated/70 px-2.5 py-1 font-mono text-[11px] text-text-secondary hover:text-shinobi-gold hover:border-shinobi-gold/30 transition-all"
+            >
+              #{tag}
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* Clubs Grid */}
@@ -129,12 +152,24 @@ export default async function DiscoverPage({
           })}
 
           {(clubs ?? []).length === 0 && (
-            <div className="rounded-2xl border border-sumi/15 bg-surface p-12 text-center text-text-muted sm:col-span-2 lg:col-span-3">
+            <div className="rounded-2xl border border-sumi/15 bg-surface-card p-12 text-center text-text-muted sm:col-span-2 lg:col-span-3 shadow-tactile-card space-y-3">
               <Compass className="mx-auto h-10 w-10 text-text-muted mb-2 opacity-50" />
               <p className="text-sm font-semibold text-text-secondary">No open public clubs found</p>
-              <p className="mt-1 text-xs text-text-muted">
-                Try searching with different keywords or create a new club from your dashboard.
+              <p className="mt-1 text-xs text-text-muted max-w-sm mx-auto">
+                {searchParams.q
+                  ? `No clubs matched "${searchParams.q}". Try clearing the search or create a new club from your dashboard.`
+                  : "No public clubs are currently active. Be the pioneer and launch the first public grinding club!"}
               </p>
+              <div className="pt-2 flex justify-center gap-3">
+                {searchParams.q && (
+                  <Link href="/discover" className="btn-tactile-secondary py-1.5 px-3 text-xs">
+                    Clear Search
+                  </Link>
+                )}
+                <Link href="/dashboard" className="btn-tactile-primary py-1.5 px-4 text-xs">
+                  Create Club in Dashboard
+                </Link>
+              </div>
             </div>
           )}
         </div>
