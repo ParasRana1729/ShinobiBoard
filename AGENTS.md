@@ -10,14 +10,14 @@
 
 ShinobiBoard is a high-density, competitive LeetCode group dashboard and rivalry arena built around weekly Mon–Sun UTC solve sprints, Naruto-themed progression tiers, deterministic tiebreakers, and real-time live activity feeds.
 
-### 1.1 Verified Health Status (2026-09-18)
+### 1.1 Verified Health Status (2026-09-25)
 
 All metrics below represent genuine, reproducible verification benchmarks executed against the repository:
 
 | Verification Stage | Command | Status | Details & Execution Metrics |
 | :--- | :--- | :--- | :--- |
 | **Type Safety** | `npm run typecheck` (`tsc --noEmit`) | **PASS (0 errors)** | Clean exit code 0. Full strict TypeScript compliance across all routes, components, and domain modules. |
-| **Business Logic Unit Tests** | `npm test` (`vitest run`) | **PASS (20/20 passing)** | Clean exit code 0 across 6 test suites in `lib/__tests__/scoring.test.ts` (duration ~700ms). |
+| **Business Logic Unit Tests** | `npm test` (`vitest run`) | **PASS (27/27 passing)** | Clean exit code 0 across 2 test files (`lib/__tests__/scoring.test.ts` and `lib/__tests__/solve-ingestion.test.ts`). |
 | **Lint & Code Quality** | `npm run lint` (`next lint`) | **PASS (0 warnings/errors)** | Configured with `.eslintrc.json` extending `next/core-web-vitals` with ESLint 8.57.1. Fully automated for non-interactive CI/CD. |
 | **Production Build** | `npm run build` (`next build`) | **PASS (34 routes)** | Next.js 14.2.35 production bundle clean. 34 dynamic routes (`ƒ`): 6 page routes, 1 `_not-found`, 26 `/api/*` endpoints, 1 `/auth/callback`. Shared JS: 87.3 kB; Middleware: 86.2 kB. |
 
@@ -35,6 +35,7 @@ All metrics below represent genuine, reproducible verification benchmarks execut
 ```
 ShinobiBoard/
 ├── app/                              # Next.js 14 App Router entrypoints
+│   ├── globals.css                   # Sumi theme styles & tactile button definitions
 │   ├── layout.tsx                    # Root layout with SSR user profile fetch & Navbar
 │   ├── loading.tsx                   # Global centered loading spinner with '忍' emblem
 │   ├── page.tsx                      # Landing page (public teaser, rank ladder preview)
@@ -50,7 +51,7 @@ ShinobiBoard/
 │   │   ├── loading.tsx               # Board skeleton loader
 │   │   └── page.tsx                  # Dynamic SSR board view (RLS gate, Board, Feed)
 │   ├── auth/callback/route.ts        # Supabase PKCE OAuth code exchange & profile bootstrap
-│   └── api/                          # 26 discrete route handlers (see Route Manifest)
+│   └── api/                          # 26 discrete route handlers + 1 auth callback (27 route handlers total)
 ├── components/                       # React client and server UI components
 │   ├── Board.tsx                     # Main leaderboard matrix, card renderers, drawer, drag reorder
 │   ├── DuelMatrix.tsx                # 1:1 Duel 7-day head-to-head matrix & mutual solves clash
@@ -77,9 +78,11 @@ ShinobiBoard/
 │   ├── http.ts                       # Standard JSON response helpers and cron authorization guard
 │   ├── types.ts                      # Domain TypeScript interfaces and database record typings
 │   ├── constants.ts                  # System-wide operational constants, caps, and ladders
-│   ├── __tests__/scoring.test.ts     # 19 Vitest unit tests covering domain rules
+│   ├── __tests__/scoring.test.ts     # 20 Vitest unit tests covering domain scoring rules
+│   ├── __tests__/solve-ingestion.test.ts # 7 Vitest unit tests covering SolveIngestor across adapter seams
 │   ├── server/                       # Impure server-only pipelines (Supabase + LeetCode I/O)
-│   │   ├── sync-engine.ts            # Batch worker, hash-jitter scheduler, liveness pipeline
+│   │   ├── solve-ingestion.ts        # Deep SolveIngestor module with Storage and Upstream adapter seams
+│   │   ├── sync-engine.ts            # Batch worker, hash-jitter scheduler, operational facade
 │   │   └── events.ts                 # Best-effort feed event writer with group-wide broadcasting
 │   └── supabase/                     # Supabase client instantiation factories
 │       ├── client.ts                 # Browser client (createBrowserClient from @supabase/ssr)
@@ -95,7 +98,7 @@ ShinobiBoard/
 └── package.json                      # Project dependencies and script commands
 ```
 
-### 2.1 Complete Route Handlers Manifest (27 Endpoints)
+### 2.1 Complete Route Handlers Manifest (27 Route Files / 30 Method Handlers)
 
 All API route handlers enforce strict input validation, uniform error responses via `lib/http.ts`, and authorization boundaries:
 
@@ -383,7 +386,7 @@ npm run dev
 # 2. Typecheck entire repository (must pass with 0 errors)
 npm run typecheck
 
-# 3. Run pure domain unit test suite (19 tests)
+# 3. Run pure domain unit test suite (20 tests)
 npm test
 
 # 4. Compile optimized Next.js production build

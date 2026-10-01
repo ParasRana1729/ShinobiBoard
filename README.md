@@ -78,7 +78,9 @@ ShinobiBoard turns the solitary LeetCode grind into a shared daily habit. Compet
 ```
 ShinobiBoard/
 ├── app/                              # Next.js 14 App Router
+│   ├── globals.css                   # Sumi theme styles & tactile button definitions
 │   ├── layout.tsx                    # Root layout with SSR user profile & Navbar
+│   ├── loading.tsx                   # Global centered loading spinner with '忍' emblem
 │   ├── page.tsx                      # Landing page (editorial teaser & ladder preview)
 │   ├── login/page.tsx                # Google OAuth sign-in
 │   ├── dashboard/page.tsx            # User HQ (personal stats, group hubs, missions)
@@ -86,28 +88,37 @@ ShinobiBoard/
 │   ├── duel/accept/page.tsx          # 1:1 duel invite landing & JWT acceptance
 │   ├── groups/[id]/page.tsx          # Group board & activity view
 │   ├── auth/callback/route.ts        # Supabase PKCE OAuth exchange
-│   └── api/                          # 24 discrete REST route handlers
+│   └── api/                          # 26 discrete REST route handlers (27 total route handlers)
 ├── components/                       # React client and server components
 │   ├── Board.tsx                     # Leaderboard matrix, drawer, reorder, pins
+│   ├── BoardSkeleton.tsx             # Geometry-accurate card loading skeleton
+│   ├── DuelMatrix.tsx                # 1:1 Duel 7-day head-to-head matrix & mutual solves clash
 │   ├── Feed.tsx                      # Realtime activity stream with fallback polling
 │   ├── GroupForms.tsx                # Create squad/club form & join-by-code form
 │   ├── GroupSettings.tsx             # Owner controls (rename, code regen, goal, kick)
+│   ├── HallOfFameDrawer.tsx          # Scroll of Past Hokages historical champions drawer
+│   ├── JoinClubButton.tsx            # Club enrollment CTA with automated waitlist toggle at 150 cap
+│   ├── Navbar.tsx                    # Header with streak counter and user status
 │   ├── RankAvatar.tsx                # Character avatar renderer with tier styling
 │   ├── RankProgressCard.tsx          # Dashboard XP meter, level calculator & lore modal
-│   ├── VerifyLeetCode.tsx            # Fast-path link, dispute challenge & unlink modal
-│   └── Navbar.tsx                    # Header with streak counter and user status
+│   └── VerifyLeetCode.tsx            # Fast-path link, dispute challenge & unlink modal
 ├── lib/                              # Pure domain logic & shared contracts
-│   ├── week.ts                       # Mon–Sun UTC week windows & streak calculation
+│   ├── auth.ts                       # Server component / route handler session extractors
+│   ├── constants.ts                  # System-wide operational constants, caps & ladders
+│   ├── duel.ts                       # 7-day duel challenge JWT signing & verification
+│   ├── http.ts                       # Standard JSON response helpers & cron guard
+│   ├── invite.ts                     # 8-char nanoid invite code generator
+│   ├── leetcode.ts                   # LeetCode GraphQL client & error definitions
 │   ├── ranks.ts                      # 7-tier ladder, XP thresholds, character lore
 │   ├── scoring.ts                    # Sorting, deterministic tiebreakers, title pickers
+│   ├── sound.ts                      # Deprecated audio stubs (audio system removed per UI cleanup)
 │   ├── sync.ts                       # Sync state machine, backoff, cursor checks
-│   ├── invite.ts                     # 8-char nanoid invite code generator
-│   ├── duel.ts                       # 7-day duel challenge JWT signing & verification
-│   ├── leetcode.ts                   # LeetCode GraphQL client & error definitions
 │   ├── types.ts                      # TypeScript interfaces & database record types
+│   ├── week.ts                       # Mon–Sun UTC week windows & streak calculation
+│   ├── __tests__/scoring.test.ts     # 20 Vitest unit tests covering domain scoring rules
 │   ├── server/                       # Server-only pipelines (Supabase + LeetCode I/O)
-│   │   ├── sync-engine.ts            # Batch worker, hash-jitter scheduler, liveness
-│   │   └── events.ts                 # Group-wide activity feed broadcaster
+│   │   ├── events.ts                 # Group-wide activity feed broadcaster
+│   │   └── sync-engine.ts            # Batch worker, hash-jitter scheduler, liveness
 │   └── supabase/                     # Client factories (browser, server, admin)
 ├── supabase/migrations/              # PostgreSQL schema migrations
 │   ├── 0001_init.sql                 # Baseline schema (13 tables, triggers, RLS)
@@ -140,11 +151,19 @@ cp .env.example .env.local
 
 Populate the required keys:
 ```env
+# Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=https://<your-project-ref>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+
+# Secrets
 DUEL_JWT_SECRET=super-secret-jwt-key-at-least-32-chars-long!
 CRON_SECRET=your-random-cron-secret-string
+
+# Tunables (Spec §6 & §7.2)
+DEFAULT_WEEKLY_GOAL=7
+SYNC_BATCH_SIZE=20
+SYNC_CONCURRENCY=5
 ```
 
 ### 4. Available Scripts
@@ -153,8 +172,8 @@ CRON_SECRET=your-random-cron-secret-string
 | :--- | :--- |
 | `npm run dev` | Starts local Next.js development server at `http://localhost:3000` |
 | `npm run typecheck` | Validates strict TypeScript compilation (`tsc --noEmit`) |
-| `npm test` | Runs pure domain logic unit tests via Vitest (19 tests) |
-| `npm run build` | Compiles production Next.js application bundle |
+| `npm test` | Runs pure domain logic unit tests via Vitest (20 tests across 6 suites) |
+| `npm run build` | Compiles optimized Next.js production build (34 dynamic routes) |
 | `npm run start` | Runs production server after build |
 
 ---

@@ -54,8 +54,8 @@ Unlike LeetCode profiles (isolated telemetry), Discord channels (noisy, transien
 - Complete specification in `leetcode-board-spec.md`.
 - Exhaustive engineering manual and verified benchmarks in `AGENTS.md`.
 - Baseline database schema and custom orders in `supabase/migrations/0001_init.sql` and `0002_custom_orders.sql`.
-- 19 verified passing unit tests in `lib/__tests__/scoring.test.ts`.
-- 32 compiled App Router endpoints and dynamic route handlers.
+- 20 verified passing unit tests in `lib/__tests__/scoring.test.ts` across 6 test suites.
+- 34 compiled dynamic Next.js routes (7 page routes + 27 route handlers).
 
 ## Product Principles
 
